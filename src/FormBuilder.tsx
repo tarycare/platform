@@ -81,7 +81,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
     trigger,
   } = useForm();
 
-  // Dynamic state for form fields
+  // Dynamic state for form fields . .
   const [formState, setFormState] = useState<{ [key: string]: any }>({});
 
   const debouncedTrigger = debounce(trigger, 300);
