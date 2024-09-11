@@ -1,16 +1,14 @@
 <?php
 
 /**
- * Plugin Name: WP React
+ * Plugin Name: WP React Forms
  * Author: Husam nasrallah
- * Author URI: https://github.com/robicse11127
- * Version: 1.0.12
+ * Author URI: https://github.com/tarycare
+ * Version: 1.2.0
  * Description: WordPress React
  * Text-Domain: wp-react
- * GitHub Plugin URI: abusiraj84/wp-react
- * GitHub Plugin URI: https://github.com/abusiraj84/wp-react
-
-
+ * GitHub Plugin URI: tarycare/wp-react-forms
+ * GitHub Plugin URI: https://github.com/tarycare/wp-react-forms
  */
 
 if (! defined('ABSPATH')) : exit();
