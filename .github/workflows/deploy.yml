@@ -54,7 +54,7 @@ jobs:
         run: |
           git add -A
           git commit -m "Deploy plugin with only dist, classes, and plugin.php" || echo "No changes to commit"
-          git remote set-url origin https://tarycare:${{ secrets.GITHUB_TOKEN }}@github.com/tarycare/wp-react.git
+          git remote set-url origin https://tarycare:${{ secrets.GITHUB_TOKEN }}@github.com/tarycare/wp-react-forms.git
           git push origin HEAD:staging --force
 
       # Step 8: Create a Pull Request from staging to production
