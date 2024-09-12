@@ -1,9 +1,4 @@
 <?php
-
-/**
- * This file will create admin menu page.
- */
-
 class WPRK_Create_Admin_Page
 {
     public function __construct()
@@ -27,18 +22,21 @@ class WPRK_Create_Admin_Page
         }
 
         add_menu_page(
-            $menu_title,          // Page title
-            $menu_title,          // Menu title
-            $capability,          // Capability
-            $slug,                // Menu slug
+            $menu_title, // Page title
+            $menu_title, // Menu title
+            $capability, // Capability
+            $slug, // Menu slug
             [$this, 'menu_page_template'], // Callback function
-            'dashicons-admin-users'        // Icon
+            'dashicons-admin-users', // Icon
+            3 // Position
         );
     }
 
     public function menu_page_template()
     {
-        echo '<div class="wrap"><div id="wp-react-app"></div></div>';
+        echo '<div class="wrap">
+    <div id="wp-react-app"></div>
+</div>';
     }
 }
 

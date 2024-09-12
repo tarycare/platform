@@ -58,6 +58,16 @@ th,
 thead,
 tbody,
 tfoot,
+a,
 * {
+  font-family: "MyFont", sans-serif !important;
+}
+
+.rtl h1,
+.rtl h2,
+.rtl h3,
+.rtl h4,
+.rtl h5,
+.rtl h6 {
   font-family: "MyFont", sans-serif !important;
 }

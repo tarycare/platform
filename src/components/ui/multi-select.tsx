@@ -216,9 +216,10 @@ export const MultiSelect = React.forwardRef<
               {...props}
               onClick={handleTogglePopover}
               variant={"outline"}
+              className="w-full hover:bg-background hover:text-black text-muted-foreground"
             >
               {selectedValues.length > 0 ? (
-                <div className="flex justify-between items-center w-full">
+                <div className="flex justify-between items-center w-full ">
                   <div className="flex flex-wrap items-center">
                     {selectedValues.slice(0, maxCount).map((value) => {
                       const option = options.find((o) => o.value === value);
@@ -283,9 +284,7 @@ export const MultiSelect = React.forwardRef<
                 </div>
               ) : (
                 <div className="flex items-center justify-between w-full mx-auto">
-                  <span className="text-sm text-muted-foreground">
-                    {placeholder}
-                  </span>
+                  <span className="text-sm">{placeholder}</span>
                   <ChevronDown className="h-4 cursor-pointer text-muted-foreground ms-5" />
                 </div>
               )}

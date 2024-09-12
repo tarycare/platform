@@ -22,7 +22,7 @@ const routes: RouteObject[] = [
     element: (
       <div>
         {/* <App /> */}
-        <div className="w-[800px]">
+        <div className="lg:w-[800px] w-full">
           <Home />
         </div>
       </div>

@@ -28,6 +28,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
+import { HelpCircleIcon } from "lucide-react";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 // Function to apply custom validation based on field configuration
 const applyValidation = (field: any, value: any, languge: string) => {
@@ -194,7 +201,8 @@ const FormViewer: FC<FormViewerProps> = ({
             placeholder={placeholder}
             value={formState[field.name] || ""}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            className="border p-2 rounded-md bg-background"
+            className="border p-2 rounded-md bg-background col-span-12"
+            rows={4}
           />
         );
 
@@ -202,7 +210,7 @@ const FormViewer: FC<FormViewerProps> = ({
         if (field.items && field.items.length > 0) {
           // Multiple checkboxes
           return (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {field.items.map((item: any) => (
                 <div key={item.value} className="flex items-center gap-x-2">
                   <Checkbox
@@ -252,7 +260,7 @@ const FormViewer: FC<FormViewerProps> = ({
 
       case "radio":
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {field.items?.map((item: any) => (
               <div
                 key={item.value}
@@ -265,7 +273,10 @@ const FormViewer: FC<FormViewerProps> = ({
                   onChange={() => handleFieldChange(field.name, item.value)}
                   id={`${item.value}-${field.name}`}
                 />
-                <label className="ms-1" htmlFor={`${item.value}-${field.name}`}>
+                <label
+                  className="ms-1 translate-y-[-1px] font-normal"
+                  htmlFor={`${item.value}-${field.name}`}
+                >
                   {languge === "ar" ? item.label_ar : item.label_en}
                 </label>
               </div>
@@ -307,7 +318,7 @@ const FormViewer: FC<FormViewerProps> = ({
                 <Button
                   variant="outline"
                   role="combobox"
-                  className="w-[200px] justify-between text-muted-foreground"
+                  className=" justify-between text-muted-foreground hover:bg-background"
                 >
                   {/* Display the selected label in the correct language */}
                   {selectedItem
@@ -318,7 +329,7 @@ const FormViewer: FC<FormViewerProps> = ({
                   <CaretSortIcon className="ms-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0 text-muted-foreground">
+              <PopoverContent className=" p-0 text-muted-foreground">
                 <Command>
                   <CommandInput placeholder={placeholder} className="h-9" />
                   <CommandList>
@@ -366,53 +377,77 @@ const FormViewer: FC<FormViewerProps> = ({
         className="w-full"
         defaultValue={["item-0", "item-1", "item-2", "item-3"]}
       >
-        {data?.map((section, index) => (
-          <AccordionItem key={index} value={`item-${index}`}>
-            <AccordionTrigger>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-x-2 py-[6px]  ms-[5px] px-3">
-                  <div className="size-5">{section.section_icon}</div>
-                  <div className="text-foreground text-[16px] font-bold">
-                    {languge === "ar"
-                      ? section.section_label_ar
-                      : section.section_label_en}
+        {data
+          ?.sort((a, b) => Number(a.order) - Number(b.order))
+          .map((section, index) => (
+            <AccordionItem key={index} value={`item-${index}`}>
+              <AccordionTrigger>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-x-2 py-[6px]  ms-[5px] px-3">
+                    <div className="size-5">{section.section_icon}</div>
+                    <div className="text-foreground text-[16px] font-bold">
+                      {languge === "ar"
+                        ? section.section_label_ar
+                        : section.section_label_en}
+                    </div>
                   </div>
+                  {/* desc */}
+                  <div className="flex flex-col  mx-1 px-3 pt-[5px]">
+                    <Label className="font-normal mb-2 text-sm text-slate-500 mt-[-12px]">
+                      {languge === "ar"
+                        ? section.section_description_ar
+                        : section.section_description_en}
+                    </Label>
+                  </div>
+                  {/* <Separator className="mb-3 " /> */}
                 </div>
-                {/* desc */}
-                <div className="flex flex-col  mx-1 px-3 pt-[5px]">
-                  <Label className="font-normal mb-2 text-sm text-slate-500 mt-[-12px]">
-                    {languge === "ar"
-                      ? section.section_description_ar
-                      : section.section_description_en}
-                  </Label>
-                </div>
-                {/* <Separator className="mb-3 " /> */}
-              </div>
-            </AccordionTrigger>
-            <AccordionContent>
-              {section.Fields?.map((field) => (
-                <div
-                  key={field.name}
-                  className="flex flex-col mb-5 mx-1 mt-2 px-3 "
-                >
-                  <Label htmlFor={field.name} className="font-bold mb-2">
-                    {languge === "ar" ? field.label_ar : field.label_en}
-                    {/* red star if req */}
-                    {field.required && (
-                      <span className="text-red-500 ms-1">*</span>
+              </AccordionTrigger>
+              <AccordionContent className="grid grid-cols-12">
+                {section.Fields?.sort(
+                  (a, b) => Number(a.order) - Number(b.order)
+                ).map((field) => (
+                  <div
+                    key={field.name}
+                    className={`flex flex-col mb-5 mx-1 mt-2 px-3 col-span-${
+                      field.colSpan || 6
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-[9px]">
+                      <Label htmlFor={field.name} className="font-bold ">
+                        {languge === "ar" ? field.label_ar : field.label_en}
+                        {/* red star if req */}
+                        {field.required && (
+                          <span className="text-red-500 ms-1">*</span>
+                        )}
+                      </Label>
+                      {(field.help_en || field.help_ar) && (
+                        <Popover>
+                          <PopoverTrigger>
+                            <HelpCircleIcon className="text-muted-foreground size-4 me-1 cursor-pointer hover:opacity-90" />
+                          </PopoverTrigger>
+                          <PopoverContent className="w-fit">
+                            <div className="">
+                              <p className="text-xs font-normal">
+                                {languge === "ar"
+                                  ? field.help_ar
+                                  : field.help_en}
+                              </p>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    </div>
+                    {renderComponent(field)}
+                    {formErrors[field.name] && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {formErrors[field.name]}
+                      </p>
                     )}
-                  </Label>
-                  {renderComponent(field)}
-                  {formErrors[field.name] && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {formErrors[field.name]}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
+                  </div>
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
       </Accordion>
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? (
