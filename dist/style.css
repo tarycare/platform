@@ -1517,6 +1517,9 @@ body{
 .pt-4{
   padding-top: 1rem;
 }
+.pt-\[5px\]{
+  padding-top: 5px;
+}
 .text-left{
   text-align: left;
 }

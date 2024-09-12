@@ -376,7 +376,7 @@ const FormViewer: FC<FormViewerProps> = ({
                   </div>
                 </div>
                 {/* desc */}
-                <div className="flex flex-col  mx-1 px-3">
+                <div className="flex flex-col  mx-1 px-3 pt-[5px]">
                   <Label className="font-normal mb-2 text-sm text-slate-500 mt-[-12px]">
                     {languge === "ar"
                       ? section.section_description_ar
