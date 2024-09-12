@@ -234,13 +234,16 @@ const FormViewer: FC<FormViewerProps> = ({
           return (
             <div className="flex items-center gap-x-2">
               <Checkbox
-                id={field.name}
+                id={`${item.value}-${field.name}`}
                 checked={formState[field.name] || false}
                 onCheckedChange={(checked) =>
                   handleFieldChange(field.name, checked)
                 }
               />
-              <label htmlFor={field.name} className="text-sm font-medium">
+              <label
+                htmlFor={`${item.value}-${field.name}`}
+                className="text-sm font-medium"
+              >
                 {label}
               </label>
             </div>
@@ -260,9 +263,9 @@ const FormViewer: FC<FormViewerProps> = ({
                   value={item.value}
                   checked={formState[field.name] === item.value}
                   onChange={() => handleFieldChange(field.name, item.value)}
-                  id={item.value}
+                  id={`${item.value}-${field.name}`}
                 />
-                <label className="ms-1" htmlFor={item.value}>
+                <label className="ms-1" htmlFor={`${item.value}-${field.name}`}>
                   {languge === "ar" ? item.label_ar : item.label_en}
                 </label>
               </div>
