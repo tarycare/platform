@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useForm } from "react-hook-form";
+//@ts-nocheck
 import { FC, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,34 +27,56 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 
 // Function to apply custom validation based on field configuration
-const applyValidation = (field: any) => {
-  const rules: any = {};
+const applyValidation = (field: any, value: any, languge: string) => {
+  let error = "";
 
-  if (field.required) {
-    rules.required = `${field.label_en || field.label_ar} is required`;
+  // Determine which language to display
+  const label = languge === "ar" ? field.label_ar : field.label_en;
+
+  // Required field validation
+  if (field.required && (!value || value === "")) {
+    error = languge === "ar" ? `${label} مطلوب` : `${label} is required`;
+    return error;
   }
 
-  if (field.min) {
-    rules.minLength = {
-      value: Number(field.min),
-      message: `${field.label_en || field.label_ar} must be at least ${
-        field.min
-      } characters`,
-    };
+  // Convert value to string for length validation
+  const valueAsString = value?.toString() || "";
+  const minLength = Number(field.min);
+  const maxLength = Number(field.max);
+
+  if (field.type.toLowerCase() === "number") {
+    // Validate length for ID number
+    if (minLength && maxLength && minLength === maxLength) {
+      if (valueAsString.length !== minLength) {
+        error =
+          languge === "ar"
+            ? `${label} يجب أن يكون ${minLength} أرقام`
+            : `${label} must be exactly ${minLength} characters`;
+        return error;
+      }
+    } else {
+      // Validate if the input is within the range of allowed lengths
+      if (minLength && valueAsString.length < minLength) {
+        error =
+          languge === "ar"
+            ? `${label} يجب أن يكون على الأقل ${minLength} أرقام`
+            : `${label} must be at least ${minLength} characters`;
+        return error;
+      }
+      if (maxLength && valueAsString.length > maxLength) {
+        error =
+          languge === "ar"
+            ? `${label} يجب أن يكون على الأكثر ${maxLength} أرقام`
+            : `${label} must be no more than ${maxLength} characters`;
+        return error;
+      }
+    }
   }
 
-  if (field.max) {
-    rules.maxLength = {
-      value: Number(field.max),
-      message: `${field.label_en || field.label_ar} must be no more than ${
-        field.max
-      } characters`,
-    };
-  }
-
-  return rules;
+  return error;
 };
 
 const debounce = (func: Function, delay: number) => {
@@ -69,44 +90,83 @@ const debounce = (func: Function, delay: number) => {
 };
 
 const DynamicForm: FC<DynamicFormProps> = ({
-  data = { sections: [] }, // Default to an object with an empty sections array to avoid undefined error
+  data = { sections: [] },
   languge,
   handleSubmission,
 }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    trigger,
-  } = useForm();
-
-  // Dynamic state for form fields . .
   const [formState, setFormState] = useState<{ [key: string]: any }>({});
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-  const debouncedTrigger = debounce(trigger, 300);
+  const debouncedTrigger = debounce((fieldName: string) => {
+    validateField(fieldName, formState[fieldName]);
+  }, 300);
 
-  const onSubmit = (data: any) => {
-    handleSubmission(data);
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length === 0) {
+      handleSubmission(formState);
+    }
   };
 
-  // Dynamic field state handler
+  const validateField = (fieldName: string, value: any) => {
+    const field = data
+      .flatMap((section) => section.Fields)
+      .find((f) => f.name === fieldName);
+
+    if (field) {
+      const error = applyValidation(field, value, languge); // Pass the language prop
+      setFormErrors((prev) => ({ ...prev, [fieldName]: error }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors: { [key: string]: string } = {};
+
+    data.forEach((section) => {
+      section.Fields.forEach((field: any) => {
+        const value = formState[field.name];
+        const error = applyValidation(field, value, languge); // Pass the language prop
+        if (error) {
+          errors[field.name] = error;
+        }
+      });
+    });
+
+    setFormErrors(errors);
+    return errors;
+  };
+
   const handleFieldChange = (fieldName: string, value: any) => {
+    // Update the form state
     setFormState((prevState) => ({
       ...prevState,
       [fieldName]: value,
     }));
-    setValue(fieldName, value);
-    debouncedTrigger(fieldName);
+
+    // Validate the field and show/hide error messages as necessary
+    const field = data
+      .flatMap((section) => section.Fields)
+      .find((f) => f.name === fieldName);
+
+    if (field) {
+      const error = applyValidation(field, value);
+      if (!error) {
+        setFormErrors((prev) => {
+          const { [fieldName]: removedError, ...rest } = prev;
+          return rest;
+        });
+      } else {
+        setFormErrors((prev) => ({ ...prev, [fieldName]: error }));
+      }
+    }
   };
-  // Dynamic field state handler
-  const handleSelectChange = (fieldName: string, value: any, item: any) => {
+  const handleSelectChange = (fieldName: string, value: any) => {
+    // Update the form state
     setFormState((prevState) => ({
       ...prevState,
-      [fieldName]: languge === "ar" ? item.label_ar : item.label_en,
+      [fieldName]: languge === "ar" ? value.label_ar : value.label_en,
     }));
-    setValue(fieldName, value);
-    debouncedTrigger(fieldName);
   };
 
   const renderComponent = (field: any) => {
@@ -116,7 +176,6 @@ const DynamicForm: FC<DynamicFormProps> = ({
 
     switch (field.type.toLowerCase()) {
       case "text":
-      case "email":
       case "phone":
         return (
           <Input
@@ -124,8 +183,17 @@ const DynamicForm: FC<DynamicFormProps> = ({
             placeholder={placeholder}
             value={formState[field.name] || ""}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            {...register(field.name, applyValidation(field))}
-            className="border p-2 rounded-md bg-background"
+            className="border p-2 rounded-md bg-background text-start"
+          />
+        );
+      case "email":
+        return (
+          <Input
+            type="text"
+            placeholder={placeholder}
+            value={formState[field.name] || ""}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+            className="border p-2 rounded-md bg-background text-start"
           />
         );
       case "number":
@@ -135,7 +203,6 @@ const DynamicForm: FC<DynamicFormProps> = ({
             placeholder={placeholder}
             value={formState[field.name] || ""}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            {...register(field.name, applyValidation(field))}
             className="border p-2 rounded-md bg-background"
           />
         );
@@ -145,20 +212,18 @@ const DynamicForm: FC<DynamicFormProps> = ({
             placeholder={placeholder}
             value={formState[field.name] || ""}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            {...register(field.name, applyValidation(field))}
             className="border p-2 rounded-md bg-background"
           />
         );
       case "checkbox":
         return (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-x-2">
             <Checkbox
               id={field.name}
               checked={formState[field.name] || false}
               onCheckedChange={(checked) =>
                 handleFieldChange(field.name, checked)
               }
-              {...register(field.name)}
             />
             <label htmlFor={field.name} className="text-sm font-medium">
               {label}
@@ -167,17 +232,20 @@ const DynamicForm: FC<DynamicFormProps> = ({
         );
       case "radio":
         return (
-          <div>
+          <div className="flex items-center gap-2">
             {field.items?.map((item: any) => (
-              <div key={item.value} className="flex items-center">
+              <div
+                key={item.value}
+                className="flex items-center text-sm font-medium "
+              >
                 <input
                   type="radio"
                   value={item.value}
                   checked={formState[field.name] === item.value}
                   onChange={() => handleFieldChange(field.name, item.value)}
-                  {...register(field.name, applyValidation(field))}
+                  id={item.value}
                 />
-                <label className="ms-2">
+                <label className="ms-1" htmlFor={item.value}>
                   {languge === "ar" ? item.label_ar : item.label_en}
                 </label>
               </div>
@@ -228,9 +296,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
                         <CommandItem
                           key={item.value}
                           value={item.value}
-                          onSelect={() =>
-                            handleSelectChange(field.name, item.value, item)
-                          }
+                          onSelect={() => handleSelectChange(field.name, item)}
                         >
                           {languge === "ar" ? item.label_ar : item.label_en}
                           <CheckIcon
@@ -247,11 +313,6 @@ const DynamicForm: FC<DynamicFormProps> = ({
                 </Command>
               </PopoverContent>
             </Popover>
-            {errors[field.name] && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors[field.name]?.message}
-              </p>
-            )}
           </>
         );
       default:
@@ -260,45 +321,48 @@ const DynamicForm: FC<DynamicFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
+    <form onSubmit={onSubmit} className="gap-y-3">
       <Accordion
         type="multiple"
         className="w-full"
-        defaultValue={[
-          "item-1",
-          "item-2",
-          "item-3",
-          "item-0",
-          "item-4",
-          "item-5",
-          "item-6",
-          "item-7",
-          "item-8",
-          "item-9",
-        ]}
+        defaultValue={["item-0", "item-1", "item-2", "item-3"]}
       >
         {data?.map((section, index) => (
           <AccordionItem key={index} value={`item-${index}`}>
             <AccordionTrigger>
-              <div className="flex items-center gap-x-2 py-2 pb-0">
-                <div>{section.section_icon}</div>
-                <div>
-                  {languge === "ar"
-                    ? section.section_label_ar
-                    : section.section_label_en}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-x-2 py-[6px]  ms-[5px] px-3">
+                  <div className="size-5">{section.section_icon}</div>
+                  <div className="text-foreground text-[16px]">
+                    {languge === "ar"
+                      ? section.section_label_ar
+                      : section.section_label_en}
+                  </div>
                 </div>
+                {/* desc */}
+                <div className="flex flex-col  mx-1 px-3">
+                  <Label className="font-normal mb-2 text-sm text-slate-500 mt-[-12px]">
+                    {languge === "ar"
+                      ? section.section_description_ar
+                      : section.section_description_en}
+                  </Label>
+                </div>
+                {/* <Separator className="mb-3 " /> */}
               </div>
             </AccordionTrigger>
             <AccordionContent>
               {section.Fields?.map((field) => (
-                <div key={field.name} className="flex flex-col mb-4 mx-1">
+                <div
+                  key={field.name}
+                  className="flex flex-col mb-5 mx-1 mt-2 px-3 pt-2"
+                >
                   <Label htmlFor={field.name} className="font-medium mb-2">
                     {languge === "ar" ? field.label_ar : field.label_en}
                   </Label>
                   {renderComponent(field)}
-                  {errors[field.name] && (
+                  {formErrors[field.name] && (
                     <p className="text-red-500 text-sm mt-2">
-                      {errors[field.name]?.message}
+                      {formErrors[field.name]}
                     </p>
                   )}
                 </div>
@@ -307,12 +371,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
           </AccordionItem>
         ))}
       </Accordion>
-      <Button
-        type="submit"
-        className="bg-blue-500 text-white py-2 px-4 rounded-md"
-      >
-        Submit
-      </Button>
+      <Button type="submit">{languge === "ar" ? "إرسال" : "Submit"}</Button>
     </form>
   );
 };
