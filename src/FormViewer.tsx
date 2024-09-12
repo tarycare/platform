@@ -139,28 +139,13 @@ const FormViewer: FC<FormViewerProps> = ({
   };
 
   const handleFieldChange = (fieldName: string, value: any) => {
-    // Update the form state
     setFormState((prevState) => ({
       ...prevState,
       [fieldName]: value,
     }));
 
-    // Validate the field and show/hide error messages as necessary
-    const field = data
-      .flatMap((section) => section.Fields)
-      .find((f) => f.name === fieldName);
-
-    if (field) {
-      const error = applyValidation(field, value);
-      if (!error) {
-        setFormErrors((prev) => {
-          const { [fieldName]: removedError, ...rest } = prev;
-          return rest;
-        });
-      } else {
-        setFormErrors((prev) => ({ ...prev, [fieldName]: error }));
-      }
-    }
+    // Validate the field
+    validateField(fieldName, value);
   };
 
   const renderComponent = (field: any) => {
@@ -214,20 +199,53 @@ const FormViewer: FC<FormViewerProps> = ({
         );
 
       case "checkbox":
-        return (
-          <div className="flex items-center gap-x-2">
-            <Checkbox
-              id={field.name}
-              checked={formState[field.name] || false}
-              onCheckedChange={(checked) =>
-                handleFieldChange(field.name, checked)
-              }
-            />
-            <label htmlFor={field.name} className="text-sm font-medium">
-              {label}
-            </label>
-          </div>
-        );
+        if (field.items && field.items.length > 0) {
+          // Multiple checkboxes
+          return (
+            <div className="flex flex-col gap-2">
+              {field.items.map((item: any) => (
+                <div key={item.value} className="flex items-center gap-x-2">
+                  <Checkbox
+                    id={item.value}
+                    checked={
+                      formState[field.name]?.includes(item.value) || false
+                    }
+                    onCheckedChange={(checked) => {
+                      let newValues = formState[field.name] || [];
+                      if (checked) {
+                        newValues = [...newValues, item.value];
+                      } else {
+                        newValues = newValues.filter(
+                          (val: any) => val !== item.value
+                        );
+                      }
+                      handleFieldChange(field.name, newValues);
+                    }}
+                  />
+                  <label htmlFor={item.value} className="text-sm font-medium">
+                    {languge === "ar" ? item.label_ar : item.label_en}
+                  </label>
+                </div>
+              ))}
+            </div>
+          );
+        } else {
+          // Single checkbox
+          return (
+            <div className="flex items-center gap-x-2">
+              <Checkbox
+                id={field.name}
+                checked={formState[field.name] || false}
+                onCheckedChange={(checked) =>
+                  handleFieldChange(field.name, checked)
+                }
+              />
+              <label htmlFor={field.name} className="text-sm font-medium">
+                {label}
+              </label>
+            </div>
+          );
+        }
 
       case "radio":
         return (
