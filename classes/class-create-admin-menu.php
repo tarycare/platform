@@ -15,7 +15,7 @@ class WPRK_Create_Admin_Page
     public function create_admin_menu()
     {
         $capability = 'manage_options';
-        $slug = 'wprk-settings';
+        $slug = 'form-builder';
 
         add_menu_page(
             __('WP React KickOff', 'wp-react'),

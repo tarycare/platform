@@ -89,7 +89,7 @@ const debounce = (func: Function, delay: number) => {
   };
 };
 
-const DynamicForm: FC<DynamicFormProps> = ({
+const FormViewer: FC<FormViewerProps> = ({
   data = { sections: [] },
   languge,
   handleSubmission,
@@ -406,4 +406,4 @@ const DynamicForm: FC<DynamicFormProps> = ({
   );
 };
 
-export default DynamicForm;
+export default FormViewer;
