@@ -222,7 +222,7 @@ const FormViewer: FC<FormViewerProps> = ({
                       handleFieldChange(field.name, newValues);
                     }}
                   />
-                  <label htmlFor={item.value} className="text-sm font-medium">
+                  <label htmlFor={item.value} className="text-sm ">
                     {languge === "ar" ? item.label_ar : item.label_en}
                   </label>
                 </div>
@@ -372,7 +372,7 @@ const FormViewer: FC<FormViewerProps> = ({
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-x-2 py-[6px]  ms-[5px] px-3">
                   <div className="size-5">{section.section_icon}</div>
-                  <div className="text-foreground text-[16px]">
+                  <div className="text-foreground text-[16px] font-bold">
                     {languge === "ar"
                       ? section.section_label_ar
                       : section.section_label_en}
@@ -395,7 +395,7 @@ const FormViewer: FC<FormViewerProps> = ({
                   key={field.name}
                   className="flex flex-col mb-5 mx-1 mt-2 px-3 "
                 >
-                  <Label htmlFor={field.name} className="font-medium mb-2">
+                  <Label htmlFor={field.name} className="font-bold mb-2">
                     {languge === "ar" ? field.label_ar : field.label_en}
                     {/* red star if req */}
                     {field.required && (
