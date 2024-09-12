@@ -1,8 +1,24 @@
-@import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap);
 @import url(https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap);
 /* @import "./assets/fonts.css"; */
 /* import https://fonts.googleapis.com/css2?family=Zain:wght@200;300;400;700;800;900&display=swap */
+/* @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap"); */
 /* import Roboto for english */
+
+@font-face {
+  font-family: "HelveticaNeueLT Arabic 55 Roman";
+  src: url("https://db.onlinewebfonts.com/t/6184b9bbcb2982ca518dc0c37b9d3199.eot");
+  src: url("https://db.onlinewebfonts.com/t/6184b9bbcb2982ca518dc0c37b9d3199.eot?#iefix")
+      format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/6184b9bbcb2982ca518dc0c37b9d3199.woff2")
+      format("woff2"),
+    url("https://db.onlinewebfonts.com/t/6184b9bbcb2982ca518dc0c37b9d3199.woff")
+      format("woff"),
+    url("https://db.onlinewebfonts.com/t/6184b9bbcb2982ca518dc0c37b9d3199.ttf")
+      format("truetype"),
+    url("https://db.onlinewebfonts.com/t/6184b9bbcb2982ca518dc0c37b9d3199.svg#HelveticaNeueLT Arabic 55 Roman")
+      format("svg");
+}
+
 /* apply this font to all */
 
 body,
@@ -41,7 +57,7 @@ td,
 th,
 thead,
 tbody {
-  font-family: "Roboto", "IBM Plex Sans Arabic", sans-serif;
+  font-family: "Roboto", "HelveticaNeueLT Arabic 55 Roman", sans-serif;
 }
 /* ! tailwindcss v3.4.10 | MIT License | https://tailwindcss.com */
 /*
@@ -1564,6 +1580,9 @@ body{
 .text-xs{
   font-size: 0.75rem;
   line-height: 1rem;
+}
+.font-bold{
+  font-weight: 700;
 }
 .font-medium{
   font-weight: 500;

@@ -6,7 +6,6 @@
 
 class WPRK_Create_Admin_Page
 {
-
     public function __construct()
     {
         add_action('admin_menu', [$this, 'create_admin_menu']);
@@ -17,13 +16,23 @@ class WPRK_Create_Admin_Page
         $capability = 'manage_options';
         $slug = 'form-viewer';
 
+        // Get the current user's locale
+        $locale = determine_locale();
+
+        // Set the menu title based on the user's language
+        if ($locale === 'ar' || $locale === 'ar_AR') {
+            $menu_title = 'الموظفين'; // Arabic for 'Staff'
+        } else {
+            $menu_title = 'Staff';
+        }
+
         add_menu_page(
-            __('Staff', 'Staff'),
-            __('Staff', 'Staff'),
-            $capability,
-            $slug,
-            [$this, 'menu_page_template'],
-            'dashicons-admin-users',
+            $menu_title,          // Page title
+            $menu_title,          // Menu title
+            $capability,          // Capability
+            $slug,                // Menu slug
+            [$this, 'menu_page_template'], // Callback function
+            'dashicons-admin-users'        // Icon
         );
     }
 
@@ -32,4 +41,5 @@ class WPRK_Create_Admin_Page
         echo '<div class="wrap"><div id="wp-react-app"></div></div>';
     }
 }
+
 new WPRK_Create_Admin_Page();
