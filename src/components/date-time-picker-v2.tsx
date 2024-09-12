@@ -35,7 +35,7 @@ export function DateTimePickerV2({
             <div
               variant={"outline"}
               className={cn(
-                "w-full font-normal flex items-center bg-white border cursor-pointer py-2 px-2 rounded-sm",
+                "w-full font-normal flex items-center bg-transparent border cursor-pointer py-2 px-2 rounded-sm",
                 !date && "text-muted-foreground"
               )}
               onClick={() => setIsOpen(true)} // Open the calendar when clicking the trigger

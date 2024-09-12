@@ -286,7 +286,7 @@ export const MultiSelect = React.forwardRef<
                   <span className="text-sm text-muted-foreground">
                     {placeholder}
                   </span>
-                  <ChevronDown className="h-4 cursor-pointer text-muted-foreground mx-2" />
+                  <ChevronDown className="h-4 cursor-pointer text-muted-foreground ms-5" />
                 </div>
               )}
             </Button>
@@ -300,6 +300,7 @@ export const MultiSelect = React.forwardRef<
               <CommandInput
                 placeholder="Search..."
                 onKeyDown={handleInputKeyDown}
+                className="bg-transparent"
               />
               <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>

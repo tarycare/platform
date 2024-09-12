@@ -43,7 +43,7 @@ export default function AppExample() {
   }
 
   // Dynamically determine the basename
-  //   const base = "/wp-admin/admin.php?page=wprk-settings";
+  //   const base = "/wp-admin/admin.php?page=form-builder";
   const base = window.location.pathname;
   console.log("base:", base);
 

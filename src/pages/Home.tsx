@@ -1,5 +1,5 @@
 // @ts-nocheck
-import DynamicForm from "@/FormBuilder";
+import FormViewer from "@/FormViewer";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -71,7 +71,7 @@ function Home() {
   return (
     <div>
       {!isLoading && (
-        <DynamicForm
+        <FormViewer
           data={formSections}
           languge={lang}
           handleSubmission={handleSubmission}
