@@ -29,13 +29,13 @@ export function DateTimePickerV2({
 
   return (
     <>
-      <div className="flex w-full gap-4">
+      <div className="flex  gap-4">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <div
               variant={"outline"}
               className={cn(
-                "w-full font-normal flex items-center dark:bg-transparent bg-white border cursor-pointer py-2 px-2 rounded-sm",
+                "w-full flex items-center dark:bg-transparent bg-white border cursor-pointer py-[8px] pb-[6px] font-medium px-2 rounded-sm hover:text-accent-foreground hover:bg-background",
                 !date && "text-muted-foreground"
               )}
               onClick={() => setIsOpen(true)} // Open the calendar when clicking the trigger
