@@ -15,15 +15,15 @@ class WPRK_Create_Admin_Page
     public function create_admin_menu()
     {
         $capability = 'manage_options';
-        $slug = 'form-builder';
+        $slug = 'form-viewer';
 
         add_menu_page(
-            __('WP React KickOff', 'wp-react'),
-            __('WP React KickOff', 'wp-react'),
+            __('Staff', 'Staff'),
+            __('Staff', 'Staff'),
             $capability,
             $slug,
             [$this, 'menu_page_template'],
-            'dashicons-buddicons-replies'
+            'dashicons-admin-users',
         );
     }
 

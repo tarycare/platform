@@ -162,7 +162,7 @@ const FormViewer: FC<FormViewerProps> = ({
             placeholder={placeholder}
             value={formState[field.name] || ""}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            className="border p-2 rounded-md bg-background text-start"
+            className="border p-2 rounded-md  text-start"
           />
         );
 
@@ -173,7 +173,7 @@ const FormViewer: FC<FormViewerProps> = ({
             placeholder={placeholder}
             value={formState[field.name] || ""}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            className="border p-2 rounded-md bg-background text-start"
+            className="border p-2 rounded-md  text-start"
           />
         );
 
@@ -184,7 +184,7 @@ const FormViewer: FC<FormViewerProps> = ({
             placeholder={placeholder}
             value={formState[field.name] || ""}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            className="border p-2 rounded-md bg-background"
+            className="border p-2 rounded-md "
           />
         );
 
