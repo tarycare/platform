@@ -93,6 +93,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
   data = { sections: [] },
   languge,
   handleSubmission,
+  isSubmitting,
 }) => {
   const [formState, setFormState] = useState<{ [key: string]: any }>({});
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -161,13 +162,6 @@ const DynamicForm: FC<DynamicFormProps> = ({
       }
     }
   };
-  const handleSelectChange = (fieldName: string, value: any) => {
-    // Update the form state
-    setFormState((prevState) => ({
-      ...prevState,
-      [fieldName]: languge === "ar" ? value.label_ar : value.label_en,
-    }));
-  };
 
   const renderComponent = (field: any) => {
     const label = languge === "ar" ? field.label_ar : field.label_en;
@@ -186,6 +180,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
             className="border p-2 rounded-md bg-background text-start"
           />
         );
+
       case "email":
         return (
           <Input
@@ -196,6 +191,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
             className="border p-2 rounded-md bg-background text-start"
           />
         );
+
       case "number":
         return (
           <Input
@@ -206,6 +202,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
             className="border p-2 rounded-md bg-background"
           />
         );
+
       case "textarea":
         return (
           <Textarea
@@ -215,6 +212,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
             className="border p-2 rounded-md bg-background"
           />
         );
+
       case "checkbox":
         return (
           <div className="flex items-center gap-x-2">
@@ -230,13 +228,14 @@ const DynamicForm: FC<DynamicFormProps> = ({
             </label>
           </div>
         );
+
       case "radio":
         return (
           <div className="flex items-center gap-2">
             {field.items?.map((item: any) => (
               <div
                 key={item.value}
-                className="flex items-center text-sm font-medium "
+                className="flex items-center text-sm font-medium"
               >
                 <input
                   type="radio"
@@ -252,6 +251,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
             ))}
           </div>
         );
+
       case "multiselect":
         return (
           <MultiSelect
@@ -265,6 +265,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
             placeholder={placeholder}
           />
         );
+
       case "date":
         return (
           <DateTimePickerV2
@@ -272,7 +273,12 @@ const DynamicForm: FC<DynamicFormProps> = ({
             selectedDate={(date) => handleFieldChange(field.name, date)}
           />
         );
+
       case "select":
+        const selectedItem = field.items.find(
+          (item: any) => item.value === formState[field.name]
+        );
+
         return (
           <>
             <Popover>
@@ -282,7 +288,12 @@ const DynamicForm: FC<DynamicFormProps> = ({
                   role="combobox"
                   className="w-[200px] justify-between text-muted-foreground"
                 >
-                  {formState[field.name] || placeholder}
+                  {/* Display the selected label in the correct language */}
+                  {selectedItem
+                    ? languge === "ar"
+                      ? selectedItem.label_ar
+                      : selectedItem.label_en
+                    : placeholder}
                   <CaretSortIcon className="ms-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -296,8 +307,11 @@ const DynamicForm: FC<DynamicFormProps> = ({
                         <CommandItem
                           key={item.value}
                           value={item.value}
-                          onSelect={() => handleSelectChange(field.name, item)}
+                          onSelect={() =>
+                            handleFieldChange(field.name, item.value)
+                          }
                         >
+                          {/* Display the label in the correct language */}
                           {languge === "ar" ? item.label_ar : item.label_en}
                           <CheckIcon
                             className={`ms-auto h-4 w-4 ${
@@ -315,11 +329,15 @@ const DynamicForm: FC<DynamicFormProps> = ({
             </Popover>
           </>
         );
+
       default:
         return null;
     }
   };
 
+  if (!data) {
+    return null;
+  }
   return (
     <form onSubmit={onSubmit} className="gap-y-3">
       <Accordion
@@ -354,10 +372,14 @@ const DynamicForm: FC<DynamicFormProps> = ({
               {section.Fields?.map((field) => (
                 <div
                   key={field.name}
-                  className="flex flex-col mb-5 mx-1 mt-2 px-3 pt-2"
+                  className="flex flex-col mb-5 mx-1 mt-2 px-3 "
                 >
                   <Label htmlFor={field.name} className="font-medium mb-2">
                     {languge === "ar" ? field.label_ar : field.label_en}
+                    {/* red star if req */}
+                    {field.required && (
+                      <span className="text-red-500 ms-1">*</span>
+                    )}
                   </Label>
                   {renderComponent(field)}
                   {formErrors[field.name] && (
@@ -371,7 +393,15 @@ const DynamicForm: FC<DynamicFormProps> = ({
           </AccordionItem>
         ))}
       </Accordion>
-      <Button type="submit">{languge === "ar" ? "إرسال" : "Submit"}</Button>
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? (
+          <Loader2 className="w-5 h-5 text-primary animate-spin absolute" />
+        ) : languge === "ar" ? (
+          "إرسال"
+        ) : (
+          "Submit"
+        )}
+      </Button>
     </form>
   );
 };
