@@ -392,13 +392,16 @@ const FormViewer: FC<FormViewerProps> = ({
                     </div>
                   </div>
                   {/* desc */}
-                  <div className="flex flex-col  mx-1 px-3 pt-[5px]">
-                    <Label className="font-normal mb-2 text-sm text-slate-500 mt-[-12px] text-start">
-                      {languge === "ar"
-                        ? section.section_description_ar
-                        : section.section_description_en}
-                    </Label>
-                  </div>
+                  {(section.section_description_ar ||
+                    section.section_description_en) && (
+                    <div className="flex flex-col  mx-1 px-3 pt-[5px]">
+                      <Label className="font-normal mb-2 text-sm text-slate-500 mt-[-12px] text-start">
+                        {languge === "ar"
+                          ? section.section_description_ar
+                          : section.section_description_en}
+                      </Label>
+                    </div>
+                  )}
                   {/* <Separator className="mb-3 " /> */}
                 </div>
               </AccordionTrigger>
@@ -423,7 +426,7 @@ const FormViewer: FC<FormViewerProps> = ({
                       {(field.help_en || field.help_ar) && (
                         <Popover>
                           <PopoverTrigger>
-                            <HelpCircleIcon className="text-muted-foreground size-4 me-1 cursor-pointer hover:opacity-90" />
+                            <HelpCircleIcon className="text-muted-foreground size-[14px] me-1 cursor-pointer hover:opacity-90" />
                           </PopoverTrigger>
                           <PopoverContent className="w-fit">
                             <div className="">
