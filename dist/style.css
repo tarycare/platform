@@ -845,13 +845,13 @@ body{
 .aspect-video{
   aspect-ratio: 16 / 9;
 }
-.size-4{
-  width: 1rem;
-  height: 1rem;
-}
 .size-5{
   width: 1.25rem;
   height: 1.25rem;
+}
+.size-\[14px\]{
+  width: 14px;
+  height: 14px;
 }
 .h-1\.5{
   height: 0.375rem;
