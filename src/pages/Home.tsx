@@ -16,7 +16,7 @@ declare global {
 function Home() {
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = "../wp-content/plugins/form-viewer/dist/widget.umd.js";
+    script.src = "../wp-content/plugins/tary-core/dist/widget.umd.js";
     script.async = true;
 
     document.body.appendChild(script);
