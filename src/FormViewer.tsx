@@ -207,11 +207,11 @@ const FormViewer: FC<FormViewerProps> = ({
         );
 
       case "checkbox":
-        if (field.items && field.items.length > 0) {
+        if (field.items && field.items?.length > 0) {
           // Multiple checkboxes
           return (
             <div className="flex flex-wrap items-center gap-2">
-              {field.items.map((item: any) => (
+              {field.items?.map((item: any) => (
                 <div key={item.value} className="flex items-center gap-x-2">
                   <Checkbox
                     id={item.value}
@@ -287,7 +287,7 @@ const FormViewer: FC<FormViewerProps> = ({
       case "multiselect":
         return (
           <MultiSelect
-            options={field.items.map((item) => ({
+            options={field.items?.map((item) => ({
               value: item.value,
               label_en: item.label_en,
               label_ar: item.label_ar,
@@ -307,7 +307,7 @@ const FormViewer: FC<FormViewerProps> = ({
         );
 
       case "select":
-        const selectedItem = field.items.find(
+        const selectedItem = field?.items?.find(
           (item: any) => item.value === formState[field.name]
         );
 
@@ -393,7 +393,7 @@ const FormViewer: FC<FormViewerProps> = ({
                   </div>
                   {/* desc */}
                   <div className="flex flex-col  mx-1 px-3 pt-[5px]">
-                    <Label className="font-normal mb-2 text-sm text-slate-500 mt-[-12px]">
+                    <Label className="font-normal mb-2 text-sm text-slate-500 mt-[-12px] text-start">
                       {languge === "ar"
                         ? section.section_description_ar
                         : section.section_description_en}
