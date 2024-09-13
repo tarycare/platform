@@ -14,6 +14,7 @@ import NotFound from "./components/NotFound";
 import App from "./app";
 import "./index.css";
 import Home from "./pages/Home";
+import CreateForm from "./components/CreateForm";
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -43,6 +44,10 @@ const routes: RouteObject[] = [
   {
     path: "*", // Catch-all route for undefined paths
     element: <NotFound />,
+  },
+  {
+    path: "/create", // Catch-all route for undefined paths
+    element: <CreateForm />,
   },
 ];
 
