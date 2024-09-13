@@ -22,7 +22,6 @@ const routes: RouteObject[] = [
     path: "/",
     element: (
       <div>
-        {/* <App /> */}
         <div className="lg:w-[800px] w-full">
           <Home />
         </div>

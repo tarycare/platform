@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: WP React Forms
+ * Plugin Name: Staff 
  * Author: Husam nasrallah
  * Author URI: https://github.com/tarycare
  * Version: 1.2.0
