@@ -5,8 +5,8 @@
  * Author: Husam nasrallah
  * Author URI: https://github.com/tarycare
  * Version: 1.2.0
- * Description: WordPress React
- * Text-Domain: wp-react
+ * Description: Manage Staff Members
+ * Text-Domain: staff
  * GitHub Plugin URI: tarycare/wp-react-forms
  * GitHub Plugin URI: https://github.com/tarycare/wp-react-forms
  */
