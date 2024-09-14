@@ -37,6 +37,7 @@ function AddOrUpdateStaff({ onSuccess }: any) {
   });
 
   const navigate = useNavigate();
+
   const { id } = useParams(); // Get user ID from the URL params
   const isUpdating = Boolean(id); // Check if this is an update operation
 

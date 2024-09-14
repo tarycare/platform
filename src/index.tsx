@@ -13,20 +13,15 @@ import StaffDetails from "./pages/StaffDetails";
 import NotFound from "./components/NotFound";
 import App from "./app";
 import "./index.css";
-import Home from "./pages/Home";
 import CreateForm from "./components/CreateForm";
+import CreateAndUpdateFormPage from "./pages/CreateAndUpdateFormPage";
+import List from "./pages/List";
 
 // Define routes for the app
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: (
-      <div>
-        <div className="lg:w-[800px] w-full">
-          <Home />
-        </div>
-      </div>
-    ),
+    element: <List />,
   },
   {
     path: "/update/:id", // For editing a specific staff member
@@ -34,7 +29,13 @@ const routes: RouteObject[] = [
   },
   {
     path: "/add", // For adding a new staff member
-    element: <AddOrUpdateStaff />,
+    element: (
+      <div>
+        <div className="lg:w-[800px] w-full">
+          <CreateAndUpdateFormPage />
+        </div>
+      </div>
+    ),
   },
   {
     path: "/view/:id", // For viewing staff details
