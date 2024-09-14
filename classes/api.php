@@ -5,8 +5,10 @@ class WP_React_Settings_Rest_Route
     public function __construct()
     {
         add_action('rest_api_init', [$this, 'create_rest_routes']);
-        add_action('rest_api_init', [$this, 'add_cors_headers']); // Add this line
+        if (defined('WP_ENV') && WP_ENV === 'development') {
 
+            add_action('rest_api_init', [$this, 'add_cors_headers']); // Add this line
+        }
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']); // Enqueue scripts
     }
     // Add this new function to handle CORS headers
