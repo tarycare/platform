@@ -30,7 +30,7 @@ function Home() {
     <div>
       <div style={{ width: "800px" }}>
         <form-viewer
-          submit-url="https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps"
+          submit-url="/wp-json/staff/v1/add"
           fetch-url="https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recckvXXbcopEsAQO"
         ></form-viewer>
       </div>
