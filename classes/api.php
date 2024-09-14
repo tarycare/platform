@@ -102,58 +102,43 @@ class WP_React_Settings_Rest_Route
     }
 
     // Function to add a user
+    // Function to add a user
     public function add_staff($request)
     {
-
-        //     if (defined('WP_ENV') && WP_ENV !== 'development') {
-        //    {
-        //         if (!current_user_can('create_users')) {
-        //             return new WP_Error('permission_denied', 'You do not have permission to add users', array('status' => 403));
-        //         }
-        //     }
-
-
-
         // Get all JSON parameters
         $parameters = $request->get_json_params();
         error_log('Parameters: ' . print_r($parameters, true)); // Log the parameters
 
-        // Handle the required fields (username, email, and password)
-        $username = sanitize_text_field($parameters['staff_v1_Email']); // Use a placeholder or generate a username
+        // Handle the required fields (email)
         $email = sanitize_email($parameters['staff_v1_Email']);
-        $password = wp_generate_password(); // Generate a random password
 
         // Check for missing required fields
         if (empty($email)) {
             return new WP_Error('missing_fields', 'Missing email field', array('status' => 400));
         }
 
-
-        // Multisite-specific user creation
-        // if (is_multisite()) {
-        //     $user_id = wpmu_create_user($username, $password, $email);
-        //     if (!$user_id) {
-        //         return new WP_Error('user_creation_failed', 'Failed to create user', array('status' => 500));
-        //     }
-        //     add_user_to_blog(get_current_blog_id(), $user_id, 'subscriber');
-        // } else {
-        //     // Single-site user creation
-        //     $user_id = wp_create_user($username, $password, $email);
-        //     if (is_wp_error($user_id)) {
-        //         return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
-        //     }
-        // }
-
-        // Check if the email already exists
+        // Check if the email already exists before attempting to create the user
         if (email_exists($email)) {
             return new WP_Error('user_exists', 'User already exists with this email', array('status' => 400));
         }
 
-        // Create the user with the email and generated password
-        $user_id = wp_create_user($username, $password, $email);
+        // Generate a username and password for the user
+        $username = sanitize_text_field($parameters['staff_v1_Email']); // Placeholder or generated username
+        $password = wp_generate_password(); // Generate a random password
 
-        if (is_wp_error($user_id)) {
-            return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
+        // Multisite-specific user creation
+        if (is_multisite()) {
+            $user_id = wpmu_create_user($username, $password, $email);
+            if (!$user_id) {
+                return new WP_Error('user_creation_failed', 'Failed to create user', array('status' => 500));
+            }
+            add_user_to_blog(get_current_blog_id(), $user_id, 'subscriber');
+        } else {
+            // Single-site user creation
+            $user_id = wp_create_user($username, $password, $email);
+            if (is_wp_error($user_id)) {
+                return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
+            }
         }
 
         // Set the user role (subscriber by default)
@@ -178,6 +163,7 @@ class WP_React_Settings_Rest_Route
             'user_id' => $user_id
         ], 201);
     }
+
 
 
 
