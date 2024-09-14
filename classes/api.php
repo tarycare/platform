@@ -130,19 +130,19 @@ class WP_React_Settings_Rest_Route
 
 
         // Multisite-specific user creation
-        if (is_multisite()) {
-            $user_id = wpmu_create_user($username, $password, $email);
-            if (!$user_id) {
-                return new WP_Error('user_creation_failed', 'Failed to create user', array('status' => 500));
-            }
-            add_user_to_blog(get_current_blog_id(), $user_id, 'subscriber');
-        } else {
-            // Single-site user creation
-            $user_id = wp_create_user($username, $password, $email);
-            if (is_wp_error($user_id)) {
-                return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
-            }
-        }
+        // if (is_multisite()) {
+        //     $user_id = wpmu_create_user($username, $password, $email);
+        //     if (!$user_id) {
+        //         return new WP_Error('user_creation_failed', 'Failed to create user', array('status' => 500));
+        //     }
+        //     add_user_to_blog(get_current_blog_id(), $user_id, 'subscriber');
+        // } else {
+        //     // Single-site user creation
+        //     $user_id = wp_create_user($username, $password, $email);
+        //     if (is_wp_error($user_id)) {
+        //         return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
+        //     }
+        // }
 
         // Check if the email already exists
         if (email_exists($email)) {
