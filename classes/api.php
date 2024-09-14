@@ -110,7 +110,7 @@ class WP_React_Settings_Rest_Route
         error_log('Parameters: ' . print_r($parameters, true)); // Log the parameters
 
         // Handle the required fields (email)
-        $email = sanitize_email($parameters['staff_v1_Email']);
+        $email = sanitize_email($parameters['staff_email']);
 
         // Check for missing required fields
         if (empty($email)) {
@@ -123,7 +123,7 @@ class WP_React_Settings_Rest_Route
         }
 
         // Generate a username and password for the user
-        $username = sanitize_text_field($parameters['staff_v1_Email']); // Placeholder or generated username
+        $username = sanitize_text_field($parameters['staff_email']); // Placeholder or generated username
         $password = wp_generate_password(); // Generate a random password
 
         // Multisite-specific user creation
