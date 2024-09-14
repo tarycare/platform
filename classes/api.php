@@ -5,74 +5,163 @@ class WP_React_Settings_Rest_Route
     public function __construct()
     {
         add_action('rest_api_init', [$this, 'create_rest_routes']);
+        add_action('rest_api_init', [$this, 'add_cors_headers']); // Add this line
+
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']); // Enqueue scripts
     }
+    // Add this new function to handle CORS headers
+    public function add_cors_headers()
+    {
+        // Remove the default CORS headers
+        remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
+
+        // Add custom CORS headers
+        add_filter('rest_pre_serve_request', function ($value) {
+            // Allow requests from localhost:4000 during development
+            header('Access-Control-Allow-Origin: http://localhost:4000');
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Allow-Headers: Authorization, X-WP-Nonce, Content-Type, Accept, Origin, X-Requested-With');
+
+            return $value;
+        });
+    }
+
+
+    // Enqueue and localize the script with nonce
+    public function enqueue_scripts()
+    {
+        wp_enqueue_script(
+            'my-staff-script',  // Unique handle for the script
+            get_template_directory_uri() . 'dist/bundle.js',  // URL to the script
+            array('jquery'),  // Optional dependencies
+            null,  // No version
+            true   // Load in footer
+        );
+
+        // Localize script to pass nonce and REST API root URL
+        wp_localize_script('my-staff-script', 'myApiSettings', array(
+            'root' => esc_url_raw(rest_url()),  // REST API base URL
+            'nonce' => wp_create_nonce('wp_rest')  // Security nonce
+        ));
+    }
+
+
 
     public function create_rest_routes()
     {
+
+
         // Route for adding a user
-        register_rest_route('doc/v1', '/add-staff', [
+        register_rest_route('staff/v1', '/add', [
             'methods' => 'POST',
             'callback' => [$this, 'add_staff'],
-            'permission_callback' => '__return_true'
+            'permission_callback' => function () {
+                if (defined('WP_ENV') && WP_ENV === 'development') {
+                    return '__return_true';
+                } else {
+                    return current_user_can('create_users') || current_user_can('edit_users');
+                }
+            }
+
         ]);
 
         // Route for fetching all users
-        register_rest_route('doc/v1', '/users', [
+        register_rest_route('staff/v1', '/all', [
             'methods' => 'GET',
             'callback' => [$this, 'get_all_users'],
             'permission_callback' => '__return_true'
         ]);
 
         // Route for fetching a specific user by ID
-        register_rest_route('doc/v1', '/users/(?P<id>\d+)', [
+        register_rest_route('staff/v1', '/users/(?P<id>\d+)', [
             'methods' => 'GET',
             'callback' => [$this, 'get_user_by_id'],
             'permission_callback' => '__return_true'
         ]);
 
         // Route for deleting a user
-        register_rest_route('doc/v1', '/delete-staff/(?P<id>\d+)', [
+        register_rest_route('staff/v1', '/delete/(?P<id>\d+)', [
             'methods' => 'DELETE',
             'callback' => [$this, 'delete_staff'],
-            'permission_callback' => '__return_true'
+            'permission_callback' => function () {
+                return current_user_can('create_users') || current_user_can('edit_users');
+            }
         ]);
 
         // Route for updating a user
-        register_rest_route('doc/v1', '/update-staff/(?P<id>\d+)', [
+        register_rest_route('staff/v1', '/update/(?P<id>\d+)', [
             'methods' => 'POST',
             'callback' => [$this, 'update_staff'],
-            'permission_callback' => '__return_true'
+            'permission_callback' => function () {
+                return current_user_can('create_users') || current_user_can('edit_users');
+            }
         ]);
     }
 
     // Function to add a user
     public function add_staff($request)
     {
-        $username = sanitize_text_field($request->get_param('username'));
-        $email = sanitize_email($request->get_param('email'));
-        $password = sanitize_text_field($request->get_param('password'));
 
-        if (username_exists($username) || email_exists($email)) {
-            return new WP_Error('user_exists', 'User already exists', array('status' => 400));
+        //     if (defined('WP_ENV') && WP_ENV !== 'development') {
+        //    {
+        //         if (!current_user_can('create_users')) {
+        //             return new WP_Error('permission_denied', 'You do not have permission to add users', array('status' => 403));
+        //         }
+        //     }
+
+
+
+        // Get all JSON parameters
+        $parameters = $request->get_json_params();
+        error_log('Parameters: ' . print_r($parameters, true)); // Log the parameters
+
+        // Handle the required fields (username, email, and password)
+        $username = sanitize_text_field($parameters['staff_v1_Email']); // Use a placeholder or generate a username
+        $email = sanitize_email($parameters['staff_v1_Email']);
+        $password = wp_generate_password(); // Generate a random password
+
+        // Check for missing required fields
+        if (empty($email)) {
+            return new WP_Error('missing_fields', 'Missing email field', array('status' => 400));
         }
 
+        // Check if the email already exists
+        if (email_exists($email)) {
+            return new WP_Error('user_exists', 'User already exists with this email', array('status' => 400));
+        }
+
+        // Create the user with the email and generated password
         $user_id = wp_create_user($username, $password, $email);
 
         if (is_wp_error($user_id)) {
             return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
         }
 
+        // Set the user role (subscriber by default)
         wp_update_user([
             'ID' => $user_id,
             'role' => 'subscriber'
         ]);
 
+        // Remove the used parameters (in this case, just email)
+        unset($parameters['staff_v1_Email']);
+
+        // Save additional custom fields as user meta
+        foreach ($parameters as $key => $value) {
+            $meta_key = sanitize_key($key);
+            $meta_value = maybe_serialize($value); // Handle arrays or complex values
+            update_user_meta($user_id, $meta_key, $meta_value);
+        }
+
         return rest_ensure_response([
             'success' => true,
             'message' => 'User created successfully',
             'user_id' => $user_id
-        ]);
+        ], 201);
     }
+
+
 
     // Function to get all users
     public function get_all_users()
