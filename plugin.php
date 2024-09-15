@@ -2,9 +2,9 @@
 
 /**
  * Plugin Name: Staff 
- * Author: Husam nasrallah
+ * Author: Husam Nasrallah
  * Author URI: https://github.com/tarycare
- * Version: 1.2.0
+ * Version: 1.3.0
  * Description: Manage Staff Members
  * Text-Domain: staff
  * GitHub Plugin URI: tarycare/staff
