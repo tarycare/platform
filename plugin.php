@@ -7,8 +7,8 @@
  * Version: 1.2.0
  * Description: Manage Staff Members
  * Text-Domain: staff
- * GitHub Plugin URI: tarycare/wp-react-forms
- * GitHub Plugin URI: https://github.com/tarycare/wp-react-forms
+ * GitHub Plugin URI: tarycare/staff
+ * GitHub Plugin URI: https://github.com/tarycare/staff
  */
 
 if (! defined('ABSPATH')) : exit();
