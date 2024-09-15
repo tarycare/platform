@@ -160,7 +160,8 @@ class WP_React_Settings_Rest_Route
         return rest_ensure_response([
             'success' => true,
             'message' => 'User created successfully',
-            'user_id' => $user_id
+            'user_id' => $user_id,
+            'data' => $parameters
         ], 201);
     }
 
@@ -180,19 +181,39 @@ class WP_React_Settings_Rest_Route
         $user_data = [];
 
         foreach ($users as $user) {
+            // Check if the user has roles and if roles exist
+            $user_roles = !empty($user->roles) ? implode(', ', $user->roles) : 'No role assigned';
+
             $user_data[] = [
                 'id' => $user->ID,
                 'username' => $user->user_login,
                 'email' => $user->user_email,
-                'role' => implode(', ', $user->roles),
-                'registered' => $user->user_registered
+                'role' => $user_roles,
+                'registered' => $user->user_registered,
+                'meta' => get_user_meta($user->ID)
             ];
         }
 
         return rest_ensure_response($user_data);
     }
 
-    // Function to get a user by ID
+    // Recursive unserialize function
+    function recursive_unserialize($data)
+    {
+        // Ensure we are working with serialized data only
+        if (!is_serialized($data)) {
+            return $data;
+        }
+
+        // Keep unserializing until it's no longer serialized
+        $unserialized_data = maybe_unserialize($data);
+        while (is_serialized($unserialized_data)) {
+            $unserialized_data = maybe_unserialize($unserialized_data);
+        }
+
+        return $unserialized_data;
+    }
+
     public function get_user_by_id($request)
     {
         $user_id = (int) $request->get_param('id');
@@ -207,18 +228,24 @@ class WP_React_Settings_Rest_Route
             'username' => $user->user_login,
             'email' => $user->user_email,
             'role' => implode(', ', $user->roles),
-            'registered' => $user->user_registered,
+            'registered' => $user->user_registered
         ];
 
-        // append custom fields to the user data
+        // Append custom fields to the user data
         $custom_fields = get_user_meta($user_id);
         foreach ($custom_fields as $key => $value) {
-            $user_data[$key] = maybe_unserialize($value[0]);
+            // Only unserialize if the data is serialized
+            if (is_serialized($value[0])) {
+                $user_data[$key] = $this->recursive_unserialize($value[0]); // Use $this->recursive_unserialize()
+            } else {
+                $user_data[$key] = $value[0]; // Not serialized, just use the value
+            }
         }
-
 
         return rest_ensure_response($user_data);
     }
+
+
 
     // Function to delete a user
     public function delete_staff($request)
@@ -239,7 +266,6 @@ class WP_React_Settings_Rest_Route
     }
 
     // Function to update a user
-    // Function to update a user
     public function update_staff($request)
     {
         $user_id = (int) $request->get_param('id');
@@ -248,49 +274,85 @@ class WP_React_Settings_Rest_Route
         $existing_user = get_userdata($user_id);
 
         if (!$existing_user) {
+            error_log('User not found for ID: ' . $user_id);
             return new WP_Error('user_not_found', 'User not found', array('status' => 404));
         }
 
-        // Get the current values for display name and email
-        $current_display_name = $existing_user->display_name;
-        $current_email = $existing_user->user_email;
+        // Prepare array for user fields update (non-meta fields)
+        $userdata = ['ID' => $user_id];
 
         // Get the incoming data from the request
-        $new_display_name = sanitize_text_field($request->get_param('username')) ?: $current_display_name;
-        $new_email = sanitize_email($request->get_param('email')) ?: $current_email;
+        $new_display_name = sanitize_text_field($request->get_param('username'));
+        $new_email = sanitize_email($request->get_param('email'));
+        $new_role = sanitize_text_field($request->get_param('role'));
 
-        // Merge the existing and new data
-        $userdata = [
-            'ID' => $user_id,
-            'display_name' => $new_display_name, // Update display name instead of username
-            'user_email' => $new_email,
-        ];
+        // Log the incoming request data
+        error_log('Incoming data: ' . print_r($request->get_json_params(), true));
 
-        // Update the user
+        // Only update fields that are provided
+        if (!empty($new_display_name)) {
+            $userdata['display_name'] = $new_display_name;
+        }
+        if (!empty($new_email)) {
+            $userdata['user_email'] = $new_email;
+        }
+
+        // Handle role update: If role is provided in the request, update it, otherwise preserve the current role
+        if (!empty($new_role)) {
+            if (!in_array($new_role, ['subscriber', 'editor', 'administrator'])) {
+                error_log('Invalid role provided: ' . $new_role);
+                return new WP_Error('invalid_role', 'Invalid role provided', array('status' => 400));
+            }
+            $userdata['role'] = $new_role;
+        } else {
+            // Preserve the current role if no new role is provided
+            $current_role = isset($existing_user->roles[0]) ? $existing_user->roles[0] : 'subscriber';
+            $userdata['role'] = $current_role;
+        }
+
+        // Log the user data before updating
+        error_log('User data to be updated: ' . print_r($userdata, true));
+
+        // Update the user data
         $updated = wp_update_user($userdata);
-
         if (is_wp_error($updated)) {
+            error_log('Failed to update user: ' . print_r($updated->get_error_message(), true));
             return new WP_Error('user_update_failed', 'Failed to update user', array('status' => 500));
         }
+
+        error_log('User updated successfully: ID ' . $user_id);
 
         // Handle additional custom fields (meta data)
         $meta_fields = $request->get_json_params();
         foreach ($meta_fields as $key => $value) {
-            // Skip predefined fields like 'username' and 'email'
-            if (in_array($key, ['username', 'email'])) {
+            // Skip predefined fields and critical meta fields
+            if (in_array($key, ['username', 'email', 'role', 'id', 'registered', 'wp_capabilities', 'wp_user_level'])) {
+                continue;
+            }
+
+            // Skip updating meta if the value is empty
+            if (empty($value) && $value !== '0') {
+                error_log('Skipped updating empty meta field: ' . $key);
                 continue;
             }
 
             // Sanitize and update user meta
             $meta_key = sanitize_key($key);
-            $meta_value = maybe_serialize($value); // Handle arrays or complex values
+            $meta_value = maybe_serialize($value);
             update_user_meta($user_id, $meta_key, $meta_value);
+
+            // Log each meta key-value update
+            error_log('Meta field updated: ' . $meta_key . ' => ' . print_r($meta_value, true));
         }
+
+        // Log the final response
+        error_log('User and meta data updated successfully for user ID: ' . $user_id);
 
         return rest_ensure_response([
             'success' => true,
             'message' => 'User and meta data updated successfully',
-            'user_id' => $user_id
+            'user_id' => $user_id,
+            'data' => $meta_fields // Return the updated meta data
         ]);
     }
 }
