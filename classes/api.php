@@ -93,7 +93,7 @@ class WP_React_Settings_Rest_Route
 
         // Route for updating a user
         register_rest_route('staff/v1', '/update/(?P<id>\d+)', [
-            'methods' => 'POST',
+            'methods' => 'PATCH',
             'callback' => [$this, 'update_staff'],
             'permission_callback' => function () {
                 return current_user_can('create_users') || current_user_can('edit_users');
@@ -101,7 +101,7 @@ class WP_React_Settings_Rest_Route
         ]);
     }
 
-    // Function to add a user
+
     // Function to add a user
     public function add_staff($request)
     {
@@ -210,6 +210,13 @@ class WP_React_Settings_Rest_Route
             'registered' => $user->user_registered,
         ];
 
+        // append custom fields to the user data
+        $custom_fields = get_user_meta($user_id);
+        foreach ($custom_fields as $key => $value) {
+            $user_data[$key] = maybe_unserialize($value[0]);
+        }
+
+
         return rest_ensure_response($user_data);
     }
 
@@ -232,6 +239,7 @@ class WP_React_Settings_Rest_Route
     }
 
     // Function to update a user
+    // Function to update a user
     public function update_staff($request)
     {
         $user_id = (int) $request->get_param('id');
@@ -243,7 +251,7 @@ class WP_React_Settings_Rest_Route
             return new WP_Error('user_not_found', 'User not found', array('status' => 404));
         }
 
-        // Get the current values for username, email, and display name
+        // Get the current values for display name and email
         $current_display_name = $existing_user->display_name;
         $current_email = $existing_user->user_email;
 
@@ -265,9 +273,23 @@ class WP_React_Settings_Rest_Route
             return new WP_Error('user_update_failed', 'Failed to update user', array('status' => 500));
         }
 
+        // Handle additional custom fields (meta data)
+        $meta_fields = $request->get_json_params();
+        foreach ($meta_fields as $key => $value) {
+            // Skip predefined fields like 'username' and 'email'
+            if (in_array($key, ['username', 'email'])) {
+                continue;
+            }
+
+            // Sanitize and update user meta
+            $meta_key = sanitize_key($key);
+            $meta_value = maybe_serialize($value); // Handle arrays or complex values
+            update_user_meta($user_id, $meta_key, $meta_value);
+        }
+
         return rest_ensure_response([
             'success' => true,
-            'message' => 'User updated successfully',
+            'message' => 'User and meta data updated successfully',
             'user_id' => $user_id
         ]);
     }

@@ -61,7 +61,7 @@ function AddOrUpdateStaff({ onSuccess }: any) {
 
       fetchUserData();
     }
-  }, [isUpdating, id, form]);
+  }, [isUpdating, id]);
 
   const onSubmit = async (values: any) => {
     try {

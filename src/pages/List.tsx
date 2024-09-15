@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Button } from "@/components/ui/button";
 
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
@@ -73,14 +74,14 @@ export default function Dashboard() {
     ? `http://mytest.local/wp-json/staff/v1/all`
     : `/wp-json/staff/v1/all`;
   const DELETE_API_URL = isDev
-    ? `http://mytest.local/wp-json/staff/v1/delete-staff`
-    : `/wp-json/staff/v1/delete-staff`;
+    ? `http://mytest.local/wp-json/staff/v1/delete`
+    : `/wp-json/staff/v1/delete`;
 
   const [users, setUsers] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -264,9 +265,50 @@ export default function Dashboard() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                                  <DropdownMenuItem>Delete</DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                      navigate(`/update/${user.id}`);
+                                    }}
+                                  >
+                                    Edit
+                                  </DropdownMenuItem>
+                                  {user.role !== "administrator" && (
+                                    <DropdownMenuItem
+                                      className="cursor-pointer"
+                                      onClick={() => {
+                                        const nonce =
+                                          window?.appLocalizer?.nonce || "";
+
+                                        fetch(`${DELETE_API_URL}/${user.id}`, {
+                                          method: "DELETE",
+                                          headers: {
+                                            "Content-Type": "application/json",
+                                            "X-WP-Nonce": nonce,
+                                          },
+                                          body: JSON.stringify({
+                                            id: user.id,
+                                          }),
+                                        })
+                                          .then((response) => {
+                                            if (!response.ok) {
+                                              throw new Error(
+                                                "Failed to delete user"
+                                              );
+                                            }
+                                            setRefresh(!refresh);
+                                          })
+                                          .catch((error) => {
+                                            console.error(
+                                              "Error deleting user:",
+                                              error
+                                            );
+                                          });
+                                      }}
+                                    >
+                                      Delete
+                                    </DropdownMenuItem>
+                                  )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </TableCell>

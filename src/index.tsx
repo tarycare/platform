@@ -25,7 +25,13 @@ const routes: RouteObject[] = [
   },
   {
     path: "/update/:id", // For editing a specific staff member
-    element: <AddOrUpdateStaff />,
+    element: (
+      <div>
+        <div className="lg:w-[800px] w-full">
+          <CreateAndUpdateFormPage />
+        </div>
+      </div>
+    ),
   },
   {
     path: "/add", // For adding a new staff member
