@@ -75,11 +75,11 @@ class WPRK_Create_Admin_Page
         // Get the current user's locale
         $locale = determine_locale();
 
-        // Set the menu title based on the user's language
+        // add a menu page for members name 'Members'
         if ($locale === 'ar' || $locale === 'ar_AR') {
-            $menu_title = 'الموظفين'; // Arabic for 'Staff'
+            $menu_title = 'الأعضاء'; // Arabic for 'Members'
         } else {
-            $menu_title = 'Staff';
+            $menu_title = 'Members';
         }
 
         add_menu_page(
