@@ -16,13 +16,14 @@ class WPRK_Create_Admin_Page
         $user_meta = get_user_meta(get_current_user_id());
         error_log('user_meta: ' . print_r($user_meta, true));
 
-
         // Check if $user_meta is an array before accessing it
         $staff_access = '';
-        if (is_array($user_meta) && isset($user_meta['staff_access'])) {
-            $staff_access = $user_meta['staff_access'];
+        if (is_array($user_meta) && isset($user_meta['staff_access'][0])) {
+            $staff_access = $user_meta['staff_access'][0]; // Get the first value of the array
         }
+
         error_log('staff_access: ' . $staff_access);
+
         // Add the appropriate admin menus based on user role
         if ($is_admin || $staff_access === 'admin') {
             add_action('admin_menu', [$this, 'create_admin_menu']);
@@ -30,6 +31,7 @@ class WPRK_Create_Admin_Page
             add_action('admin_menu', [$this, 'create_member_menu']);
         }
     }
+
 
     public function create_admin_menu()
     {
