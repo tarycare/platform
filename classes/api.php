@@ -241,8 +241,15 @@ class WP_React_Settings_Rest_Route
             }
         }
 
-        // remove user_capabilities 
-        unset($user_data['wp_capabilities']);
+        // remove  wp_capabilities with site id
+        $site_id = get_current_blog_id(); // Use the current site or pass the desired site ID
+        $capabilities_key = "wp_{$site_id}_capabilities";
+        $user_level_key = "wp_{$site_id}_user_level";
+
+        delete_user_meta($user_id, $capabilities_key);
+        delete_user_meta($user_id, $user_level_key);
+
+
 
         return rest_ensure_response($user_data);
     }
