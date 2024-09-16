@@ -227,7 +227,6 @@ class WP_React_Settings_Rest_Route
             'id' => $user->ID,
             'username' => $user->user_login,
             'email' => $user->user_email,
-            'role' => implode(', ', $user->roles),
             'registered' => $user->user_registered
         ];
 
@@ -284,7 +283,7 @@ class WP_React_Settings_Rest_Route
         // Get the incoming data from the request
         $new_display_name = sanitize_text_field($request->get_param('username'));
         $new_email = sanitize_email($request->get_param('email'));
-        $new_role = sanitize_text_field($request->get_param('role'));
+        // $new_role = sanitize_text_field($request->get_param('role'));
 
         // Log the incoming request data
         error_log('Incoming data: ' . print_r($request->get_json_params(), true));
@@ -297,18 +296,7 @@ class WP_React_Settings_Rest_Route
             $userdata['user_email'] = $new_email;
         }
 
-        // Handle role update: If role is provided in the request, update it, otherwise preserve the current role
-        if (!empty($new_role)) {
-            if (!in_array($new_role, ['subscriber', 'editor', 'administrator'])) {
-                error_log('Invalid role provided: ' . $new_role);
-                return new WP_Error('invalid_role', 'Invalid role provided', array('status' => 400));
-            }
-            $userdata['role'] = $new_role;
-        } else {
-            // Preserve the current role if no new role is provided
-            $current_role = isset($existing_user->roles[0]) ? $existing_user->roles[0] : 'subscriber';
-            $userdata['role'] = $current_role;
-        }
+
 
         // Log the user data before updating
         error_log('User data to be updated: ' . print_r($userdata, true));
@@ -326,7 +314,7 @@ class WP_React_Settings_Rest_Route
         $meta_fields = $request->get_json_params();
         foreach ($meta_fields as $key => $value) {
             // Skip predefined fields and critical meta fields
-            if (in_array($key, ['username', 'email', 'role', 'id', 'registered', 'wp_capabilities', 'wp_user_level'])) {
+            if (in_array($key, ['username', 'email', 'id', 'registered', 'wp_capabilities', 'wp_user_level'])) {
                 continue;
             }
 
