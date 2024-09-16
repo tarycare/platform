@@ -241,6 +241,9 @@ class WP_React_Settings_Rest_Route
             }
         }
 
+        // remove user_capabilities 
+        unset($user_data['wp_capabilities']);
+
         return rest_ensure_response($user_data);
     }
 
@@ -314,7 +317,7 @@ class WP_React_Settings_Rest_Route
         $meta_fields = $request->get_json_params();
         foreach ($meta_fields as $key => $value) {
             // Skip predefined fields and critical meta fields
-            if (in_array($key, ['username', 'email', 'id', 'registered', 'wp_capabilities', 'wp_user_level'])) {
+            if (in_array($key, ['username', 'email', 'id', 'registered'])) {
                 continue;
             }
 
