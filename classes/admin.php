@@ -68,30 +68,40 @@ class WPRK_Create_Admin_Page
 
     public function create_member_menu()
     {
-        // Set a minimal capability
-        $capability = 'read';
-        $slug = 'staff';
+        // Set a minimal capability, or use a custom capability check
+        $capability = 'read'; // Ensure that 'read' is sufficient for members
 
-        // Get the current user's locale
-        $locale = determine_locale();
-
-        // add a menu page for members name 'Members'
-        if ($locale === 'ar' || $locale === 'ar_AR') {
-            $menu_title = 'الأعضاء'; // Arabic for 'Members'
-        } else {
-            $menu_title = 'Members';
+        // Check if the current user has 'staff_access' set to 'member'
+        $user_meta = get_user_meta(get_current_user_id(), 'wprk_user_meta', true);
+        $staff_access = '';
+        if (is_array($user_meta) && isset($user_meta['staff_access'])) {
+            $staff_access = $user_meta['staff_access'];
         }
 
-        add_menu_page(
-            $menu_title, // Page title
-            $menu_title, // Menu title
-            $capability, // Capability
-            $slug, // Menu slug
-            [$this, 'menu_page_template'], // Callback function
-            'dashicons-admin-users', // Icon
-            3 // Position
-        );
+        if ($staff_access === 'member') {
+            // Get the current user's locale
+            $locale = determine_locale();
+            $slug = 'staff';
+
+            // Add a menu page for members
+            if ($locale === 'ar' || $locale === 'ar_AR') {
+                $menu_title = 'الأعضاء'; // Arabic for 'Members'
+            } else {
+                $menu_title = 'Members';
+            }
+
+            add_menu_page(
+                $menu_title, // Page title
+                $menu_title, // Menu title
+                $capability, // Capability (ensure this is sufficient for members)
+                $slug, // Menu slug
+                [$this, 'menu_page_template'], // Callback function
+                'dashicons-admin-users', // Icon
+                3 // Position
+            );
+        }
     }
+
 
     public function menu_page_template()
     {
