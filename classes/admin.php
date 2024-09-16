@@ -3,7 +3,7 @@ class WPRK_Create_Admin_Page
 {
     public function __construct()
     {
-        // Hook earlier to set subscriber capabilities before admin checks
+        // Correct the reference to class method for the action hook
         add_action('init', [$this, 'allow_subscriber_access_plugins']);
         // Hook into 'init' to check user access and determine menu
         add_action('init', [$this, 'check_user_access']);
