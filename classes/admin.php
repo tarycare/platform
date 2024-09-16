@@ -13,7 +13,7 @@ class WPRK_Create_Admin_Page
         $is_admin = current_user_can('administrator');
 
         // Get user meta data
-        $user_meta = get_user_meta(get_current_user_id(), 'wprk_user_meta', true);
+        $user_meta = get_user_meta(get_current_user_id(), 'user_meta', true);
 
         // Check if $user_meta is an array before accessing it
         $staff_access = '';
