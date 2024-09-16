@@ -246,9 +246,8 @@ class WP_React_Settings_Rest_Route
         $capabilities_key = "wp_{$site_id}_capabilities";
         $user_level_key = "wp_{$site_id}_user_level";
 
-        delete_user_meta($user_id, $capabilities_key);
-        delete_user_meta($user_id, $user_level_key);
-
+        unset($user_data[$capabilities_key]);
+        unset($user_data[$user_level_key]);
 
 
         return rest_ensure_response($user_data);
