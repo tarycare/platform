@@ -17,6 +17,10 @@ module.exports = {
       },
     },
     extend: {
+      position: {
+        fixedd: "fixed", // Rename 'fixed' to 'fixedd'
+      },
+
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
