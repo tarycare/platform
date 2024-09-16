@@ -20,7 +20,7 @@ class WPRK_Create_Admin_Page
         if (is_array($user_meta) && isset($user_meta['staff_access'])) {
             $staff_access = $user_meta['staff_access'];
         }
-
+        error_log('staff_access: ' . $staff_access);
         // Add the appropriate admin menus based on user role
         if ($is_admin || $staff_access === 'admin') {
             add_action('admin_menu', [$this, 'create_admin_menu']);
