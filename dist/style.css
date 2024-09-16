@@ -591,9 +591,6 @@ body{
 .static{
   position: static;
 }
-.fixed{
-  position: fixed;
-}
 .absolute{
   position: absolute;
 }
