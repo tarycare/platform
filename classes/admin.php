@@ -3,9 +3,24 @@ class WPRK_Create_Admin_Page
 {
     public function __construct()
     {
+        add_action('admin_init', 'allow_subscriber_access_plugins');
+
         // Hook into the 'init' action to ensure WordPress is fully loaded
         add_action('init', [$this, 'check_user_access']);
     }
+
+    function allow_subscriber_access_plugins()
+    {
+        // Get the 'subscriber' role.
+        $role = get_role('subscriber');
+
+        // Add capability to manage plugins for a specific plugin (or a custom capability).
+        if ($role) {
+            // Example capability for a specific plugin
+            $role->add_cap('staff');
+        }
+    }
+
 
     public function check_user_access()
     {
@@ -113,43 +128,6 @@ class WPRK_Create_Admin_Page
             <div id="wp-react-app"></div>
         </div>';
     }
-
-
-    function allow_subscriber_access_plugins() {
-        // Get the 'subscriber' role.
-        $role = get_role('subscriber');
-    
-        // Add capability to manage plugins for a specific plugin (or a custom capability).
-        if ($role) {
-            // Example capability for a specific plugin
-            $role->add_cap('staff');
-        }
-    }
-    
-    add_action('admin_init', 'allow_subscriber_access_plugins');
-    
-    // Limit plugin visibility to specific plugins by filtering menu items
-    // function restrict_plugin_visibility() {
-    //     if (current_user_can('subscriber')) {
-    //         global $submenu;
-            
-    //         // Define specific plugins to show for the subscriber role (Plugin Slug or Name).
-    //         $allowed_plugins = array(
-    //             'plugin-folder/plugin-main-file.php', // Plugin path for the desired plugin
-    //             'another-plugin-folder/another-plugin-file.php'
-    //         );
-    
-    //         // Remove all other plugins except the allowed ones.
-    //         foreach ($submenu['plugins.php'] as $key => $plugin) {
-    //             if (!in_array($plugin[2], $allowed_plugins)) {
-    //                 unset($submenu['plugins.php'][$key]);
-    //             }
-    //         }
-    //     }
-    // }
-    
-    add_action('admin_menu', 'restrict_plugin_visibility', 999);
-    
 }
 
 new WPRK_Create_Admin_Page();
