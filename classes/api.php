@@ -248,6 +248,9 @@ class WP_React_Settings_Rest_Route
 
         unset($user_data[$capabilities_key]);
         unset($user_data[$user_level_key]);
+        // remove  wp_capabilities
+        unset($user_data['wp_capabilities']);
+        unset($user_data['wp_user_level']);
 
 
         return rest_ensure_response($user_data);
