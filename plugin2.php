@@ -7,8 +7,8 @@
  * Version: 1.3.0
  * Description: Manage Departments Members
  * Text-Domain: Departments
- * GitHub Plugin URI: tarycare/Departments
- * GitHub Plugin URI: https://github.com/tarycare/Departments
+ * GitHub Plugin URI: tarycare/staff
+ * GitHub Plugin URI: https://github.com/tarycare/staff
  */
 
 if (! defined('ABSPATH')) : exit();
