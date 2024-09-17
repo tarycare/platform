@@ -12,10 +12,13 @@ module.exports = (env, argv) => {
   const isDev = argv.mode === "development";
 
   return {
-    entry: "./src/index.tsx", // Update to .tsx entry
+    entry: {
+      bundle: "./src/index.tsx",
+      bundle2: "./src/index2.tsx",
+    }, // Update to .tsx entry
     output: {
       path: path.resolve(__dirname, "dist"),
-      filename: "bundle.js",
+      filename: "[name].js",
       publicPath: "/dist/",
     },
     module: {

@@ -21,7 +21,7 @@ jobs:
         shell: bash
         run: |
           shopt -s extglob
-          rm -rf !(dist|classes|plugin.php)
+          rm -rf !(dist|classes|plugin.php|plugin2.php)
 
       # Step 3: Remove the .github folder
       - name: Remove .github folder
