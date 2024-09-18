@@ -31,8 +31,8 @@ function load_scripts2()
         wp_enqueue_style('wp-react-style', 'http://localhost:3000/plugins/department/dist/style.css', [], wp_rand());
     } else {
         // Load the production bundle from the plugin directory
-        wp_enqueue_script('wp-react2', URL . 'dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react2-style', URL . 'dist/style.css', [], wp_rand());
+        wp_enqueue_script('wp-react2',  'plugins/department/dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);
+        wp_enqueue_style('wp-react2-style',  'plugins/department/dist/style.css', [], wp_rand());
     }
 
     // Localize script with handle 'wp-react2' and variable 'appLocalizer'
