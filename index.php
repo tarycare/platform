@@ -6,7 +6,7 @@
  * Version: 1.0
  * Author: Husam Nasrallah
  * Text-Domain: apps
- * GitHub Plugin URI: tarycare/apps
+ * GitHub Plugin URI: tarycare/staff
  * GitHub Plugin URI: https://github.com/tarycare/staff
 
  */
