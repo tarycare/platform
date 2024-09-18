@@ -8,7 +8,6 @@
  * Text-Domain: platform
  * GitHub Plugin URI: tarycare/platform
  * GitHub Plugin URI: https://github.com/tarycare/platform
-
  */
 
 // Define sub-plugins
@@ -16,17 +15,28 @@ $sub_plugins = [
     'staff' => [
         'label' => 'Staff Plugin',
         'dev_path' => 'dev-apps/staff/plugin.php',
-        'prod_path' => 'apps/staff/plugin.php',  // Path relative to this plugin's folder
+        'prod_path' => 'apps/staff/plugin.php',
         'option_name' => 'tary_plugins_staff'
     ],
     'department' => [
         'label' => 'Department Plugin',
         'dev_path' => 'dev-apps/department/plugin.php',
-        'prod_path' => 'apps/department/plugin.php',  // Path relative to this plugin's folder
+        'prod_path' => 'apps/department/plugin.php',
         'option_name' => 'tary_plugins_department'
     ],
+    'clinic' => [
+        'label' => 'Clinic Plugin',
+        'dev_path' => 'dev-apps/clinic/plugin.php',
+        'prod_path' => 'apps/clinic/plugin.php',
+        'option_name' => 'tary_plugins_clinic'
+    ],
+    'appointment' => [
+        'label' => 'Appointment Plugin',
+        'dev_path' => 'dev-apps/appointment/plugin.php',
+        'prod_path' => 'apps/appointment/plugin.php',
+        'option_name' => 'tary_plugins_appointment'
+    ],
 ];
-
 
 // Add menu to manage sub-plugins
 add_action('admin_menu', 'tary_plugins_menu');
@@ -88,6 +98,19 @@ function tary_plugins_settings()
     }
 }
 
+// Set default sub-plugin activation state on main plugin activation
+register_activation_hook(__FILE__, 'tary_plugins_activate');
+function tary_plugins_activate()
+{
+    global $sub_plugins;
+
+    foreach ($sub_plugins as $plugin_key => $plugin) {
+        if (get_option($plugin['option_name']) === false) {
+            update_option($plugin['option_name'], 1); // Set to active by default
+        }
+    }
+}
+
 // Load sub-plugins after all plugins are initialized
 add_action('plugins_loaded', 'tary_plugins_load_subplugins');
 function tary_plugins_load_subplugins()
@@ -95,7 +118,7 @@ function tary_plugins_load_subplugins()
     global $sub_plugins;
 
     foreach ($sub_plugins as $plugin) {
-        if (get_option($plugin['option_name'], 0)) {
+        if (get_option($plugin['option_name'], 1)) { // Default to active
             // Get the correct plugin path (production or development)
             $plugin_path = defined('WP_ENV') && WP_ENV === 'development'
                 ? plugin_dir_path(__FILE__) . $plugin['dev_path']
@@ -111,8 +134,7 @@ function tary_plugins_load_subplugins()
     }
 }
 
-
-// Handle plugin activation and deactivation
+// Handle plugin activation and deactivation dynamically
 foreach ($sub_plugins as $plugin_key => $plugin) {
     add_action('update_option_' . $plugin['option_name'], function ($old_value, $new_value) use ($plugin) {
         $plugin_path = defined('WP_ENV') && WP_ENV === 'development'
