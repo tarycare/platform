@@ -12,13 +12,13 @@ $sub_plugins = [
     'staff' => [
         'label' => 'Staff Plugin',
         'dev_path' => 'dev-plugins/staff/plugin.php',
-        'prod_path' => 'staff/plugin.php',  // Path relative to this plugin's folder
+        'prod_path' => 'staff/staff/plugin.php',  // Path relative to this plugin's folder
         'option_name' => 'tary_plugins_staff'
     ],
     'department' => [
         'label' => 'Department Plugin',
         'dev_path' => 'dev-plugins/department/plugin.php',
-        'prod_path' => 'department/plugin.php',  // Path relative to this plugin's folder
+        'prod_path' => 'staff/department/plugin.php',  // Path relative to this plugin's folder
         'option_name' => 'tary_plugins_department'
     ],
 ];
