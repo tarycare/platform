@@ -38,6 +38,10 @@ jobs:
       - name: Remove .gitignore file
         run: rm -rf .gitignore
 
+      # Step 3.5: Remove the .github/workflows folder
+      - name: Remove .github/workflows folder
+        run: rm -rf .github/workflows
+
       # Step 4: Configure Git
       - name: Configure Git
         run: |
