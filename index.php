@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Plugin Name: Tary Apps
- * Description: A plugin to manage all the Tary's apps.
- * Version: 1.0
+ * Plugin Name: Tary Platform
+ * Description: A plugin to manage all the Tary's Platform.
+ * Version: 1.0.1
  * Author: Husam Nasrallah
  * Text-Domain: platform
  * GitHub Plugin URI: tarycare/platform
