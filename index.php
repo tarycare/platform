@@ -5,6 +5,10 @@
  * Description: A plugin to manage all the clinic's apps.
  * Version: 1.0
  * Author: Husam Nasrallah
+ * Text-Domain: apps
+ * GitHub Plugin URI: tarycare/apps
+ * GitHub Plugin URI: https://github.com/tarycare/staff
+
  */
 
 // Define sub-plugins
