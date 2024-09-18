@@ -16,9 +16,9 @@ const combinedConfig = {
     department: "./src/department.tsx",
   },
   output: {
-    path: path.resolve(__dirname, "plugins"),
+    path: path.resolve(__dirname, "apps"),
     filename: "[name]/dist/[name].js",
-    publicPath: "/plugins/",
+    publicPath: "/apps/",
   },
   module: {
     rules: [
@@ -39,7 +39,7 @@ const combinedConfig = {
         generator: {
           filename: "[name][ext]",
           publicPath:
-            mode === "development" ? "/fonts/" : `/plugins/[name]/dist/fonts/`,
+            mode === "development" ? "/fonts/" : `/apps/[name]/dist/fonts/`,
           outputPath: "fonts",
         },
       },
@@ -62,22 +62,22 @@ const combinedConfig = {
     new CopyWebpackPlugin({
       patterns: [
         // {
-        //   from: "dev-plugins/staff/plugin.php",
+        //   from: "dev-apps/staff/plugin.php",
         //   to: "staff/plugin.php",
         //   context: path.resolve(__dirname),
         // },
         // {
-        //   from: "dev-plugins/department/plugin.php",
+        //   from: "dev-apps/department/plugin.php",
         //   to: "department/plugin.php",
         //   context: path.resolve(__dirname),
         // },
         {
-          from: "dev-plugins/staff",
+          from: "dev-apps/staff",
           to: "staff/",
           noErrorOnMissing: true,
         },
         {
-          from: "dev-plugins/department",
+          from: "dev-apps/department",
           to: "department/",
           noErrorOnMissing: true,
         },
@@ -89,12 +89,12 @@ const combinedConfig = {
     allowedHosts: "all",
     static: [
       {
-        directory: path.resolve(__dirname, "plugins/staff/dist"),
-        publicPath: "/plugins/staff/dist/",
+        directory: path.resolve(__dirname, "apps/staff/dist"),
+        publicPath: "/apps/staff/dist/",
       },
       {
-        directory: path.resolve(__dirname, "plugins/department/dist"),
-        publicPath: "/plugins/department/dist/",
+        directory: path.resolve(__dirname, "apps/department/dist"),
+        publicPath: "/apps/department/dist/",
       },
     ],
     hot: true,

@@ -29,8 +29,8 @@ function load_scripts2()
 
     if ($is_dev) {
         // Load from Webpack Dev Server during development
-        wp_enqueue_script('wp-react', 'http://localhost:3000/plugins/department/dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react-style', 'http://localhost:3000/plugins/department/dist/style.css', [], wp_rand());
+        wp_enqueue_script('wp-react', 'http://localhost:3000/apps/department/dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);
+        wp_enqueue_style('wp-react-style', 'http://localhost:3000/apps/department/dist/style.css', [], wp_rand());
     } else {
         // Load the production bundle from the plugin directory
         wp_enqueue_script('wp-react2', URL_D . 'dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);

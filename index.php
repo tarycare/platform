@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Plugin Name: Tary Clinic
- * Description: A plugin to manage all the clinic's apps.
+ * Plugin Name: Tary Apps
+ * Description: A plugin to manage all the Tary's apps.
  * Version: 1.0
  * Author: Husam Nasrallah
- * Text-Domain: apps
- * GitHub Plugin URI: tarycare/staff
- * GitHub Plugin URI: https://github.com/tarycare/staff
+ * Text-Domain: platform
+ * GitHub Plugin URI: tarycare/platform
+ * GitHub Plugin URI: https://github.com/tarycare/platform
 
  */
 
@@ -34,8 +34,8 @@ add_action('admin_menu', 'tary_plugins_menu');
 function tary_plugins_menu()
 {
     add_menu_page(
-        'Tary Clinic',
-        'Tary Clinic',
+        'Tary platform',
+        'Tary platform',
         'manage_options',
         'tary_plugins',
         'tary_plugins_page',
