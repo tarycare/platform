@@ -9,6 +9,9 @@
 
 // Add menu to manage sub-plugins
 add_action('admin_menu', 'tary_plugins_menu');
+
+
+
 function tary_plugins_menu()
 {
     add_menu_page(
@@ -86,11 +89,12 @@ function tary_plugins_department_callback()
 
 // Require sub-plugin files so they are loaded
 if (get_option('tary_plugins_staff', 0)) {
-    require_once plugin_dir_path(__FILE__) . 'dev-plugins/staff/plugin.php';
+
+    defined('WP_ENV') && WP_ENV === 'development' ? require_once plugin_dir_path(__FILE__) . 'dev-plugins/staff/plugin.php' : require_once plugin_dir_path(__FILE__) . 'staff/plugin.php';
 }
 
 if (get_option('tary_plugins_department', 0)) {
-    require_once plugin_dir_path(__FILE__) . 'dev-plugins/department/plugin.php';
+    defined('WP_ENV') && WP_ENV === 'development' ? require_once plugin_dir_path(__FILE__) . 'dev-plugins/department/plugin.php' : require_once plugin_dir_path(__FILE__) . 'department/plugin.php';
 }
 
 // Hook into option updates to handle plugin activation and deactivation
@@ -100,7 +104,7 @@ add_action('update_option_tary_plugins_department', 'tary_plugins_department_act
 // Activation/Deactivation for Staff Plugin
 function tary_plugins_staff_activation($old_value, $new_value)
 {
-    $staff_plugin = plugin_basename(plugin_dir_path(__FILE__) . 'dev-plugins/staff/plugin.php');
+    defined('WP_ENV') && WP_ENV === 'development' ? $staff_plugin = plugin_basename(plugin_dir_path(__FILE__) . 'dev-plugins/staff/plugin.php') : $staff_plugin = plugin_basename(plugin_dir_path(__FILE__) . 'staff/plugin.php');
 
     // Activate the staff plugin
     if ($new_value == 1 && !is_plugin_active($staff_plugin)) {
@@ -115,7 +119,9 @@ function tary_plugins_staff_activation($old_value, $new_value)
 // Activation/Deactivation for Department Plugin
 function tary_plugins_department_activation($old_value, $new_value)
 {
-    $department_plugin = plugin_basename(plugin_dir_path(__FILE__) . 'dev-plugins/department/plugin.php');
+    $department_plugin = defined('WP_ENV') && WP_ENV === 'development'
+        ? plugin_basename(plugin_dir_path(__FILE__) . 'dev-plugins/department/plugin.php')
+        : plugin_basename(plugin_dir_path(__FILE__) . 'department/plugin.php');
 
     // Activate the department plugin
     if ($new_value == 1 && !is_plugin_active($department_plugin)) {
