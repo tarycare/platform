@@ -6,11 +6,9 @@
  * Author URI: https://github.com/tarycare
  * Version: 1.3.0
  * Description: Manage Staff Members
- * Text Domain: staff
+ * Text-Domain: staff
+ * GitHub Plugin URI: tarycare/staff
  * GitHub Plugin URI: https://github.com/tarycare/staff
- * Requires PHP: 7.4
- * License: GPL-2.0+
- * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
 if (! defined('ABSPATH')) : exit();
@@ -20,7 +18,7 @@ endif; // No direct access allowed.
  * Define Plugins Contants
  */
 define('PATH', trailingslashit(plugin_dir_path(__FILE__)));
-define('WPRK_URL', trailingslashit(plugins_url('/', __FILE__)));
+define('URL', trailingslashit(plugins_url('/', __FILE__)));
 /**
  * Loading Necessary Scripts
  */
@@ -37,8 +35,8 @@ function load_scripts()
         wp_enqueue_style('wp-react-style', 'http://localhost:3000/plugins/staff/dist/style.css', [], wp_rand());
     } else {
         // Load the production bundle from the plugin directory
-        wp_enqueue_script('wp-react', WPRK_URL . 'dist/staff.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react-style', WPRK_URL . 'dist/style.css', [], wp_rand());
+        wp_enqueue_script('wp-react', URL . 'dist/staff.js', ['jquery', 'wp-element'], wp_rand(), true);
+        wp_enqueue_style('wp-react-style', URL . 'dist/style.css', [], wp_rand());
     }
 
     // Localize script with handle 'wp-react' and variable 'appLocalizer'
