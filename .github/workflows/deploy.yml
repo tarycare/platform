@@ -86,6 +86,6 @@ jobs:
       # Step 9: Deploy to production crul https://app.tary.care/wp-json/git-updater/v1/update/?key=6692e6ed856f3dfe35cf0ffd7687a061&plugin=platform
       - name: Deploy to production
         run: |
-          curl https://app.tary.care/wp-json/git-updater/v1/update/?key=6692e6ed856f3dfe35cf0ffd7687a061&plugin=platform&branch=staging
+          curl 'https://app.tary.care/wp-json/git-updater/v1/update/?key=6692e6ed856f3dfe35cf0ffd7687a061&plugin=platform&branch=staging'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
