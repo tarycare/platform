@@ -12,17 +12,17 @@ $sub_plugins = [
     'staff' => [
         'label' => 'Staff Plugin',
         'dev_path' => 'dev-plugins/staff/plugin.php',
-        'prod_path' => 'plugins/staff/plugin.php',
+        'prod_path' => 'staff/plugin.php',  // Path relative to this plugin's folder
         'option_name' => 'tary_plugins_staff'
     ],
     'department' => [
         'label' => 'Department Plugin',
         'dev_path' => 'dev-plugins/department/plugin.php',
-        'prod_path' => 'plugins/department/plugin.php',
+        'prod_path' => 'department/plugin.php',  // Path relative to this plugin's folder
         'option_name' => 'tary_plugins_department'
     ],
-    // Add more sub-plugins here in the future
 ];
+
 
 // Add menu to manage sub-plugins
 add_action('admin_menu', 'tary_plugins_menu');
@@ -92,14 +92,21 @@ function tary_plugins_load_subplugins()
 
     foreach ($sub_plugins as $plugin) {
         if (get_option($plugin['option_name'], 0)) {
+            // Get the correct plugin path (production or development)
             $plugin_path = defined('WP_ENV') && WP_ENV === 'development'
-                ? $plugin['dev_path']
-                : $plugin['prod_path'];
+                ? plugin_dir_path(__FILE__) . $plugin['dev_path']
+                : plugin_dir_path(__FILE__) . $plugin['prod_path'];
 
-            require_once plugin_dir_path(__FILE__) . $plugin_path;
+            // Check if the file exists before requiring it
+            if (file_exists($plugin_path)) {
+                require_once $plugin_path;
+            } else {
+                error_log("Plugin file not found: " . $plugin_path);
+            }
         }
     }
 }
+
 
 // Handle plugin activation and deactivation
 foreach ($sub_plugins as $plugin_key => $plugin) {
