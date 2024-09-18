@@ -1,6 +1,7 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { DefinePlugin } = require("webpack");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const dotenv = require("dotenv");
 
 const mode = process.env.NODE_ENV || "production";
@@ -8,79 +9,107 @@ const mode = process.env.NODE_ENV || "production";
 const envFile = `.env.${mode}`;
 dotenv.config({ path: envFile });
 
-module.exports = (env, argv) => {
-  const isDev = argv.mode === "development";
-
-  return {
-    entry: {
-      bundle: "./src/index.tsx",
-      bundle2: "./src/index2.tsx",
-    }, // Update to .tsx entry
-    output: {
-      path: path.resolve(__dirname, "dist"),
-      filename: "[name].js",
-      publicPath: "/dist/",
+// Define your multiple configurations with shared devServer settings
+const combinedConfig = {
+  entry: {
+    staff: "./src/staff.tsx",
+    department: "./src/department.tsx",
+  },
+  output: {
+    path: path.resolve(__dirname, "plugins"),
+    filename: "[name]/dist/[name].js",
+    publicPath: "/plugins/",
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(ts|tsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "ts-loader",
+        },
+      },
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
+      },
+      {
+        test: /\.(woff(2)?|eot|ttf|otf|svg)$/,
+        type: "asset/resource",
+        generator: {
+          filename: "[name][ext]",
+          publicPath:
+            mode === "development" ? "/fonts/" : `/plugins/[name]/dist/fonts/`,
+          outputPath: "fonts",
+        },
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
+    alias: {
+      "@": path.resolve(__dirname, "src"),
     },
-    module: {
-      rules: [
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: "[name]/dist/style.css",
+    }),
+    new DefinePlugin({
+      // Only set custom environment variables, not NODE_ENV
+      "process.env.API_URL": JSON.stringify(process.env.API_URL),
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        // {
+        //   from: "dev-plugins/staff/plugin.php",
+        //   to: "staff/plugin.php",
+        //   context: path.resolve(__dirname),
+        // },
+        // {
+        //   from: "dev-plugins/department/plugin.php",
+        //   to: "department/plugin.php",
+        //   context: path.resolve(__dirname),
+        // },
         {
-          test: /\.(ts|tsx)$/, // Add TypeScript loader
-          exclude: /node_modules/,
-          use: {
-            loader: "ts-loader",
-          },
+          from: "dev-plugins/staff",
+          to: "staff/",
+          noErrorOnMissing: true,
         },
         {
-          test: /\.css$/,
-          use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
-        },
-        {
-          test: /\.(woff(2)?|eot|ttf|otf|svg)$/,
-          type: "asset/resource",
-          generator: {
-            filename: "[name][ext]",
-            publicPath: isDev
-              ? "/dist/fonts/"
-              : "/wp-content/plugins/wp-react/dist/fonts/",
-            outputPath: "fonts",
-          },
+          from: "dev-plugins/department",
+          to: "department/",
+          noErrorOnMissing: true,
         },
       ],
-    },
-    resolve: {
-      extensions: [".ts", ".tsx", ".js", ".jsx"], // Add TypeScript extensions
-      alias: {
-        "@": path.resolve(__dirname, "src"),
+    }),
+  ],
+  devServer: {
+    historyApiFallback: true,
+    allowedHosts: "all",
+    static: [
+      {
+        directory: path.resolve(__dirname, "plugins/staff/dist"),
+        publicPath: "/plugins/staff/dist/",
       },
-    },
-    plugins: [
-      new MiniCssExtractPlugin({
-        filename: "style.css",
-      }),
-      new DefinePlugin({
-        "process.env.NODE_ENV": JSON.stringify(argv.mode),
-        "process.env.API_URL": JSON.stringify(process.env.API_URL),
-      }),
+      {
+        directory: path.resolve(__dirname, "plugins/department/dist"),
+        publicPath: "/plugins/department/dist/",
+      },
     ],
-    devServer: {
-      historyApiFallback: true,
-      allowedHosts: "all",
-      static: {
-        directory: path.resolve(__dirname, "dist"),
-      },
-      hot: true,
-      port: 3000,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods":
-          "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers":
-          "X-Requested-With, content-type, Authorization",
-      },
+    hot: true,
+    port: 3000,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "X-Requested-With, content-type, Authorization",
     },
-    mode: argv.mode,
-    stats: {
-      errorDetails: true,
-    },
-  };
+  },
+  mode,
+  stats: {
+    errorDetails: true,
+  },
 };
+
+module.exports = combinedConfig;

@@ -17,9 +17,8 @@ endif; // No direct access allowed.
 /**
  * Define Plugins Contants
  */
-define('WPRK_PATH', trailingslashit(plugin_dir_path(__FILE__)));
+define('PATH', trailingslashit(plugin_dir_path(__FILE__)));
 define('WPRK_URL', trailingslashit(plugins_url('/', __FILE__)));
-
 /**
  * Loading Necessary Scripts
  */
@@ -32,12 +31,12 @@ function load_scripts()
 
     if ($is_dev) {
         // Load from Webpack Dev Server during development
-        wp_enqueue_script('wp-react', 'http://localhost:3000/dist/bundle.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react-style', 'http://localhost:3000/dist/style.css', [], wp_rand());
+        wp_enqueue_script('wp-react', 'http://localhost:3000/plugins/staff/dist/staff.js', ['jquery', 'wp-element'], wp_rand(), true);
+        wp_enqueue_style('wp-react-style', 'http://localhost:3000/plugins/staff/dist/style.css', [], wp_rand());
     } else {
         // Load the production bundle from the plugin directory
-        wp_enqueue_script('wp-react', WPRK_URL . 'dist/bundle.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react-style', WPRK_URL . 'dist/style.css', [], wp_rand());
+        wp_enqueue_script('wp-react', WPRK_URL . 'plugins/staff/dist/bundle.js', ['jquery', 'wp-element'], wp_rand(), true);
+        wp_enqueue_style('wp-react-style', WPRK_URL . 'plugins/staff/dist/style.css', [], wp_rand());
     }
 
     // Localize script with handle 'wp-react' and variable 'appLocalizer'
@@ -49,6 +48,5 @@ function load_scripts()
 add_action('admin_enqueue_scripts', 'load_scripts');
 
 
-
-require_once WPRK_PATH . 'classes/admin.php';
-require_once WPRK_PATH . 'classes/api.php';
+require_once PATH . 'includes/admin.php';
+// require_once PATH . 'plugins/staff/includes/api.php';
