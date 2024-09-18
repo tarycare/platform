@@ -1,13 +1,13 @@
-const path = require('path')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { DefinePlugin } = require('webpack')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const dotenv = require('dotenv')
+const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { DefinePlugin } = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const dotenv = require('dotenv');
 
-const mode = process.env.NODE_ENV || 'production'
+const mode = process.env.NODE_ENV || 'production';
 
-const envFile = `.env.${mode}`
-dotenv.config({ path: envFile })
+const envFile = `.env.${mode}`;
+dotenv.config({ path: envFile });
 
 // Define your multiple configurations with shared devServer settings
 const combinedConfig = {
@@ -59,7 +59,7 @@ const combinedConfig = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '[name]/dist/style.css',
+            filename: 'assets/style.css', // Single CSS file output in the assets directory
         }),
         new DefinePlugin({
             // Only set custom environment variables, not NODE_ENV
@@ -80,6 +80,12 @@ const combinedConfig = {
             ],
         }),
     ],
+    cache: {
+        type: 'filesystem', // Enable filesystem caching
+        buildDependencies: {
+            config: [__filename], // Cache is invalidated when the config file changes
+        },
+    },
     devServer: {
         historyApiFallback: true,
         allowedHosts: 'all',
@@ -107,6 +113,6 @@ const combinedConfig = {
     stats: {
         errorDetails: true,
     },
-}
+};
 
-module.exports = combinedConfig
+module.exports = combinedConfig;

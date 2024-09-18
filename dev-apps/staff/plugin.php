@@ -32,11 +32,11 @@ function load_scripts()
     if ($is_dev) {
         // Load from Webpack Dev Server during development
         wp_enqueue_script('wp-react', 'http://localhost:3000/apps/staff/dist/staff.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react-style', 'http://localhost:3000/apps/staff/dist/style.css', [], wp_rand());
+        wp_enqueue_style('wp-react-style', 'http://localhost:3000/apps/assets/style.css', [], wp_rand());
     } else {
         // Load the production bundle from the plugin directory
         wp_enqueue_script('wp-react', URL_S . 'dist/staff.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react-style', URL_S . 'dist/style.css', [], wp_rand());
+        wp_enqueue_style('wp-react-style', URL_S . 'assets/style.css', [], wp_rand());
     }
 
     // Localize script with handle 'wp-react' and variable 'appLocalizer'
