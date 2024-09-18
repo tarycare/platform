@@ -12,13 +12,13 @@ $sub_plugins = [
     'staff' => [
         'label' => 'Staff Plugin',
         'dev_path' => 'dev-plugins/staff/plugin.php',
-        'prod_path' => 'plugin.php',
+        'prod_path' => 'plugins/staff/plugin.php',
         'option_name' => 'tary_plugins_staff'
     ],
     'department' => [
         'label' => 'Department Plugin',
         'dev_path' => 'dev-plugins/department/plugin.php',
-        'prod_path' => 'plugin.php',
+        'prod_path' => 'plugins/department/plugin.php',
         'option_name' => 'tary_plugins_department'
     ],
     // Add more sub-plugins here in the future
