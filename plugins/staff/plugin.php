@@ -6,9 +6,11 @@
  * Author URI: https://github.com/tarycare
  * Version: 1.3.0
  * Description: Manage Staff Members
- * Text-Domain: staff
- * GitHub Plugin URI: tarycare/staff
+ * Text Domain: staff
  * GitHub Plugin URI: https://github.com/tarycare/staff
+ * Requires PHP: 7.4
+ * License: GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
 if (! defined('ABSPATH')) : exit();

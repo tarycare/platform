@@ -7,10 +7,25 @@
  * Author: Husam Nasrallah
  */
 
+// Define sub-plugins
+$sub_plugins = [
+    'staff' => [
+        'label' => 'Staff Plugin',
+        'dev_path' => 'dev-plugins/staff/plugin.php',
+        'prod_path' => 'staff/plugin.php',
+        'option_name' => 'tary_plugins_staff'
+    ],
+    'department' => [
+        'label' => 'Department Plugin',
+        'dev_path' => 'dev-plugins/department/plugin.php',
+        'prod_path' => 'department/plugin.php',
+        'option_name' => 'tary_plugins_department'
+    ],
+    // Add more sub-plugins here in the future
+];
+
 // Add menu to manage sub-plugins
 add_action('admin_menu', 'tary_plugins_menu');
-
-
 
 function tary_plugins_menu()
 {
@@ -19,7 +34,7 @@ function tary_plugins_menu()
         'Tary Clinic',
         'manage_options',
         'tary_plugins',
-        'tary_plugins_page', // Fixed the typo here
+        'tary_plugins_page',
         'dashicons-admin-generic',
         3
     );
@@ -42,93 +57,64 @@ function tary_plugins_page()
 <?php
 }
 
-// Register settings for activation/deactivation of sub-plugins
+// Register settings and sections dynamically
 add_action('admin_init', 'tary_plugins_settings');
 function tary_plugins_settings()
 {
-    register_setting('tary_plugins_options', 'tary_plugins_staff');
-    register_setting('tary_plugins_options', 'tary_plugins_department');
+    global $sub_plugins;
 
-    add_settings_section(
-        'tary_plugins_section',
-        'Sub Plugins',
-        null,
-        'tary_plugins'
-    );
-
-    add_settings_field(
-        'tary_plugins_staff',
-        'Staff Plugin',
-        'tary_plugins_staff_callback',
-        'tary_plugins',
-        'tary_plugins_section'
-    );
-
-    add_settings_field(
-        'tary_plugins_department',
-        'Department Plugin',
-        'tary_plugins_department_callback',
-        'tary_plugins',
-        'tary_plugins_section'
-    );
-}
-
-// Output for Staff Plugin checkbox
-function tary_plugins_staff_callback()
-{
-    $option = get_option('tary_plugins_staff', 0);
-    echo '<input type="checkbox" name="tary_plugins_staff" ' . checked(1, $option, false) . ' value="1" />';
-}
-
-// Output for Department Plugin checkbox
-function tary_plugins_department_callback()
-{
-    $option = get_option('tary_plugins_department', 0);
-    echo '<input type="checkbox" name="tary_plugins_department" ' . checked(1, $option, false) . ' value="1" />';
-}
-
-// Require sub-plugin files so they are loaded
-if (get_option('tary_plugins_staff', 0)) {
-
-    defined('WP_ENV') && WP_ENV === 'development' ? require_once plugin_dir_path(__FILE__) . 'dev-plugins/staff/plugin.php' : require_once plugin_dir_path(__FILE__) . 'staff/plugin.php';
-}
-
-if (get_option('tary_plugins_department', 0)) {
-    defined('WP_ENV') && WP_ENV === 'development' ? require_once plugin_dir_path(__FILE__) . 'dev-plugins/department/plugin.php' : require_once plugin_dir_path(__FILE__) . 'department/plugin.php';
-}
-
-// Hook into option updates to handle plugin activation and deactivation
-add_action('update_option_tary_plugins_staff', 'tary_plugins_staff_activation', 10, 2);
-add_action('update_option_tary_plugins_department', 'tary_plugins_department_activation', 10, 2);
-
-// Activation/Deactivation for Staff Plugin
-function tary_plugins_staff_activation($old_value, $new_value)
-{
-    defined('WP_ENV') && WP_ENV === 'development' ? $staff_plugin = plugin_basename(plugin_dir_path(__FILE__) . 'dev-plugins/staff/plugin.php') : $staff_plugin = plugin_basename(plugin_dir_path(__FILE__) . 'staff/plugin.php');
-
-    // Activate the staff plugin
-    if ($new_value == 1 && !is_plugin_active($staff_plugin)) {
-        activate_plugin($staff_plugin);
-    }
-    // Deactivate the staff plugin
-    elseif ($new_value == 0 && is_plugin_active($staff_plugin)) {
-        deactivate_plugins($staff_plugin);
+    foreach ($sub_plugins as $plugin_key => $plugin) {
+        register_setting('tary_plugins_options', $plugin['option_name']);
+        add_settings_section(
+            'tary_plugins_section',
+            'Sub Plugins',
+            null,
+            'tary_plugins'
+        );
+        add_settings_field(
+            $plugin['option_name'],
+            $plugin['label'],
+            function () use ($plugin) {
+                $option = get_option($plugin['option_name'], 0);
+                echo '<input type="checkbox" name="' . $plugin['option_name'] . '" ' . checked(1, $option, false) . ' value="1" />';
+            },
+            'tary_plugins',
+            'tary_plugins_section'
+        );
     }
 }
 
-// Activation/Deactivation for Department Plugin
-function tary_plugins_department_activation($old_value, $new_value)
+// Load sub-plugins after all plugins are initialized
+add_action('plugins_loaded', 'tary_plugins_load_subplugins');
+function tary_plugins_load_subplugins()
 {
-    $department_plugin = defined('WP_ENV') && WP_ENV === 'development'
-        ? plugin_basename(plugin_dir_path(__FILE__) . 'dev-plugins/department/plugin.php')
-        : plugin_basename(plugin_dir_path(__FILE__) . 'department/plugin.php');
+    global $sub_plugins;
 
-    // Activate the department plugin
-    if ($new_value == 1 && !is_plugin_active($department_plugin)) {
-        activate_plugin($department_plugin);
+    foreach ($sub_plugins as $plugin) {
+        if (get_option($plugin['option_name'], 0)) {
+            $plugin_path = defined('WP_ENV') && WP_ENV === 'development'
+                ? $plugin['dev_path']
+                : $plugin['prod_path'];
+
+            require_once plugin_dir_path(__FILE__) . $plugin_path;
+        }
     }
-    // Deactivate the department plugin
-    elseif ($new_value == 0 && is_plugin_active($department_plugin)) {
-        deactivate_plugins($department_plugin);
-    }
+}
+
+// Handle plugin activation and deactivation
+foreach ($sub_plugins as $plugin_key => $plugin) {
+    add_action('update_option_' . $plugin['option_name'], function ($old_value, $new_value) use ($plugin) {
+        $plugin_path = defined('WP_ENV') && WP_ENV === 'development'
+            ? $plugin['dev_path']
+            : $plugin['prod_path'];
+
+        $plugin_basename = plugin_basename(plugin_dir_path(__FILE__) . $plugin_path);
+
+        // Activate or deactivate based on the option value
+        if ($new_value == 1 && !is_plugin_active($plugin_basename)) {
+            activate_plugin($plugin_basename);
+        } elseif ($new_value == 0 && is_plugin_active($plugin_basename)) {
+            deactivate_plugins($plugin_basename);
+        }
+    }, 10, 2);
 }
