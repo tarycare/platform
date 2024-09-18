@@ -23,9 +23,20 @@ jobs:
           shopt -s extglob
           rm -rf !(plugins)
 
-      # Step 3: Remove the .github folder
-      - name: Remove .github folder
-        run: rm -rf .github
+      # Step 3.1: Remove the .vscode folder
+      - name: Remove .vscode folder
+        run: rm -rf .vscode
+      # Step 3.2: Remove the .babelrc file
+      - name: Remove .babelrc file
+        run: rm -rf .babelrc
+
+      # Step 3.3: Remove the .eslenrc.json file
+      - name: Remove .eslintrc.json file
+        run: rm -rf .eslintrc.json
+
+      # Step 3.4: Remove the .gitignore file
+      - name: Remove .gitignore file
+        run: rm -rf .gitignore
 
       # Step 4: Configure Git
       - name: Configure Git
