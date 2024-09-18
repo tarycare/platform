@@ -51,4 +51,4 @@ add_action('admin_enqueue_scripts', 'load_scripts');
 
 
 require_once PATH . 'includes/admin.php';
-// require_once PATH . 'plugins/staff/includes/api.php';
+require_once PATH . 'includes/api.php';
