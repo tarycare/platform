@@ -21,7 +21,7 @@ jobs:
         shell: bash
         run: |
           shopt -s extglob
-          rm -rf !(plugins|index.php)
+          rm -rf !(apps|index.php)
 
       # Step 3.1: Remove the .vscode folder
       - name: Remove .vscode folder
