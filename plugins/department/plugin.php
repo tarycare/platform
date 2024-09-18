@@ -13,6 +13,8 @@
 
 if (! defined('ABSPATH')) : exit();
 endif; // No direct access allowed.
+define('PATH_D', trailingslashit(plugin_dir_path(__FILE__)));
+define('URL_D', trailingslashit(plugins_url('/', __FILE__)));
 
 
 /**
@@ -31,8 +33,8 @@ function load_scripts2()
         wp_enqueue_style('wp-react-style', 'http://localhost:3000/plugins/department/dist/style.css', [], wp_rand());
     } else {
         // Load the production bundle from the plugin directory
-        wp_enqueue_script('wp-react2',  '/plugins/department/dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react2-style',  '/plugins/department/dist/style.css', [], wp_rand());
+        wp_enqueue_script('wp-react2', URL . 'dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);
+        wp_enqueue_style('wp-react2-style', URL . 'dist/style.css', [], wp_rand());
     }
 
     // Localize script with handle 'wp-react2' and variable 'appLocalizer'
@@ -45,5 +47,5 @@ add_action('admin_enqueue_scripts', 'load_scripts2');
 
 
 
-require_once PATH . 'includes/admin.php';
-require_once PATH . 'includes/api.php';
+require_once PATH_D . 'includes/admin.php';
+require_once PATH_D . 'includes/api.php';
