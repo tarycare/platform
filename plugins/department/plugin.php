@@ -13,8 +13,6 @@
 
 if (! defined('ABSPATH')) : exit();
 endif; // No direct access allowed.
-define('PATH', trailingslashit(plugin_dir_path(__FILE__)));
-define('URL', trailingslashit(plugins_url('/', __FILE__)));
 
 
 /**
