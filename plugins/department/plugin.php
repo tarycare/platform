@@ -27,12 +27,12 @@ function load_scripts2()
 
     if ($is_dev) {
         // Load from Webpack Dev Server during development
-        wp_enqueue_script('wp-react2', 'http://localhost:3000/dist/bundle2.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react2-style', 'http://localhost:3000/dist/style.css', [], wp_rand());
+        wp_enqueue_script('wp-react', 'http://localhost:3000/plugins/department/dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);
+        wp_enqueue_style('wp-react-style', 'http://localhost:3000/plugins/department/dist/style.css', [], wp_rand());
     } else {
         // Load the production bundle from the plugin directory
-        wp_enqueue_script('wp-react2', WPRK_URL . 'dist/bundle2.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react2-style', WPRK_URL . 'dist/style.css', [], wp_rand());
+        wp_enqueue_script('wp-react2', WPRK_URL . 'plugins/department/dist/department.js', ['jquery', 'wp-element'], wp_rand(), true);
+        wp_enqueue_style('wp-react2-style', WPRK_URL . 'plugins/department/dist/style.css', [], wp_rand());
     }
 
     // Localize script with handle 'wp-react2' and variable 'appLocalizer'
@@ -45,5 +45,5 @@ add_action('admin_enqueue_scripts', 'load_scripts2');
 
 
 
-require_once WPRK_PATH . 'classes/admin2.php';
-require_once WPRK_PATH . 'classes/api2.php';
+// require_once PATH . 'plugins/department/includes/admin.php';
+// require_once PATH . 'plugins/department/includes/api.php';
