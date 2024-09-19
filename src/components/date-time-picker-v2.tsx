@@ -1,66 +1,74 @@
 // @ts-nocheck
-import { CalendarIcon } from '@radix-ui/react-icons'
-import { format } from 'date-fns'
-import { useState } from 'react'
-import { cn } from '../lib/utils'
-import { Button } from './ui/button'
-import { Calendar } from './ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
+import { useState } from "react";
+import { cn } from "../lib/utils";
+import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export function DateTimePickerV2({
-    selectedDate = () => {}, // Default to an empty function if not provided
-    placeholder, // Corrected the typo here
-    lang = 'en', // Default to "en" if not provided
+  selectedDate = () => {}, // Callback for when a date is selected
+  placeholder, // Placeholder text
+  value = "", // Date value passed from formState
+  lang = "en", // Language (optional)
 }: {
-    selectedDate: (date: string) => void
-    placeholder: string // Corrected the typo here
+  selectedDate: (date: string) => void;
+  placeholder: string;
+  value?: string; // Add value prop to accept the initial date from formState
 }) {
-    const [isOpen, setIsOpen] = useState(false)
-    const [date, setDate] = useState<Date | null>(null)
+  const [isOpen, setIsOpen] = useState(false);
 
-    const handleDateChange = (selected: Date | null) => {
-        if (selected) {
-            setDate(selected)
-            const formattedDate = format(selected, 'dd/MM/yyyy')
-            selectedDate(formattedDate) // Pass the selected date back to the parent
-            setIsOpen(false) // Close the calendar after selecting a date
-        }
+  // convert date format from dd-MM-yyyy to dd/MM/yyyy
+  const dateValue = value.split("-").join("/");
+
+  const [date, setDate] = useState<Date | null>(
+    value ? new Date(dateValue) : null // Initialize with the date from formState, if available
+  );
+
+  const handleDateChange = (selected: Date | null) => {
+    if (selected) {
+      setDate(selected);
+      const formattedDate = format(selected, "dd/MM/yyyy"); // Format to dd/MM/yyyy
+      selectedDate(formattedDate); // Pass the selected date back to the parent
+      setIsOpen(false); // Close the calendar
     }
+  };
 
-    return (
-        <>
-            <div className="flex gap-4">
-                <Popover open={isOpen} onOpenChange={setIsOpen}>
-                    <PopoverTrigger asChild>
-                        <div
-                            variant={'outline'}
-                            className={cn(
-                                'flex w-full cursor-pointer items-center rounded-sm border bg-white px-2 py-[8px] pb-[6px] font-medium hover:bg-background hover:text-accent-foreground dark:bg-transparent',
-                                !date && 'text-muted-foreground'
-                            )}
-                            onClick={() => setIsOpen(true)} // Open the calendar when clicking the trigger
-                        >
-                            {date ? (
-                                `${format(date, 'dd/MM/yyyy')}`
-                            ) : (
-                                <span>{placeholder && placeholder}</span> // Use placeholder correctly
-                            )}
-                            <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
-                        </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            captionLayout="dropdown"
-                            selected={date}
-                            onSelect={handleDateChange} // Call handleDateChange when a date is selected
-                            fromYear={1940}
-                            toYear={new Date().getFullYear() + 20}
-                            lang={lang}
-                        />
-                    </PopoverContent>
-                </Popover>
+  return (
+    <>
+      <div className="flex  gap-4">
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <PopoverTrigger asChild>
+            <div
+              variant={"outline"}
+              className={cn(
+                "w-full flex items-center dark:bg-transparent bg-white border cursor-pointer py-[8px] pb-[6px] font-medium px-2 rounded-sm hover:text-accent-foreground hover:bg-background",
+                !date && "text-muted-foreground"
+              )}
+              onClick={() => setIsOpen(true)}
+            >
+              {date ? (
+                `${format(date, "dd-MM-yyyy")} `
+              ) : (
+                <span>{value ? value : placeholder}</span>
+              )}
+              <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
             </div>
-        </>
-    )
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              captionLayout="dropdown"
+              selected={date}
+              onSelect={handleDateChange}
+              fromYear={1940}
+              toYear={new Date().getFullYear() + 20}
+              lang={lang}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+    </>
+  );
 }

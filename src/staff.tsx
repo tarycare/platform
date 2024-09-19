@@ -7,7 +7,6 @@ import { createHashRouter, RouterProvider, RouteObject } from 'react-router-dom'
 import AddOrUpdateStaff from './pages/AddOrUpdateStaff'
 import StaffDetails from './pages/StaffDetails'
 import NotFound from './components/NotFound'
-import App from './app'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
@@ -24,7 +23,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CreateAndUpdateFormPage />
+                    <AddOrUpdateStaff />
                 </div>
             </div>
         ),
@@ -34,7 +33,8 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CreateAndUpdateFormPage />
+                    {/* <CreateAndUpdateFormPage /> */}
+                    <AddOrUpdateStaff />
                 </div>
             </div>
         ),

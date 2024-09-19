@@ -99,8 +99,22 @@ class WP_React_Settings_Rest_Route
                 return current_user_can('create_users') || current_user_can('edit_users');
             }
         ]);
+
+        // get api to get current site id 
+        register_rest_route('staff/v1', '/site', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_site_id'],
+            'permission_callback' => '__return_true'
+        ]);
     }
 
+    // Function to get current site id
+    public function get_site_id()
+    {
+        return rest_ensure_response([
+            'site_id' => get_current_blog_id()
+        ]);
+    }
 
     // Function to add a user
     public function add_staff($request)
@@ -117,8 +131,14 @@ class WP_React_Settings_Rest_Route
             return new WP_Error('missing_fields', 'Missing email field', array('status' => 400));
         }
 
-        // Check if the email already exists before attempting to create the user
-        if (email_exists($email)) {
+        // Get the current site ID in a multisite environment
+        $site_id = is_multisite() ? get_current_blog_id() : 1; // Default to 1 if not multisite
+
+        // Prepend the site ID to the email
+        $email_with_prefix = $site_id . '_' . $email;
+
+        // Check if the email with the prefix already exists before attempting to create the user
+        if (email_exists($email_with_prefix)) {
             return new WP_Error('user_exists', 'User already exists with this email', array('status' => 400));
         }
 
@@ -128,14 +148,14 @@ class WP_React_Settings_Rest_Route
 
         // Multisite-specific user creation
         if (is_multisite()) {
-            $user_id = wpmu_create_user($username, $password, $email);
+            $user_id = wpmu_create_user($username, $password, $email_with_prefix);
             if (!$user_id) {
                 return new WP_Error('user_creation_failed', 'Failed to create user', array('status' => 500));
             }
             add_user_to_blog(get_current_blog_id(), $user_id, 'subscriber');
         } else {
             // Single-site user creation
-            $user_id = wp_create_user($username, $password, $email);
+            $user_id = wp_create_user($username, $password, $email_with_prefix);
             if (is_wp_error($user_id)) {
                 return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
             }
@@ -147,13 +167,13 @@ class WP_React_Settings_Rest_Route
             'role' => 'subscriber'
         ]);
 
-        // Remove the used parameters (in this case, just email)
-        unset($parameters['staff_v1_Email']);
-
         // Save additional custom fields as user meta
         foreach ($parameters as $key => $value) {
             $meta_key = sanitize_key($key);
             $meta_value = maybe_serialize($value); // Handle arrays or complex values
+
+
+
             update_user_meta($user_id, $meta_key, $meta_value);
         }
 
@@ -164,6 +184,7 @@ class WP_React_Settings_Rest_Route
             'data' => $parameters
         ], 201);
     }
+
 
 
 
