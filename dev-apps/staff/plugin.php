@@ -36,7 +36,7 @@ function load_scripts()
     } else {
         // Load the production bundle from the plugin directory
         wp_enqueue_script('wp-react', URL_S . 'dist/staff.js', ['jquery', 'wp-element'], wp_rand(), true);
-        wp_enqueue_style('wp-react-style', URL_S . 'assets/style.css', [], wp_rand());
+        wp_enqueue_style('wp-react-style', URL_S . '../assets/style.css', [], wp_rand());
     }
 
     // Localize script with handle 'wp-react' and variable 'appLocalizer'
