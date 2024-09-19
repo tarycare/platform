@@ -40,16 +40,18 @@ function FormBuilderWidget() {
             try {
                 const response = await fetch('/wp-json/staff/v1/all')
                 const data = await response.json()
+
+                console.log('users all', data)
                 const mappedUsers = data.map((user) => ({
                     value: user.id.toString(),
                     label_en:
-                        user.meta.first_name && user.meta.last_name
-                            ? user.meta.first_name + ' ' + user.meta.last_name
-                            : user.meta.staff_email,
+                        user.meta?.staff_first_name +
+                        ' ' +
+                        user.meta?.staff_last_name,
                     label_ar:
-                        user.meta.first_name && user.meta.last_name
-                            ? user.meta.first_name + ' ' + user.meta.last_name
-                            : user.meta.staff_email,
+                        user.meta?.staff_first_name +
+                        ' ' +
+                        user.meta?.staff_last_name,
                 }))
                 setUsers(mappedUsers)
                 console.log(mappedUsers, 'mapped users')
