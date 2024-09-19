@@ -132,15 +132,12 @@ function FormBuilderWidget() {
                 }
 
                 // remove the value of same user from id
-                if (isUpdating) {
-                    const filteredUsers = users.filter(
-                        (user) => user.value.toString() !== userId.toString()
-                    )
-                    manager.items = filteredUsers
-                    console.log('filtered users', filteredUsers)
-                } else {
-                    manager.items = users ? users : []
-                }
+
+                const filteredUsers = users.filter(
+                    (user) => user.value.toString() !== userId.toString()
+                )
+                manager.items = filteredUsers
+                console.log('filtered users', filteredUsers)
 
                 if (sectionIndex) {
                     // Push the manager object into the Fields array of the first section
@@ -162,7 +159,7 @@ function FormBuilderWidget() {
         if (fetchUrl) {
             fetchData()
         }
-    }, [fetchUrl, isUpdating, users])
+    }, [fetchUrl, isUpdating, users, userId])
 
     if (isLoading) {
         return (
