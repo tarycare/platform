@@ -17,11 +17,14 @@ function FormBuilderWidget() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [siteId, setSiteId] = useState(0)
+    const [users, setUsers] = useState([])
 
     const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = isDev ? 'http://mytest.local' : ''
+    const [userId, setUserId] = useState(0)
 
     const { id } = useParams() // Get user ID from the URL params
+    // setUserId(id)
     const fetchUrl =
         'https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recckvXXbcopEsAQO'
     const submitUrl = '/wp-json/staff/v1/add'
@@ -30,6 +33,32 @@ function FormBuilderWidget() {
 
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
+
+    // get users from the API and remap the data
+    useEffect(() => {
+        async function getUsers() {
+            try {
+                const response = await fetch('/wp-json/staff/v1/all')
+                const data = await response.json()
+                const mappedUsers = data.map((user) => ({
+                    value: user.id.toString(),
+                    label_en:
+                        user.meta.first_name && user.meta.last_name
+                            ? user.meta.first_name + ' ' + user.meta.last_name
+                            : user.meta.staff_email,
+                    label_ar:
+                        user.meta.first_name && user.meta.last_name
+                            ? user.meta.first_name + ' ' + user.meta.last_name
+                            : user.meta.staff_email,
+                }))
+                setUsers(mappedUsers)
+                console.log(mappedUsers, 'mapped users')
+            } catch (error) {
+                console.error('Error fetching users:', error)
+            }
+        }
+        getUsers()
+    }, [])
 
     // useEffect to to fetch staff/v1/site
     useEffect(() => {
@@ -56,6 +85,7 @@ function FormBuilderWidget() {
                     }
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
+                    setUserId(data.id.toString())
 
                     console.log('User data fetched:', data)
                 } catch (error) {
@@ -68,6 +98,7 @@ function FormBuilderWidget() {
     }, [isUpdating, id])
 
     useEffect(() => {
+        console.log('users', users)
         async function fetchData() {
             setIsLoading(true)
             setIsSubmitting(true)
@@ -94,19 +125,15 @@ function FormBuilderWidget() {
                     order: '8',
                     placeholder_en: 'Select Manager',
                     placeholder_ar: 'اختيار المدير',
-                    items: [
-                        {
-                            value: '1',
-                            label_en: 'Manager 1',
-                            label_ar: 'المدير 1',
-                        },
-                        {
-                            value: '2',
-                            label_en: 'Manager 2',
-                            label_ar: 'المدير 2',
-                        },
-                    ],
                     colSpan: '6',
+                }
+                manager.items = users ? users : []
+                // remove the value of same user from id
+                if (isUpdating) {
+                    const filteredUsers = users.filter(
+                        (user) => user.value !== userId
+                    )
+                    manager.items = filteredUsers
                 }
 
                 if (sectionIndex) {
@@ -129,7 +156,7 @@ function FormBuilderWidget() {
         if (fetchUrl) {
             fetchData()
         }
-    }, [fetchUrl, isUpdating])
+    }, [fetchUrl, isUpdating, users])
 
     if (isLoading) {
         return (

@@ -205,18 +205,26 @@ class WP_React_Settings_Rest_Route
             // Check if the user has roles and if roles exist
             $user_roles = !empty($user->roles) ? implode(', ', $user->roles) : 'No role assigned';
 
+            // Get user meta and flatten the array values
+            $meta_data = get_user_meta($user->ID);
+            $flattened_meta = [];
+            foreach ($meta_data as $key => $value) {
+                $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+            }
+
             $user_data[] = [
                 'id' => $user->ID,
                 'username' => $user->user_login,
                 'email' => $user->user_email,
                 'role' => $user_roles,
                 'registered' => $user->user_registered,
-                'meta' => get_user_meta($user->ID)
+                'meta' => $flattened_meta
             ];
         }
 
         return rest_ensure_response($user_data);
     }
+
 
     // Recursive unserialize function
     function recursive_unserialize($data)
