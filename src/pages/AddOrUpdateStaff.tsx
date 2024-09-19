@@ -24,7 +24,7 @@ function FormBuilderWidget() {
     const [userId, setUserId] = useState(0)
 
     const { id } = useParams() // Get user ID from the URL params
-    // setUserId(id)
+
     const fetchUrl =
         'https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recckvXXbcopEsAQO'
     const submitUrl = '/wp-json/staff/v1/add'
@@ -87,7 +87,8 @@ function FormBuilderWidget() {
                     }
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
-                    setUserId(data.id.toString())
+                    setUserId(data.id)
+                    console.log(data.id, 'user id')
 
                     console.log('User data fetched:', data)
                 } catch (error) {
@@ -119,7 +120,7 @@ function FormBuilderWidget() {
                 // first section
                 const sectionIndex = JSONData.sections[0]
 
-                const manager = {
+                let manager = {
                     name: 'staff_manager',
                     label_en: 'Manager',
                     label_ar: 'المدير',
@@ -129,13 +130,16 @@ function FormBuilderWidget() {
                     placeholder_ar: 'اختيار المدير',
                     colSpan: '6',
                 }
-                manager.items = users ? users : []
+
                 // remove the value of same user from id
                 if (isUpdating) {
                     const filteredUsers = users.filter(
-                        (user) => user.value !== userId
+                        (user) => user.value.toString() !== userId.toString()
                     )
                     manager.items = filteredUsers
+                    console.log('filtered users', filteredUsers)
+                } else {
+                    manager.items = users ? users : []
                 }
 
                 if (sectionIndex) {
