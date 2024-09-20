@@ -41,7 +41,6 @@ function CRUD_Department() {
                 const response = await fetch('/wp-json/department/v1/all')
                 const data = await response.json()
 
-                console.log('users all', data)
                 const mappedUsers = data.map((user) => ({
                     value: user.id.toString(),
                     label_en:
@@ -54,7 +53,6 @@ function CRUD_Department() {
                         user.meta?.staff_last_name,
                 }))
                 setUsers(mappedUsers)
-                console.log(mappedUsers, 'mapped users')
             } catch (error) {
                 console.error('Error fetching users:', error)
             }
@@ -68,13 +66,11 @@ function CRUD_Department() {
             const response = await fetch('/wp-json/department/v1/site')
             const data = await response.json()
             setSiteId(data.site_id)
-            console.log(data, 'site data')
         }
         getSiteId()
     }, [])
 
     useEffect(() => {
-        console.log(isUpdating ? 'Updating user' : 'Creating new user')
         if (isUpdating) {
             // Fetch the user data to prefill the form
             const fetchUserData = async () => {
@@ -88,9 +84,6 @@ function CRUD_Department() {
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
                     setPostId(data.id)
-                    console.log(data.id, 'user id')
-
-                    console.log('User data fetched:', data)
                 } catch (error) {
                     console.error('Error fetching user:', error)
                 }
@@ -155,7 +148,6 @@ function CRUD_Department() {
             })
 
             const result = await response.json()
-            console.log('Form submitted!', result)
 
             if (result.success) {
                 await toast.success('Form submitted successfully!', {
@@ -186,9 +178,7 @@ function CRUD_Department() {
 
             const nonce = window?.appLocalizer?.nonce || ''
 
-            console.log('data', data)
             const url = `${updateUrl}`
-            console.log('url', url)
             const response = await fetch(url, {
                 method: 'PATCH',
                 headers: {
@@ -199,9 +189,6 @@ function CRUD_Department() {
             })
 
             const result = await response.json()
-            console.log('Form updated!', result)
-            console.log(JSON.stringify(data), 'data')
-
             if (result.success) {
                 await toast.success('Form updated successfully!', {
                     description: result.message,
