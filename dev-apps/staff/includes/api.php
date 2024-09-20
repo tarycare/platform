@@ -261,99 +261,120 @@ class WP_React_Settings_Rest_Route
 
         return rest_ensure_response($user_data);
     }
+    // Function to handle base64 image upload
+    private function upload_base64_image($base64_image, $email)
+    {
+        $upload_dir = wp_upload_dir();
+        $decoded_image = base64_decode($base64_image);
 
-    // Function to add a user
+        if (!$decoded_image) {
+            return new WP_Error('image_decode_error', 'Failed to decode image', array('status' => 400));
+        }
+
+        $filename = sanitize_file_name(md5($email) . '.png');
+        $file_path = $upload_dir['path'] . '/' . $filename;
+        $file_url = $upload_dir['url'] . '/' . $filename;
+
+        // Save image to the uploads directory
+        file_put_contents($file_path, $decoded_image);
+
+        // Ensure the file is recognized as a valid WordPress media attachment
+        $filetype = wp_check_filetype($filename, null);
+
+        if (!$filetype['type']) {
+            return new WP_Error('invalid_filetype', 'Invalid file type', array('status' => 400));
+        }
+
+        $attachment = array(
+            'post_mime_type' => $filetype['type'],
+            'post_title'     => sanitize_file_name($filename),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
+        );
+
+        $attach_id = wp_insert_attachment($attachment, $file_path);
+
+        // Include image.php for handling media uploads
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+        // Generate attachment metadata
+        $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+        wp_update_attachment_metadata($attach_id, $attach_data);
+
+        return $file_url; // Return the file URL
+    }
+
+    // Add staff function
     public function add_staff($request)
     {
-        // Get all JSON parameters
         $parameters = $request->get_json_params();
         error_log('Parameters: ' . print_r($parameters, true)); // Log the parameters
 
-        // Handle the required fields (email)
         $email = sanitize_email($parameters['email']);
-
-        // Check for missing required fields
         if (empty($email)) {
             return new WP_Error('missing_fields', 'Missing email field', array('status' => 400));
         }
 
+        // Handle image upload
+        $image_url = null; // Default to null if no image is uploaded
+        if (!empty($parameters['image'])) {
+            $image = $parameters['image'];
+            $image_url = $this->upload_base64_image($image, $email);
+            if (is_wp_error($image_url)) {
+                return $image_url; // Return the error if image upload fails
+            }
+        }
 
-        // Get the current site ID in a multisite environment
-        $site_id = is_multisite() ? get_current_blog_id() : 1; // Default to 1 if not multisite
-
-        // Prepend the site ID to the email
+        $site_id = is_multisite() ? get_current_blog_id() : 1;
         $email_with_prefix = $site_id . '_' . $email;
         $username_with_prefix = $site_id . '_' . $email;
 
-        // Check if the email with the prefix already exists before attempting to create the user
         if (email_exists($email_with_prefix)) {
             return new WP_Error('user_exists', 'User already exists with this email', array('status' => 400));
         }
 
-        // Generate a random password
-        $password = wp_generate_password(); // Generate a random password
-
-        // Multisite-specific user creation
-        if (is_multisite()) {
-            $user_id = wpmu_create_user($username_with_prefix, $password, $email_with_prefix);
-            if (!$user_id) {
-                return new WP_Error('user_creation_failed', 'Failed to create user', array('status' => 500));
-            }
-            add_user_to_blog(get_current_blog_id(), $user_id, 'subscriber');
-        } else {
-            // Single-site user creation
-            $user_id = wp_create_user($username_with_prefix, $password, $email_with_prefix);
-            if (is_wp_error($user_id)) {
-                return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
-            }
+        $password = wp_generate_password();
+        $user_id = wp_create_user($username_with_prefix, $password, $email_with_prefix);
+        if (is_wp_error($user_id)) {
+            return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
         }
 
-        // Set the user role (subscriber by default)
         wp_update_user([
             'ID' => $user_id,
             'role' => 'subscriber'
         ]);
 
-        // Save additional custom fields as user meta
         foreach ($parameters as $key => $value) {
-            $meta_key = sanitize_key($key);
-            $meta_value = maybe_serialize($value); // Handle arrays or complex values
-            update_user_meta($user_id, $meta_key, $meta_value);
+            update_user_meta($user_id, sanitize_key($key), maybe_serialize($value));
+        }
+
+        if ($image_url) {
+            update_user_meta($user_id, 'profile_image', $image_url);
         }
 
         return rest_ensure_response([
             'success' => true,
             'message' => 'User created successfully',
             'user_id' => $user_id,
-            'data' => $parameters
+            'profile_image' => $image_url
         ], 201);
     }
 
-
-    // Function to update a user
+    // Update staff function
     public function update_staff($request)
     {
         $user_id = (int) $request->get_param('id');
-
-        // Fetch the existing user data
         $existing_user = get_userdata($user_id);
 
         if (!$existing_user) {
-            error_log('User not found for ID: ' . $user_id);
             return new WP_Error('user_not_found', 'User not found', array('status' => 404));
         }
 
-        // Prepare array for user fields update (non-meta fields)
-        $userdata = ['ID' => $user_id];
-
-        // Get the incoming data from the request
-        $new_display_name = sanitize_text_field($request->get_param('username'));
+        $parameters = $request->get_json_params();
         $new_email = sanitize_email($request->get_param('email'));
-
-        $site_id = is_multisite() ? get_current_blog_id() : 1; // Default to 1 if not multisite
+        $site_id = is_multisite() ? get_current_blog_id() : 1;
         $new_email_with_prefix = $site_id . '_' . $new_email;
 
-        // Check if the email with the prefix already exists before attempting to update the user
         if (email_exists($new_email_with_prefix) && $new_email_with_prefix !== $existing_user->user_email) {
             return new WP_Error('user_exists', 'User already exists with this email', array('status' => 400));
         }
@@ -365,59 +386,29 @@ class WP_React_Settings_Rest_Route
             'user_nicename' => $new_email_with_prefix
         ]);
 
-        // Log the incoming request data
-        error_log('Incoming data: ' . print_r($request->get_json_params(), true));
-
-
-
-        // Log the user data before updating
-        error_log('User data to be updated: ' . print_r($userdata, true));
-
-        // Update the user data
-        $updated = wp_update_user($userdata);
-        if (is_wp_error($updated)) {
-            error_log('Failed to update user: ' . print_r($updated->get_error_message(), true));
-            return new WP_Error('user_update_failed', 'Failed to update user', array('status' => 500));
+        // Handle image upload if provided
+        if (!empty($parameters['image'])) {
+            $image = $parameters['image'];
+            $image_url = $this->upload_base64_image($image, $new_email);
+            if (is_wp_error($image_url)) {
+                return $image_url;
+            }
+            update_user_meta($user_id, 'profile_image', $image_url);
         }
 
-        error_log('User updated successfully: ID ' . $user_id);
-
-        // Handle additional custom fields (meta data)
-        $meta_fields = $request->get_json_params();
-        update_user_meta($user_id, 'nickname', $new_email_with_prefix);
-
-        foreach ($meta_fields as $key => $value) {
-            // Skip predefined fields and critical meta fields
-            if (in_array($key, ['user_login', 'user_email', 'id', 'registered', 'username'])) {
-                continue;
+        foreach ($parameters as $key => $value) {
+            if (!in_array($key, ['user_login', 'user_email', 'id', 'registered', 'username'])) {
+                update_user_meta($user_id, sanitize_key($key), maybe_serialize($value));
             }
-
-            // Skip updating meta if the value is empty
-            if (empty($value) && $value !== '0') {
-                error_log('Skipped updating empty meta field: ' . $key);
-                continue;
-            }
-
-            // Sanitize and update user meta
-            $meta_key = sanitize_key($key);
-            $meta_value = maybe_serialize($value);
-
-            update_user_meta($user_id, $meta_key, $meta_value);
-
-            // Log each meta key-value update
-            error_log('Meta field updated: ' . $meta_key . ' => ' . print_r($meta_value, true));
         }
-
-        // Log the final response
-        error_log('User and meta data updated successfully for user ID: ' . $user_id);
 
         return rest_ensure_response([
             'success' => true,
-            'message' => 'User and meta data updated successfully',
-            'user_id' => $user_id,
-            'data' => $meta_fields // Return the updated meta data
+            'message' => 'User updated successfully',
+            'user_id' => $user_id
         ]);
     }
+
 
     // Function to delete a user
     public function delete_staff($request)

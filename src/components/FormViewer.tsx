@@ -132,8 +132,6 @@ const FormViewer: FC<FormViewerProps> = ({
             const currentPath = window.location.hash // Use window.location to get the current path
             const isAdding = currentPath === '#/add' // Determine if we are on the /add route
 
-            console.log('isAddMode', isAdding)
-
             if (!isAdding) {
                 handleUpdate(formState)
             } else {
@@ -380,11 +378,6 @@ const FormViewer: FC<FormViewerProps> = ({
                 )
 
             case 'date':
-                console.log(
-                    `Date value for ${field.name}:`,
-                    formState[field.name]
-                )
-
                 return (
                     <DateTimePickerV2
                         placeholder={placeholder}
@@ -461,6 +454,27 @@ const FormViewer: FC<FormViewerProps> = ({
                             </PopoverContent>
                         </Popover>
                     </>
+                )
+
+            case 'upload_image':
+                return (
+                    <div className="flex items-center gap-5">
+                        {/* show selectd image rounded size 80px */}
+                        {formState[field.name] && (
+                            <img
+                                src={URL.createObjectURL(formState[field.name])}
+                                alt="selected"
+                                className="h-20 w-20 rounded-full"
+                            />
+                        )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                                handleFieldChange(field.name, e.target.files[0])
+                            }
+                        />
+                    </div>
                 )
 
             default:

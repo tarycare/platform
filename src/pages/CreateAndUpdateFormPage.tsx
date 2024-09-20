@@ -28,7 +28,6 @@ function CreateAndUpdateFormPage() {
     const isUpdating = Boolean(id) // Check if this is an update operation
 
     useEffect(() => {
-        console.log(isUpdating ? 'Updating user' : 'Creating new user')
         if (isUpdating) {
             // Fetch the user data to prefill the form
 
@@ -42,8 +41,6 @@ function CreateAndUpdateFormPage() {
                     }
                     const data = await response.json()
                     setFormData(data)
-
-                    console.log('User data fetched:', data)
                 } catch (error) {
                     console.error('Error fetching user:', error)
                 }

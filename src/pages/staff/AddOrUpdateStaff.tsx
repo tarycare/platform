@@ -42,6 +42,7 @@ function FormBuilderWidget() {
                     `/wp-json/staff/v1/managers?id=${id}`
                 )
                 const data = await response.json()
+                console.log('managers', data)
 
                 setUsers(data)
             } catch (error) {
@@ -57,13 +58,11 @@ function FormBuilderWidget() {
             const response = await fetch('/wp-json/staff/v1/site')
             const data = await response.json()
             setSiteId(data.site_id)
-            console.log(data, 'site data')
         }
         getSiteId()
     }, [])
 
     useEffect(() => {
-        console.log(isUpdating ? 'Updating user' : 'Creating new user')
         if (isUpdating) {
             // Fetch the user data to prefill the form
             const fetchUserData = async () => {
@@ -77,8 +76,6 @@ function FormBuilderWidget() {
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
                     setUserId(data.id)
-
-                    console.log('User data fetched:', data)
                 } catch (error) {
                     console.error('Error fetching user:', error)
                 }
@@ -89,7 +86,6 @@ function FormBuilderWidget() {
     }, [isUpdating, id])
 
     useEffect(() => {
-        console.log('users', users)
         async function fetchData() {
             setIsLoading(true)
             setIsSubmitting(true)
@@ -106,19 +102,20 @@ function FormBuilderWidget() {
                 const JSONData = JSON.parse(fields.JSONData)
 
                 // first section
-                const sectionIndex = JSONData.sections[0]
+                const sectionIndex = JSONData.sections[1]
 
                 let manager = {
                     name: 'staff_manager',
                     label_en: 'Manager',
                     label_ar: 'المدير',
                     type: 'Select',
-                    order: '8',
+                    order: '1',
                     placeholder_en: 'Select Manager',
                     placeholder_ar: 'اختيار المدير',
                     colSpan: '6',
                 }
 
+                manager.items = users
                 if (sectionIndex) {
                     // Push the manager object into the Fields array of the first section
                     sectionIndex.Fields.push(manager)
@@ -163,7 +160,6 @@ function FormBuilderWidget() {
             })
 
             const result = await response.json()
-            console.log('Form submitted!', result)
 
             if (result.success) {
                 await toast.success('Form submitted successfully!', {
@@ -194,9 +190,7 @@ function FormBuilderWidget() {
 
             const nonce = window?.appLocalizer?.nonce || ''
 
-            console.log('data', data)
             const url = `${updateUrl}`
-            console.log('url', url)
             const response = await fetch(url, {
                 method: 'PATCH',
                 headers: {
@@ -207,8 +201,6 @@ function FormBuilderWidget() {
             })
 
             const result = await response.json()
-            console.log('Form updated!', result)
-            console.log(JSON.stringify(data), 'data')
 
             if (result.success) {
                 await toast.success('Form updated successfully!', {
