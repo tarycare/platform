@@ -34,32 +34,21 @@ function FormBuilderWidget() {
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
 
-    // get users from the API and remap the data
+    // get Managers from the API and remap the data
     useEffect(() => {
-        async function getUsers() {
+        async function getManagers() {
             try {
-                const response = await fetch('/wp-json/staff/v1/all')
+                const response = await fetch(
+                    `/wp-json/staff/v1/managers?id=${id}`
+                )
                 const data = await response.json()
 
-                console.log('users all', data)
-                const mappedUsers = data.map((user) => ({
-                    value: user.id.toString(),
-                    label_en:
-                        user.meta?.staff_first_name +
-                        ' ' +
-                        user.meta?.staff_last_name,
-                    label_ar:
-                        user.meta?.staff_first_name +
-                        ' ' +
-                        user.meta?.staff_last_name,
-                }))
-                setUsers(mappedUsers)
-                console.log(mappedUsers, 'mapped users')
+                setUsers(data)
             } catch (error) {
                 console.error('Error fetching users:', error)
             }
         }
-        getUsers()
+        getManagers()
     }, [])
 
     // useEffect to to fetch staff/v1/site
@@ -88,7 +77,6 @@ function FormBuilderWidget() {
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
                     setUserId(data.id)
-                    console.log(data.id, 'user id')
 
                     console.log('User data fetched:', data)
                 } catch (error) {
@@ -131,14 +119,6 @@ function FormBuilderWidget() {
                     colSpan: '6',
                 }
 
-                // remove the value of same user from id
-
-                const filteredUsers = users.filter(
-                    (user) => user.value.toString() !== userId.toString()
-                )
-                manager.items = filteredUsers
-                console.log('filtered users', filteredUsers)
-
                 if (sectionIndex) {
                     // Push the manager object into the Fields array of the first section
                     sectionIndex.Fields.push(manager)
@@ -146,7 +126,6 @@ function FormBuilderWidget() {
 
                 // Set form sections for both add and update modes
                 setFormSections(JSONData.sections)
-                console.log(JSONData, 'JSONData')
             } catch (error) {
                 console.error('Error fetching form data:', error)
             } finally {

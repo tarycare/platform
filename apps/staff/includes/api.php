@@ -20,7 +20,7 @@ class WP_React_Settings_Rest_Route
         // Add custom CORS headers
         add_filter('rest_pre_serve_request', function ($value) {
             // Allow requests from localhost:4000 during development
-            header('Access-Control-Allow-Origin: http://localhost:4000');
+            header('Access-Control-Allow-Origin: http://localhost:3000');
             header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
             header('Access-Control-Allow-Credentials: true');
             header('Access-Control-Allow-Headers: Authorization, X-WP-Nonce, Content-Type, Accept, Origin, X-Requested-With');
@@ -75,7 +75,7 @@ class WP_React_Settings_Rest_Route
             'permission_callback' => '__return_true'
         ]);
         // Route for fetching all users
-        register_rest_route('staff/v1', '/manager', [
+        register_rest_route('staff/v1', '/managers', [
             'methods' => 'GET',
             'callback' => [$this, 'get_all_managers'],
             'permission_callback' => '__return_true'
@@ -178,38 +178,47 @@ class WP_React_Settings_Rest_Route
     // Function to get all managers
     public function get_all_managers($parameters)
     {
+        // Get the user ID from the parameters
+        $exclude_user_id = isset($parameters['id']) ? intval($parameters['id']) : 0;
+
+        // Test with the 'administrator' role instead of 'editor'
         $args = [
-            'role' => 'editor',
             'orderby' => 'registered',
             'order' => 'DESC'
         ];
 
         $users = get_users($args);
+
+        // Log how many users were found
+        error_log('Total Users Found: ' . count($users));
+
         $user_data = [];
 
         foreach ($users as $user) {
-            // Check if the user has roles and if roles exist
-            $user_roles = !empty($user->roles) ? implode(', ', $user->roles) : 'No role assigned';
-
-            // Get user meta and flatten the array values
-            $meta_data = get_user_meta($user->ID);
-            $flattened_meta = [];
-            foreach ($meta_data as $key => $value) {
-                $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+            // Skip the user with the specified ID
+            if ($user->ID == $exclude_user_id) {
+                continue;
             }
 
+            // Get user meta for first name and last name
+            $first_name = get_user_meta($user->ID, 'first_name', true);
+            $last_name = get_user_meta($user->ID, 'last_name', true);
+
+            // Create label in both English and Arabic
+            $label_en = $first_name . ' ' . $last_name;
+            $label_ar = $first_name . ' ' . $last_name;
+
             $user_data[] = [
-                'id' => $user->ID,
-                'username' => $user->user_login,
-                'email' => $user->user_email,
-                'role' => $user_roles,
-                'registered' => $user->user_registered,
-                'meta' => $flattened_meta
+                'value' => $user->ID,
+                'label_en' => $label_en,
+                'label_ar' => $label_ar
             ];
         }
 
         return rest_ensure_response($user_data);
     }
+
+
 
     public function get_user_by_id($request)
     {
