@@ -1,19 +1,20 @@
-const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { DefinePlugin } = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const dotenv = require('dotenv');
+const path = require('path')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { DefinePlugin } = require('webpack')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const dotenv = require('dotenv')
 
-const mode = process.env.NODE_ENV || 'production';
+const mode = process.env.NODE_ENV || 'production'
 
-const envFile = `.env.${mode}`;
-dotenv.config({ path: envFile });
+const envFile = `.env.${mode}`
+dotenv.config({ path: envFile })
 
 // Define your multiple configurations with shared devServer settings
 const combinedConfig = {
     entry: {
         staff: './src/staff.tsx',
         department: './src/department.tsx',
+        facilities: './src/facilities.tsx',
     },
     output: {
         path: path.resolve(__dirname, 'apps'),
@@ -77,6 +78,11 @@ const combinedConfig = {
                     to: 'department/',
                     noErrorOnMissing: true,
                 },
+                {
+                    from: 'dev-apps/facilities',
+                    to: 'facilities/',
+                    noErrorOnMissing: true,
+                },
             ],
         }),
     ],
@@ -98,6 +104,10 @@ const combinedConfig = {
                 directory: path.resolve(__dirname, 'apps/department/dist'),
                 publicPath: '/apps/department/dist/',
             },
+            {
+                directory: path.resolve(__dirname, 'apps/facilities/dist'),
+                publicPath: '/apps/facilities/dist/',
+            },
         ],
         hot: true,
         port: 3000,
@@ -113,6 +123,6 @@ const combinedConfig = {
     stats: {
         errorDetails: true,
     },
-};
+}
 
-module.exports = combinedConfig;
+module.exports = combinedConfig
