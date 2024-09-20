@@ -10,7 +10,8 @@ import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import List from './pages/staff/List'
+import List from './pages/department/ListDepartments'
+import CRUD_Department from './pages/department/AddOrUpdateDepartment'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -23,7 +24,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <AddOrUpdateStaff />
+                    <CRUD_Department />
                 </div>
             </div>
         ),
@@ -33,8 +34,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    {/* <CreateAndUpdateFormPage /> */}
-                    <AddOrUpdateStaff />
+                    <CRUD_Department />
                 </div>
             </div>
         ),
@@ -56,7 +56,7 @@ const routes: RouteObject[] = [
 // Create a HashRouter to manage the navigation inside the WordPress admin
 const router = createHashRouter(routes)
 
-const rootElement = document.getElementById('staff')
+const rootElement = document.getElementById('facility')
 
 if (rootElement) {
     const root = ReactDOM.createRoot(rootElement)
