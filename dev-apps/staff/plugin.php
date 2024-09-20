@@ -1,43 +1,43 @@
 <?php
 
 /**
- * Plugin Name: Facilities
+ * Plugin Name: Staff
  * Author: Husam Nasrallah
  * Author URI: https://github.com/tarycare
- * Version: 1.0.0
- * Description: Manage Facilities
- * Text-Domain: facilities
- * GitHub Plugin URI: tarycare/facilities
- * GitHub Plugin URI: https://github.com/tarycare/facilities
+ * Version: 1.3.0
+ * Description: Manage Staff Members
+ * Text-Domain: staff
+ * GitHub Plugin URI: tarycare/staff
+ * GitHub Plugin URI: https://github.com/tarycare/staff
  */
 
-if (! defined('ABSPATH')) : exit();
+if (!defined('ABSPATH')) : exit();
 endif; // No direct access allowed.
 
 // Configuration Variables
 $config = [
-    'plugin_name'          => 'Facilities',                     // Plugin Name
-    'plugin_slug'          => 'facilities',                     // Plugin Slug
-    'menu_title_en'        => 'Facilities',                     // English Menu Title
-    'menu_title_ar'        => 'المرافق',                       // Arabic Menu Title
-    'member_menu_title_en' => 'Members',                        // English Member Menu Title
-    'member_menu_title_ar' => 'الأعضاء',                       // Arabic Member Menu Title
-    'capability'           => 'read',                           // Capability Required
-    'icon'                 => 'dashicons-admin-multisite',      // Menu Icon
-    'position'             => 4,                                // Menu Position
-    'app_script_handle'    => 'wp-react-facilities',            // Script Handle (Unique)
-    'app_script_dev'       => 'http://localhost:3000/apps/facilities/dist/facilities.js',  // Dev Script URL
-    'app_style_dev'        => 'http://localhost:3000/apps/assets/style.css',               // Dev Style URL
-    'app_script_prod'      => 'dist/facilities.js',             // Prod Script Path
-    'app_style_prod'       => '../assets/style.css',            // Prod Style Path
-    'dynamic_id'           => 'facilities',        // Dynamic ID for React App Container
-    'path_constant'        => 'PATH_FACILITIES',                // Dynamic Constant for Path
-    'url_constant'         => 'URL_FACILITIES',                 // Dynamic Constant for URL
-    'class_name'           => 'Facilities_Admin_Page',          // Dynamic Class Name
+    'plugin_name'          => 'Staff',                     // Plugin Name
+    'plugin_slug'          => 'staff',                     // Plugin Slug
+    'menu_title_en'        => 'Staff',                     // English Menu Title
+    'menu_title_ar'        => 'الموظفين',                  // Arabic Menu Title
+    'member_menu_title_en' => 'Members',                   // English Member Menu Title
+    'member_menu_title_ar' => 'الأعضاء',                   // Arabic Member Menu Title
+    'capability'           => 'read',                      // Capability Required
+    'icon'                 => 'dashicons-admin-users',     // Menu Icon
+    'position'             => 3,                           // Menu Position
+    'app_script_handle'    => 'staff',            // Unique Script Handle
+    'app_script_dev'       => 'http://localhost:3000/apps/staff/dist/staff.js',  // Dev Script URL
+    'app_style_dev'        => 'http://localhost:3000/apps/assets/style.css',     // Dev Style URL
+    'app_script_prod'      => 'dist/staff.js',             // Prod Script Path
+    'app_style_prod'       => '../assets/style.css',       // Prod Style Path
+    'dynamic_id'           => 'staff',        // Dynamic ID for React App Container
+    'path_constant'        => 'PATH_STAFF',                // Dynamic Path Constant
+    'url_constant'         => 'URL_STAFF',                 // Dynamic URL Constant
+    'class_name'           => 'Staff_Admin_Page',          // Dynamic Class Name
 ];
 
 /**
- * Dynamically Define Constants
+ * Dynamically Define Plugin Constants
  */
 if (!defined($config['path_constant'])) {
     define($config['path_constant'], trailingslashit(plugin_dir_path(__FILE__)));
@@ -50,7 +50,7 @@ if (!defined($config['url_constant'])) {
  * Class for Creating Admin Pages
  */
 if (!class_exists($config['class_name'])) {
-    class Facilities_Admin_Page
+    class Staff_Admin_Page
     {
         private $config;
 
@@ -185,3 +185,8 @@ if (!class_exists($config['class_name'])) {
     // Instantiate the class with the configuration
     new $config['class_name']($config);
 }
+
+/**
+ * Include additional plugin files
+ */
+require_once constant($config['path_constant']) . 'includes/api.php';
