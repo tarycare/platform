@@ -56,7 +56,7 @@ const routes: RouteObject[] = [
 // Create a HashRouter to manage the navigation inside the WordPress admin
 const router = createHashRouter(routes)
 
-const rootElement = document.getElementById('facility')
+const rootElement = document.getElementById('facilities')
 
 if (rootElement) {
     const root = ReactDOM.createRoot(rootElement)
