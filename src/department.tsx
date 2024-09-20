@@ -4,13 +4,14 @@ import { ModeToggle } from './components/mode-toggle'
 import { Toaster } from '@/components/ui/toaster'
 import { createHashRouter, RouterProvider, RouteObject } from 'react-router-dom'
 
-import AddOrUpdateStaff from './pages/AddOrUpdateStaff'
+import AddOrUpdateStaff from './pages/staff/AddOrUpdateStaff'
 import StaffDetails from './pages/StaffDetails'
 import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import List from './pages/List'
+import List from './pages/department/ListDepartments'
+import CRUD_Department from './pages/department/AddOrUpdateDepartment'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -23,7 +24,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CreateAndUpdateFormPage />
+                    <CRUD_Department />
                 </div>
             </div>
         ),
@@ -33,7 +34,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CreateAndUpdateFormPage />
+                    <CRUD_Department />
                 </div>
             </div>
         ),
@@ -55,7 +56,7 @@ const routes: RouteObject[] = [
 // Create a HashRouter to manage the navigation inside the WordPress admin
 const router = createHashRouter(routes)
 
-const rootElement = document.getElementById('wp-react-app2')
+const rootElement = document.getElementById('department')
 
 if (rootElement) {
     const root = ReactDOM.createRoot(rootElement)

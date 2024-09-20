@@ -24,17 +24,11 @@ $sub_plugins = [
         'prod_path' => 'apps/department/plugin.php',
         'option_name' => 'tary_plugins_department'
     ],
-    'clinic' => [
-        'label' => 'Clinic Plugin',
-        'dev_path' => 'dev-apps/clinic/plugin.php',
-        'prod_path' => 'apps/clinic/plugin.php',
-        'option_name' => 'tary_plugins_clinic'
-    ],
-    'appointment' => [
-        'label' => 'Appointment Plugin',
-        'dev_path' => 'dev-apps/appointment/plugin.php',
-        'prod_path' => 'apps/appointment/plugin.php',
-        'option_name' => 'tary_plugins_appointment'
+    'facilities' => [
+        'label' => 'Facilities Plugin',
+        'dev_path' => 'dev-apps/facilities/plugin.php',
+        'prod_path' => 'apps/facilities/plugin.php',
+        'option_name' => 'tary_plugins_facilities'
     ],
 ];
 

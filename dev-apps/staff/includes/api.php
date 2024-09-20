@@ -298,6 +298,13 @@ class WP_React_Settings_Rest_Route
 
         require_once(ABSPATH . 'wp-admin/includes/user.php');
         wp_delete_user($user_id);
+        // Delete all meta keys related to the user
+        $meta_keys = get_user_meta($user_id, '', '');
+        foreach ($meta_keys as $key => $value) {
+            delete_user_meta($user_id, $key);
+        }
+
+
 
         return rest_ensure_response([
             'success' => true,
