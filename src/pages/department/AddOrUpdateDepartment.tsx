@@ -116,45 +116,6 @@ function CRUD_Department() {
                 const fields = data.fields
                 const JSONData = JSON.parse(fields.JSONData)
 
-                // first section
-                const sectionIndex = JSONData.sections[0]
-
-                let title = {
-                    name: 'department_title',
-                    label_en: 'Title',
-                    label_ar: 'العنوان',
-                    type: 'Text',
-                    order: '-1',
-                    placeholder_en: 'Enter Title',
-                    placeholder_ar: 'ادخل العنوان',
-                    help_ar: 'ادخل العنوان باللغة العربية',
-                    help_en: 'Enter the title in English',
-                    required: true,
-                    colSpan: '4',
-                    min: '3',
-                    max: '50',
-                }
-
-                let description = {
-                    name: 'department_description',
-                    label_en: 'Description',
-                    label_ar: 'الوصف',
-                    type: 'Textarea',
-                    order: '-1',
-                    placeholder_en: 'Enter Description',
-                    placeholder_ar: 'ادخل الوصف',
-                    help_ar: 'ادخل الوصف باللغة العربية',
-                    help_en: 'Enter the description in English',
-                    required: true,
-                    colSpan: '4',
-                    min: '3',
-                    max: '50',
-                }
-
-                sectionIndex.Fields.push(title)
-                sectionIndex.Fields.push(description)
-                // remove the value of same user from id
-
                 setFormSections(JSONData.sections)
                 console.log(JSONData, 'JSONData')
             } catch (error) {
