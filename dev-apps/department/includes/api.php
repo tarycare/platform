@@ -120,8 +120,8 @@ class WP_React_Department_Rest_Route
     {
         $parameters = $request->get_json_params();
 
-        $title = sanitize_text_field($parameters['department_title']);
-        $content = sanitize_textarea_field($parameters['department_description']);
+        $title = sanitize_text_field($parameters['title']);
+        $content = sanitize_textarea_field($parameters['content']);
 
         if (empty($title)) {
             return new WP_Error('missing_fields', 'Missing title', array('status' => 400));

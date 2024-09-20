@@ -26,7 +26,7 @@ function FormBuilderWidget() {
     const { id } = useParams() // Get user ID from the URL params
 
     const fetchUrl =
-        'https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recckvXXbcopEsAQO'
+        'https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recdETedrTkAm2BIR'
     const submitUrl = '/wp-json/staff/v1/add'
 
     const updateUrl = `/wp-json/staff/v1/update/${id}`

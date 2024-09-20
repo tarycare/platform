@@ -264,7 +264,7 @@ export default function Dashboard() {
                                                 {users.map((user: any, i) => (
                                                     <TableRow key={i}>
                                                         <TableCell>
-                                                            {user.email}
+                                                            {user.meta.email}
                                                         </TableCell>
 
                                                         <TableCell>

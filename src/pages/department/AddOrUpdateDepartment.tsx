@@ -26,7 +26,7 @@ function CRUD_Department() {
     const { id } = useParams() // Get user ID from the URL params
 
     const fetchUrl =
-        'https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recckvXXbcopEsAQO'
+        'https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recQfOAi80T3ZOy4A'
     const submitUrl = '/wp-json/department/v1/add'
 
     const updateUrl = `/wp-json/department/v1/update/${id}`

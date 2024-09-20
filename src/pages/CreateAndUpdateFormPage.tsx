@@ -75,7 +75,7 @@ function CreateAndUpdateFormPage() {
                     dangerouslySetInnerHTML={{
                         __html: `<form-viewer 
            submit-url="/wp-json/staff/v1/add"
-           fetch-url="https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recckvXXbcopEsAQO"
+           fetch-url="https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recdETedrTkAm2BIR"
            update-url="/wp-json/staff/v1/update/${id}"
            update-data='${JSON.stringify(formData)}'
            is-updating="${isUpdating}"
