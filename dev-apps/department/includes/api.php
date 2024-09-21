@@ -92,6 +92,13 @@ class WP_React_Department_Rest_Route
             'permission_callback' => '__return_true'
         ]);
 
+        // Add a dynamic route to for sletect all
+        register_rest_route('department/v1', '/select', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_select_departments'],
+            'permission_callback' => '__return_true'
+        ]);
+
         register_rest_route('department/v1', '/get/(?P<id>\d+)', [
             'methods' => 'GET',
             'callback' => [$this, 'get_department_by_id'],
@@ -177,6 +184,30 @@ class WP_React_Department_Rest_Route
 
         return rest_ensure_response($data);
     }
+
+    public function get_select_departments()
+    {
+        $args = [
+            'post_type'   => 'department',
+            'post_status' => 'publish',
+            'numberposts' => -1
+        ];
+
+        $departments = get_posts($args);
+        $data = [];
+
+        foreach ($departments as $department) {
+            $data[] = [
+                'value' => (string) $department->ID,
+                'label_en' => $department->post_title,
+                'label_ar' => $department->post_title,
+
+            ];
+        }
+
+        return rest_ensure_response($data);
+    }
+
 
     // Function to get a department by ID
     public function get_department_by_id($request)

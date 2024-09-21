@@ -22,6 +22,7 @@ function FormBuilderWidget() {
     const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = isDev ? 'http://mytest.local' : ''
     const [userId, setUserId] = useState(0)
+    const [departments, setDepartments] = useState([])
 
     const { id } = useParams() // Get user ID from the URL params
 
@@ -45,6 +46,22 @@ function FormBuilderWidget() {
                 console.log('managers', data)
 
                 setUsers(data)
+            } catch (error) {
+                console.error('Error fetching users:', error)
+            }
+        }
+        getManagers()
+    }, [])
+
+    // get Departments from the API
+    useEffect(() => {
+        async function getManagers() {
+            try {
+                const response = await fetch(`/wp-json/department/v1/select`)
+                const data = await response.json()
+                console.log('department', data)
+
+                setDepartments(data)
             } catch (error) {
                 console.error('Error fetching users:', error)
             }
@@ -119,6 +136,23 @@ function FormBuilderWidget() {
                 if (sectionIndex) {
                     // Push the manager object into the Fields array of the first section
                     sectionIndex.Fields.push(manager)
+                }
+
+                let department = {
+                    name: 'department',
+                    label_en: 'Department',
+                    label_ar: 'القسم',
+                    type: 'Select',
+                    order: '1',
+                    placeholder_en: 'Select Department',
+                    placeholder_ar: 'اختيار القسم',
+                    colSpan: '6',
+                }
+
+                department.items = departments
+                if (sectionIndex) {
+                    // Push the department object into the Fields array of the first section
+                    sectionIndex.Fields.push(department)
                 }
 
                 // Set form sections for both add and update modes
