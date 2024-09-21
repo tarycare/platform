@@ -64,7 +64,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useEffect, useState } from 'react'
-import { IconUser } from '@tabler/icons-react'
+import { IconEye, IconUser } from '@tabler/icons-react'
 
 export const description =
     'An staff dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of staff in a table with actions.'
@@ -269,7 +269,14 @@ export default function Dashboard() {
                                                 {users.map((user: any, i) => (
                                                     <TableRow key={i}>
                                                         <TableCell className="hidden sm:table-cell">
-                                                            <div>
+                                                            <div
+                                                                className="cursor-pointer"
+                                                                onClick={() => {
+                                                                    navigate(
+                                                                        `/view/${user.id}`
+                                                                    )
+                                                                }}
+                                                            >
                                                                 {user.meta
                                                                     .image ? (
                                                                     <img
@@ -279,7 +286,7 @@ export default function Dashboard() {
                                                                                 .image
                                                                         }
                                                                         alt="avatar"
-                                                                        className="h-10 w-10 rounded-full"
+                                                                        className="h-10 w-10 rounded-full bg-contain hover:brightness-110"
                                                                     />
                                                                 ) : (
                                                                     <div className="flex size-10 items-center justify-center rounded-full border border-gray-400 bg-gray-300 text-white">
@@ -289,23 +296,42 @@ export default function Dashboard() {
                                                             </div>
                                                         </TableCell>
 
-                                                        <TableCell>
+                                                        <TableCell
+                                                            onClick={() => {
+                                                                navigate(
+                                                                    `/view/${user.id}`
+                                                                )
+                                                            }}
+                                                            className="font-bold"
+                                                        >
                                                             {user.meta
                                                                 .first_name +
                                                                 ' ' +
                                                                 user.meta
                                                                     .last_name}
                                                         </TableCell>
-                                                        <TableCell>
+                                                        <TableCell
+                                                            onClick={() => {
+                                                                navigate(
+                                                                    `/view/${user.id}`
+                                                                )
+                                                            }}
+                                                        >
                                                             {user.meta.email}
                                                         </TableCell>
 
-                                                        <TableCell>
+                                                        <TableCell
+                                                            onClick={() => {
+                                                                navigate(
+                                                                    `/view/${user.id}`
+                                                                )
+                                                            }}
+                                                        >
                                                             <Badge variant="outline">
                                                                 {user.role}
                                                             </Badge>
                                                         </TableCell>
-                                                        <TableCell>
+                                                        <TableCell className="flex items-center gap-x-2">
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger
                                                                     asChild
@@ -395,6 +421,21 @@ export default function Dashboard() {
                                                                     )}
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
+                                                            <Button
+                                                                variant={
+                                                                    'ghost'
+                                                                }
+                                                                size="icon"
+                                                            >
+                                                                <IconEye
+                                                                    onClick={() => {
+                                                                        navigate(
+                                                                            `/view/${user.id}`
+                                                                        )
+                                                                    }}
+                                                                    className="cursor-pointer"
+                                                                />
+                                                            </Button>
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
