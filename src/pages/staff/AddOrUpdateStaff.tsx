@@ -145,18 +145,25 @@ function FormBuilderWidget() {
         )
     }
 
-    const handleSubmission = async (data) => {
+    const handleSubmission = async (formData) => {
+        console.log('form data', formData)
         try {
             setIsSubmitting(true)
 
             const nonce = window?.appLocalizer?.nonce || ''
+
+            // If formData is an instance of FormData, we will not use JSON headers
+            const isFormDataInstance = formData instanceof FormData
+
             const response = await fetch(submitUrl, {
                 method: 'POST',
                 headers: {
                     'X-WP-Nonce': nonce,
-                    'Content-Type': 'application/json',
+                    ...(isFormDataInstance
+                        ? {}
+                        : { 'Content-Type': 'application/json' }),
                 },
-                body: JSON.stringify(data),
+                body: isFormDataInstance ? formData : JSON.stringify(formData),
             })
 
             const result = await response.json()
@@ -183,21 +190,21 @@ function FormBuilderWidget() {
             setIsSubmitting(false)
         }
     }
-
-    const handleUpdate = async (data) => {
+    const handleUpdate = async (formData) => {
         try {
             setIsSubmitting(true)
 
             const nonce = window?.appLocalizer?.nonce || ''
+            const isFormDataInstance = formData instanceof FormData
 
             const url = `${updateUrl}`
             const response = await fetch(url, {
-                method: 'PATCH',
+                method: 'POST', // Changed from 'PATCH' to 'POST'
                 headers: {
                     'X-WP-Nonce': nonce,
-                    'Content-Type': 'application/json',
+                    // Do not set 'Content-Type' header when sending FormData
                 },
-                body: JSON.stringify(data),
+                body: formData,
             })
 
             const result = await response.json()
@@ -206,9 +213,6 @@ function FormBuilderWidget() {
                 await toast.success('Form updated successfully!', {
                     description: result.message,
                 })
-                // setTimeout(() => {
-                //     window.history.back()
-                // }, 100)
             } else {
                 toast.error('Form update failed!', {
                     description: result.message,
@@ -217,7 +221,7 @@ function FormBuilderWidget() {
         } catch (error) {
             console.error('Error submitting form:', error)
             toast.error('Form submission failed!', {
-                description: result.message,
+                description: error.message,
             })
         } finally {
             setIsSubmitting(false)

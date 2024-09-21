@@ -246,9 +246,12 @@ export default function Dashboard() {
                                         <Table>
                                             <TableHeader>
                                                 <TableRow>
-                                                    {/* <TableHead className="hidden w-[100px] sm:table-cell">
-                            <span className="sr-only">img</span>
-                          </TableHead> */}
+                                                    <TableHead className="hidden w-[100px] sm:table-cell">
+                                                        <span>Photo</span>
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Full Name
+                                                    </TableHead>
                                                     <TableHead>Email</TableHead>
 
                                                     <TableHead>Role</TableHead>
@@ -263,6 +266,24 @@ export default function Dashboard() {
                                             <TableBody>
                                                 {users.map((user: any, i) => (
                                                     <TableRow key={i}>
+                                                        <TableCell className="hidden sm:table-cell">
+                                                            <img
+                                                                src={
+                                                                    user.meta
+                                                                        .image
+                                                                }
+                                                                alt="avatar"
+                                                                className="h-10 w-10 rounded-full"
+                                                            />
+                                                        </TableCell>
+
+                                                        <TableCell>
+                                                            {user.meta
+                                                                .first_name +
+                                                                ' ' +
+                                                                user.meta
+                                                                    .last_name}
+                                                        </TableCell>
                                                         <TableCell>
                                                             {user.meta.email}
                                                         </TableCell>

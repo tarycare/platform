@@ -113,9 +113,24 @@ const FormViewer: FC<FormViewerProps> = ({
     useEffect(() => {
         if (isUpdating) {
             const parsedData = JSON.parse(updateData)
-            setFormState(parsedData)
+
+            // Find the field name for 'upload_image' field
+            const imageFieldName = data
+                .flatMap((section) => section.Fields)
+                .find((f) => f.type.toLowerCase() === 'upload_image')?.name
+
+            if (imageFieldName && parsedData[imageFieldName]) {
+                // Image URL is already under the correct field name
+                setFormState(parsedData)
+            } else if (imageFieldName && parsedData['image']) {
+                // Map the image URL to the correct field name
+                parsedData[imageFieldName] = parsedData['image']
+                setFormState(parsedData)
+            } else {
+                setFormState(parsedData)
+            }
         }
-    }, [updateData, isUpdating])
+    }, [updateData, isUpdating, data])
 
     useEffect(() => {
         console.log('Updated formState', formState)
@@ -125,17 +140,41 @@ const FormViewer: FC<FormViewerProps> = ({
         validateField(fieldName, formState[fieldName])
     }, 300)
 
-    const onSubmit = (event: React.FormEvent) => {
+    const onSubmit = (event) => {
         event.preventDefault()
         const errors = validateForm()
         if (Object.keys(errors).length === 0) {
-            const currentPath = window.location.hash // Use window.location to get the current path
-            const isAdding = currentPath === '#/add' // Determine if we are on the /add route
+            const formData = new FormData()
+
+            // Append all form fields to FormData
+            data.forEach((section) => {
+                section.Fields.forEach((field) => {
+                    const value = formState[field.name]
+
+                    // Handle file uploads
+                    if (field.type.toLowerCase() === 'upload_image' && value) {
+                        formData.append('image', value) // Use 'image' as the key
+                    } else if (Array.isArray(value)) {
+                        // Handle multi-select or checkbox arrays
+                        value.forEach((val, index) => {
+                            formData.append(`${field.name}[${index}]`, val)
+                        })
+                    } else if (value !== undefined) {
+                        // For other types (text, number, etc.)
+                        formData.append(field.name, value)
+                    }
+                })
+            })
+
+            const currentPath = window.location.hash
+            const isAdding = currentPath === '#/add'
 
             if (!isAdding) {
-                handleUpdate(formState)
+                handleUpdate(formData)
             } else {
-                handleSubmission(formState)
+                console.log('Form submitted:', formData)
+                console.log(formState, 'formState')
+                handleSubmission(formData)
             }
         }
     }
@@ -195,6 +234,12 @@ const FormViewer: FC<FormViewerProps> = ({
         validateField(fieldName, formattedValue)
     }
 
+    const handleFileUpload = (fieldName, file) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            [fieldName]: file,
+        }))
+    }
     const renderComponent = (field: any) => {
         const label = languge === 'ar' ? field.label_ar : field.label_en
         const placeholder =
@@ -458,20 +503,30 @@ const FormViewer: FC<FormViewerProps> = ({
 
             case 'upload_image':
                 return (
-                    <div className="flex items-center gap-5">
-                        {/* show selectd image rounded size 80px */}
+                    <div>
+                        {/* Show existing image from server or the selected new image */}
                         {formState[field.name] && (
-                            <img
-                                src={URL.createObjectURL(formState[field.name])}
-                                alt="selected"
-                                className="h-20 w-20 rounded-full"
-                            />
+                            <div className="mb-2">
+                                <img
+                                    src={
+                                        typeof formState[field.name] ===
+                                        'string'
+                                            ? formState[field.name] // Existing image URL
+                                            : URL.createObjectURL(
+                                                  formState[field.name]
+                                              ) // New image file
+                                    }
+                                    alt="Avatar"
+                                    className="h-24 w-24 rounded-full object-cover"
+                                />
+                            </div>
                         )}
+                        {/* Input field to upload a new image */}
                         <input
                             type="file"
                             accept="image/*"
                             onChange={(e) =>
-                                handleFieldChange(field.name, e.target.files[0])
+                                handleFileUpload(field.name, e.target.files[0])
                             }
                         />
                     </div>

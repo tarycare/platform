@@ -29,7 +29,6 @@ class WP_React_Settings_Rest_Route
         });
     }
 
-
     // Enqueue and localize the script with nonce
     public function enqueue_scripts()
     {
@@ -48,12 +47,8 @@ class WP_React_Settings_Rest_Route
         ));
     }
 
-
-
     public function create_rest_routes()
     {
-
-
         // Route for adding a user
         register_rest_route('staff/v1', '/add', [
             'methods' => 'POST',
@@ -74,7 +69,8 @@ class WP_React_Settings_Rest_Route
             'callback' => [$this, 'get_all_users'],
             'permission_callback' => '__return_true'
         ]);
-        // Route for fetching all users
+
+        // Route for fetching managers
         register_rest_route('staff/v1', '/managers', [
             'methods' => 'GET',
             'callback' => [$this, 'get_all_managers'],
@@ -99,39 +95,22 @@ class WP_React_Settings_Rest_Route
 
         // Route for updating a user
         register_rest_route('staff/v1', '/update/(?P<id>\d+)', [
-            'methods' => 'PATCH',
+            'methods' => 'POST',
             'callback' => [$this, 'update_staff'],
             'permission_callback' => function () {
                 return current_user_can('create_users') || current_user_can('edit_users');
             }
         ]);
 
-        // get api to get current site id 
+        // Get the current site ID
         register_rest_route('staff/v1', '/site', [
             'methods' => 'GET',
             'callback' => [$this, 'get_site_id'],
             'permission_callback' => '__return_true'
         ]);
     }
-    // Recursive unserialize function
-    function recursive_unserialize($data)
-    {
-        // Ensure we are working with serialized data only
-        if (!is_serialized($data)) {
-            return $data;
-        }
 
-        // Keep unserializing until it's no longer serialized
-        $unserialized_data = maybe_unserialize($data);
-        while (is_serialized($unserialized_data)) {
-            $unserialized_data = maybe_unserialize($unserialized_data);
-        }
-
-        return $unserialized_data;
-    }
-
-
-    // Function to get current site id
+    // Function to get current site ID
     public function get_site_id()
     {
         return rest_ensure_response([
@@ -139,6 +118,7 @@ class WP_React_Settings_Rest_Route
         ]);
     }
 
+    // Function to get all users
     // Function to get all users
     public function get_all_users()
     {
@@ -151,75 +131,79 @@ class WP_React_Settings_Rest_Route
         $users = get_users($args);
         $user_data = [];
 
-        foreach ($users as $user) {
-            // Check if the user has roles and if roles exist
-            $user_roles = !empty($user->roles) ? implode(', ', $user->roles) : 'No role assigned';
+        if (!empty($users) && is_array($users)) {
+            foreach ($users as $user) {
+                // Check if the user has roles and if roles exist
+                $user_roles = !empty($user->roles) ? implode(', ', $user->roles) : 'No role assigned';
 
-            // Get user meta and flatten the array values
-            $meta_data = get_user_meta($user->ID);
-            $flattened_meta = [];
-            foreach ($meta_data as $key => $value) {
-                $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+                // Get user meta and flatten the array values
+                $meta_data = get_user_meta($user->ID);
+                $flattened_meta = [];
+
+                if (!empty($meta_data) && is_array($meta_data)) {
+                    foreach ($meta_data as $key => $value) {
+                        if ($key === 'image') {
+                            $attachment_id = (int) $value[0];
+                            $image_url = wp_get_attachment_url($attachment_id);
+                            // Store the image URL under the same key as the field name
+                            $flattened_meta[$key] = $image_url;
+                        } else {
+                            $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+                        }
+                    }
+                }
+
+                $user_data[] = [
+                    'id' => $user->ID,
+                    'username' => $user->user_login,
+                    'email' => $user->user_email,
+                    'role' => $user_roles,
+                    'registered' => $user->user_registered,
+                    'meta' => $flattened_meta
+                ];
             }
-
-            $user_data[] = [
-                'id' => $user->ID,
-                'username' => $user->user_login,
-                'email' => $user->user_email,
-                'role' => $user_roles,
-                'registered' => $user->user_registered,
-                'meta' => $flattened_meta
-            ];
+        } else {
+            error_log('Users array is empty or not an array.');
         }
 
         return rest_ensure_response($user_data);
     }
 
+
+
     // Function to get all managers
     public function get_all_managers($parameters)
     {
-        // Get the user ID from the parameters
         $exclude_user_id = isset($parameters['id']) ? intval($parameters['id']) : 0;
 
-        // Test with the 'administrator' role instead of 'editor'
         $args = [
             'orderby' => 'registered',
             'order' => 'DESC'
         ];
 
         $users = get_users($args);
-
-        // Log how many users were found
-        error_log('Total Users Found: ' . count($users));
-
         $user_data = [];
 
         foreach ($users as $user) {
-            // Skip the user with the specified ID
             if ($user->ID == $exclude_user_id) {
                 continue;
             }
 
-            // Get user meta for first name and last name
             $first_name = get_user_meta($user->ID, 'first_name', true);
             $last_name = get_user_meta($user->ID, 'last_name', true);
 
-            // Create label in both English and Arabic
-            $label_en = $first_name . ' ' . $last_name;
-            $label_ar = $first_name . ' ' . $last_name;
-
             $user_data[] = [
-                'value' => $user->ID,
-                'label_en' => $label_en,
-                'label_ar' => $label_ar
+                'value' => (string) $user->ID,
+                'label_en' => $first_name . ' ' . $last_name,
+                'label_ar' => $first_name . ' ' . $last_name,
             ];
         }
 
         return rest_ensure_response($user_data);
     }
 
-
-
+    // Function to get a user by ID
+    // Function to get a user by ID
     public function get_user_by_id($request)
     {
         $user_id = (int) $request->get_param('id');
@@ -238,144 +222,144 @@ class WP_React_Settings_Rest_Route
 
         // Append custom fields to the user data
         $custom_fields = get_user_meta($user_id);
-        foreach ($custom_fields as $key => $value) {
-            // Only unserialize if the data is serialized
-            if (is_serialized($value[0])) {
-                $user_data[$key] = $this->recursive_unserialize($value[0]); // Use $this->recursive_unserialize()
-            } else {
-                $user_data[$key] = $value[0]; // Not serialized, just use the value
+
+        if (!empty($custom_fields) && is_array($custom_fields)) {
+            foreach ($custom_fields as $key => $value) {
+                if ($key === 'image') {
+                    $attachment_id = (int) $value[0];
+                    $image_url = wp_get_attachment_url($attachment_id);
+                    // Store the image URL under the same key as the field name
+                    $user_data[$key] = $image_url;
+                } else {
+                    $user_data[$key] = is_serialized($value[0]) ? maybe_unserialize($value[0]) : $value[0];
+                }
             }
+        } else {
+            error_log('Custom fields are empty or not an array for user ID: ' . $user_id);
         }
-
-        // remove  wp_capabilities with site id
-        $site_id = get_current_blog_id(); // Use the current site or pass the desired site ID
-        $capabilities_key = "wp_{$site_id}_capabilities";
-        $user_level_key = "wp_{$site_id}_user_level";
-
-        unset($user_data[$capabilities_key]);
-        unset($user_data[$user_level_key]);
-        // remove  wp_capabilities
-        unset($user_data['wp_capabilities']);
-        unset($user_data['wp_user_level']);
-
 
         return rest_ensure_response($user_data);
     }
-    // Function to handle base64 image upload
-    private function upload_base64_image($base64_image, $email)
+
+
+    private function handle_avatar_upload($file, $user_id)
     {
-        $upload_dir = wp_upload_dir();
-        $decoded_image = base64_decode($base64_image);
-
-        if (!$decoded_image) {
-            return new WP_Error('image_decode_error', 'Failed to decode image', array('status' => 400));
-        }
-
-        $filename = sanitize_file_name(md5($email) . '.png');
-        $file_path = $upload_dir['path'] . '/' . $filename;
-        $file_url = $upload_dir['url'] . '/' . $filename;
-
-        // Save image to the uploads directory
-        file_put_contents($file_path, $decoded_image);
-
-        // Ensure the file is recognized as a valid WordPress media attachment
-        $filetype = wp_check_filetype($filename, null);
-
-        if (!$filetype['type']) {
-            return new WP_Error('invalid_filetype', 'Invalid file type', array('status' => 400));
-        }
-
-        $attachment = array(
-            'post_mime_type' => $filetype['type'],
-            'post_title'     => sanitize_file_name($filename),
-            'post_content'   => '',
-            'post_status'    => 'inherit'
-        );
-
-        $attach_id = wp_insert_attachment($attachment, $file_path);
-
-        // Include image.php for handling media uploads
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
         require_once(ABSPATH . 'wp-admin/includes/image.php');
 
-        // Generate attachment metadata
-        $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            error_log('File upload error: ' . $file['error']);
+            return new WP_Error('upload_error', 'File upload error', array('status' => 500));
+        }
+
+        $upload = wp_handle_upload($file, ['test_form' => false]);
+
+        if (isset($upload['error'])) {
+            error_log('Upload failed: ' . $upload['error']);
+            return new WP_Error('upload_error', $upload['error'], array('status' => 500));
+        }
+
+        $attachment = [
+            'guid' => $upload['url'],
+            'post_mime_type' => $upload['type'],
+            'post_title' => basename($upload['file']),
+            'post_content' => '',
+            'post_status' => 'inherit',
+        ];
+
+        $attach_id = wp_insert_attachment($attachment, $upload['file']);
+        if (!$attach_id) {
+            return new WP_Error('attachment_error', 'Failed to create attachment.', array('status' => 500));
+        }
+
+        $attach_data = wp_generate_attachment_metadata($attach_id, $upload['file']);
         wp_update_attachment_metadata($attach_id, $attach_data);
 
-        return $file_url; // Return the file URL
+        update_user_meta($user_id, 'image', $attach_id);
+
+        return $attach_id;
     }
 
-    // Add staff function
+    // Function to add a user
     public function add_staff($request)
     {
-        $parameters = $request->get_json_params();
-        error_log('Parameters: ' . print_r($parameters, true)); // Log the parameters
+        $parameters = $request->get_params();
 
         $email = sanitize_email($parameters['email']);
         if (empty($email)) {
             return new WP_Error('missing_fields', 'Missing email field', array('status' => 400));
         }
 
-        // Handle image upload
-        $image_url = null; // Default to null if no image is uploaded
-        if (!empty($parameters['image'])) {
-            $image = $parameters['image'];
-            $image_url = $this->upload_base64_image($image, $email);
-            if (is_wp_error($image_url)) {
-                return $image_url; // Return the error if image upload fails
-            }
-        }
-
         $site_id = is_multisite() ? get_current_blog_id() : 1;
         $email_with_prefix = $site_id . '_' . $email;
-        $username_with_prefix = $site_id . '_' . $email;
 
         if (email_exists($email_with_prefix)) {
             return new WP_Error('user_exists', 'User already exists with this email', array('status' => 400));
         }
 
         $password = wp_generate_password();
-        $user_id = wp_create_user($username_with_prefix, $password, $email_with_prefix);
+        $user_id = wp_create_user($email_with_prefix, $password, $email_with_prefix);
+
         if (is_wp_error($user_id)) {
             return new WP_Error('user_creation_failed', $user_id->get_error_message(), array('status' => 500));
         }
 
-        wp_update_user([
-            'ID' => $user_id,
-            'role' => 'subscriber'
-        ]);
+        wp_update_user(['ID' => $user_id, 'role' => 'subscriber']);
 
         foreach ($parameters as $key => $value) {
-            update_user_meta($user_id, sanitize_key($key), maybe_serialize($value));
+            $meta_key = sanitize_key($key);
+            $meta_value = maybe_serialize($value);
+            update_user_meta($user_id, $meta_key, $meta_value);
         }
 
-        if ($image_url) {
-            update_user_meta($user_id, 'profile_image', $image_url);
+        if (!empty($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $avatar_id = $this->handle_avatar_upload($_FILES['image'], $user_id);
+            if (is_wp_error($avatar_id)) {
+                return $avatar_id;
+            }
         }
 
         return rest_ensure_response([
             'success' => true,
             'message' => 'User created successfully',
             'user_id' => $user_id,
-            'profile_image' => $image_url
+            'data' => $parameters
         ], 201);
     }
 
-    // Update staff function
+    // Function to update a user
     public function update_staff($request)
     {
         $user_id = (int) $request->get_param('id');
+
         $existing_user = get_userdata($user_id);
 
         if (!$existing_user) {
             return new WP_Error('user_not_found', 'User not found', array('status' => 404));
         }
 
-        $parameters = $request->get_json_params();
-        $new_email = sanitize_email($request->get_param('email'));
+        $parameters = $request->get_params(); // Retrieves both GET and POST parameters
+
+        if (empty($parameters) || !is_array($parameters)) {
+            return new WP_Error('invalid_request', 'No parameters provided', array('status' => 400));
+        }
+
+        // Log parameters for debugging
+        error_log('Parameters: ' . print_r($parameters, true));
+
+        $new_email = sanitize_email(isset($parameters['email']) ? $parameters['email'] : '');
+
+        if (empty($new_email)) {
+            return new WP_Error('missing_email', 'Email is required', array('status' => 400));
+        }
+
         $site_id = is_multisite() ? get_current_blog_id() : 1;
         $new_email_with_prefix = $site_id . '_' . $new_email;
 
-        if (email_exists($new_email_with_prefix) && $new_email_with_prefix !== $existing_user->user_email) {
+        // Check if the email exists for another user
+        $existing_user_with_email = get_user_by('email', $new_email_with_prefix);
+        if ($existing_user_with_email && $existing_user_with_email->ID !== $user_id) {
             return new WP_Error('user_exists', 'User already exists with this email', array('status' => 400));
         }
 
@@ -387,15 +371,20 @@ class WP_React_Settings_Rest_Route
         ]);
 
         // Handle image upload if provided
-        if (!empty($parameters['image'])) {
-            $image = $parameters['image'];
-            $image_url = $this->upload_base64_image($image, $new_email);
-            if (is_wp_error($image_url)) {
-                return $image_url;
+        $files = $request->get_file_params();
+
+        error_log('Received files: ' . print_r($files, true));
+
+        if (!empty($files['image']) && $files['image']['error'] === UPLOAD_ERR_OK) {
+            $avatar_id = $this->handle_avatar_upload($files['image'], $user_id);
+            if (is_wp_error($avatar_id)) {
+                return $avatar_id;
             }
-            update_user_meta($user_id, 'profile_image', $image_url);
+            // Update user meta with the new avatar ID
+            update_user_meta($user_id, 'image', $avatar_id);
         }
 
+        // Update user meta
         foreach ($parameters as $key => $value) {
             if (!in_array($key, ['user_login', 'user_email', 'id', 'registered', 'username'])) {
                 update_user_meta($user_id, sanitize_key($key), maybe_serialize($value));
@@ -410,6 +399,8 @@ class WP_React_Settings_Rest_Route
     }
 
 
+
+
     // Function to delete a user
     public function delete_staff($request)
     {
@@ -421,13 +412,13 @@ class WP_React_Settings_Rest_Route
 
         require_once(ABSPATH . 'wp-admin/includes/user.php');
         wp_delete_user($user_id);
-        // Delete all meta keys related to the user
+
         $meta_keys = get_user_meta($user_id, '', '');
-        foreach ($meta_keys as $key => $value) {
-            delete_user_meta($user_id, $key);
+        if (!empty($meta_keys) && is_array($meta_keys)) {
+            foreach ($meta_keys as $key => $value) {
+                delete_user_meta($user_id, $key);
+            }
         }
-
-
 
         return rest_ensure_response([
             'success' => true,
