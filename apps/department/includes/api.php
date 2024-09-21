@@ -106,7 +106,7 @@ class WP_React_Department_Rest_Route
         ]);
 
         register_rest_route('department/v1', '/update/(?P<id>\d+)', [
-            'methods' => 'PATCH',
+            'methods' => 'POST',
             'callback' => [$this, 'update_department'],
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
@@ -125,7 +125,7 @@ class WP_React_Department_Rest_Route
     // Function to add a department
     public function add_department($request)
     {
-        $parameters = $request->get_json_params();
+        $parameters = $request->get_params();
 
         $title = sanitize_text_field($parameters['title']);
         $content = sanitize_textarea_field($parameters['content']);

@@ -41,6 +41,7 @@ function CRUD_Department() {
                 const response = await fetch('/wp-json/department/v1/all')
                 const data = await response.json()
 
+                console.log('users all', data)
                 const mappedUsers = data.map((user) => ({
                     value: user.id.toString(),
                     label_en:
@@ -53,6 +54,7 @@ function CRUD_Department() {
                         user.meta?.staff_last_name,
                 }))
                 setUsers(mappedUsers)
+                console.log(mappedUsers, 'mapped users')
             } catch (error) {
                 console.error('Error fetching users:', error)
             }
@@ -66,11 +68,13 @@ function CRUD_Department() {
             const response = await fetch('/wp-json/department/v1/site')
             const data = await response.json()
             setSiteId(data.site_id)
+            console.log(data, 'site data')
         }
         getSiteId()
     }, [])
 
     useEffect(() => {
+        console.log(isUpdating ? 'Updating user' : 'Creating new user')
         if (isUpdating) {
             // Fetch the user data to prefill the form
             const fetchUserData = async () => {
@@ -84,6 +88,9 @@ function CRUD_Department() {
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
                     setPostId(data.id)
+                    console.log(data.id, 'user id')
+
+                    console.log('User data fetched:', data)
                 } catch (error) {
                     console.error('Error fetching user:', error)
                 }
@@ -109,6 +116,9 @@ function CRUD_Department() {
                 const fields = data.fields
                 const JSONData = JSON.parse(fields.JSONData)
 
+                // first section
+                const sectionIndex = JSONData.sections[0]
+
                 setFormSections(JSONData.sections)
                 console.log(JSONData, 'JSONData')
             } catch (error) {
@@ -133,59 +143,60 @@ function CRUD_Department() {
         )
     }
 
-    const handleSubmission = async (data) => {
+    // Handle form submission (add mode)
+    const handleSubmission = async (formData) => {
         try {
             setIsSubmitting(true)
-
             const nonce = window?.appLocalizer?.nonce || ''
+            const isFormDataInstance = formData instanceof FormData
+
             const response = await fetch(submitUrl, {
                 method: 'POST',
                 headers: {
                     'X-WP-Nonce': nonce,
-                    'Content-Type': 'application/json',
+                    ...(isFormDataInstance
+                        ? {}
+                        : { 'Content-Type': 'application/json' }),
                 },
-                body: JSON.stringify(data),
+                body: isFormDataInstance ? formData : JSON.stringify(formData),
             })
 
             const result = await response.json()
-
             if (result.success) {
                 await toast.success('Form submitted successfully!', {
                     description: result.message,
                 })
-                const id = result.post_id // Extract the ID from the server response
-
-                // Navigate to the update page with the new `id`
-                navigate(`/update/${id}`)
+                navigate(`/update/${result.post_id}`)
             } else {
                 toast.error('Form submission failed!', {
                     description: result.message,
                 })
             }
         } catch (error) {
-            console.error('Error submitting form:', error)
             toast.error('Form submission failed!', {
-                description: error.message, // Ensure to show the error message
+                description: error.message,
             })
         } finally {
             setIsSubmitting(false)
         }
     }
 
-    const handleUpdate = async (data) => {
+    // Handle form update (update mode)
+    const handleUpdate = async (formData) => {
         try {
             setIsSubmitting(true)
-
             const nonce = window?.appLocalizer?.nonce || ''
+            const isFormDataInstance = formData instanceof FormData
 
-            const url = `${updateUrl}`
-            const response = await fetch(url, {
-                method: 'PATCH',
+            const response = await fetch(updateUrl, {
+                method: 'POST', // Changed from 'PATCH' to 'POST'
                 headers: {
                     'X-WP-Nonce': nonce,
-                    'Content-Type': 'application/json',
+                    ...(isFormDataInstance
+                        ? {}
+                        : { 'Content-Type': 'application/json' }),
                 },
-                body: JSON.stringify(data),
+                body: isFormDataInstance ? formData : JSON.stringify(formData),
             })
 
             const result = await response.json()
@@ -193,18 +204,14 @@ function CRUD_Department() {
                 await toast.success('Form updated successfully!', {
                     description: result.message,
                 })
-                // setTimeout(() => {
-                //     window.history.back()
-                // }, 100)
             } else {
                 toast.error('Form update failed!', {
                     description: result.message,
                 })
             }
         } catch (error) {
-            console.error('Error submitting form:', error)
-            toast.error('Form submission failed!', {
-                description: result.message,
+            toast.error('Form update failed!', {
+                description: error.message,
             })
         } finally {
             setIsSubmitting(false)
