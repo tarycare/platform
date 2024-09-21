@@ -16,6 +16,7 @@ import {
     Search,
     Settings,
     ShoppingCart,
+    User,
     Users2,
 } from 'lucide-react'
 
@@ -63,6 +64,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useEffect, useState } from 'react'
+import { IconUser } from '@tabler/icons-react'
 
 export const description =
     'An staff dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of staff in a table with actions.'
@@ -267,14 +269,24 @@ export default function Dashboard() {
                                                 {users.map((user: any, i) => (
                                                     <TableRow key={i}>
                                                         <TableCell className="hidden sm:table-cell">
-                                                            <img
-                                                                src={
-                                                                    user.meta
-                                                                        .image
-                                                                }
-                                                                alt="avatar"
-                                                                className="h-10 w-10 rounded-full"
-                                                            />
+                                                            <div>
+                                                                {user.meta
+                                                                    .image ? (
+                                                                    <img
+                                                                        src={
+                                                                            user
+                                                                                .meta
+                                                                                .image
+                                                                        }
+                                                                        alt="avatar"
+                                                                        className="h-10 w-10 rounded-full"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="flex size-10 items-center justify-center rounded-full border border-gray-400 bg-gray-300 text-white">
+                                                                        <User className="h-6 w-6 rounded-full" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </TableCell>
 
                                                         <TableCell>

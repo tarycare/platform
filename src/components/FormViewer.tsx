@@ -32,6 +32,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover'
 import { useNavigate, useParams } from 'react-router-dom'
+import { IconX } from '@tabler/icons-react'
 
 // Function to apply custom validation based on field configuration
 const applyValidation = (field: any, value: any, languge: string) => {
@@ -160,11 +161,15 @@ const FormViewer: FC<FormViewerProps> = ({
                             formData.append(`${field.name}[${index}]`, val)
                         })
                     } else if (value !== undefined) {
-                        // For other types (text, number, etc.)
                         formData.append(field.name, value)
                     }
                 })
             })
+
+            // Check if the user wants to remove the image
+            if (formState.remove_image === 'true') {
+                formData.append('remove_image', 'true') // Append remove_image flag to FormData
+            }
 
             const currentPath = window.location.hash
             const isAdding = currentPath === '#/add'
@@ -172,8 +177,6 @@ const FormViewer: FC<FormViewerProps> = ({
             if (!isAdding) {
                 handleUpdate(formData)
             } else {
-                console.log('Form submitted:', formData)
-                console.log(formState, 'formState')
                 handleSubmission(formData)
             }
         }
@@ -237,9 +240,19 @@ const FormViewer: FC<FormViewerProps> = ({
     const handleFileUpload = (fieldName, file) => {
         setFormState((prevState) => ({
             ...prevState,
-            [fieldName]: file,
+            [fieldName]: file, // Store the new image file
+            remove_image: null, // Reset the remove_image flag when a new image is uploaded
         }))
     }
+
+    const handleRemoveImage = (fieldName) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            [fieldName]: null, // Remove the image from formState
+            remove_image: 'true', // Set a flag indicating that the image should be removed
+        }))
+    }
+
     const renderComponent = (field: any) => {
         const label = languge === 'ar' ? field.label_ar : field.label_en
         const placeholder =
@@ -506,7 +519,7 @@ const FormViewer: FC<FormViewerProps> = ({
                     <div>
                         {/* Show existing image from server or the selected new image */}
                         {formState[field.name] && (
-                            <div className="mb-2">
+                            <div className="relative mb-2 flex size-24 items-center gap-5">
                                 <img
                                     src={
                                         typeof formState[field.name] ===
@@ -519,6 +532,17 @@ const FormViewer: FC<FormViewerProps> = ({
                                     alt="Avatar"
                                     className="h-24 w-24 rounded-full object-cover"
                                 />
+                                <Button
+                                    type="button"
+                                    onClick={() =>
+                                        handleRemoveImage(field.name)
+                                    }
+                                    variant={'destructive'}
+                                    size={'icon'}
+                                    className="absolute end-0 top-0 size-6 rounded-full border-2"
+                                >
+                                    <IconX className="h-4 w-4" />
+                                </Button>
                             </div>
                         )}
                         {/* Input field to upload a new image */}

@@ -371,32 +371,43 @@ class WP_React_Settings_Rest_Route
             'user_nicename' => $new_email_with_prefix
         ]);
 
-        // Handle image upload if a new image file is provided
-        $files = $request->get_file_params();
-        error_log('Received files: ' . print_r($files, true));
-
-        if (!empty($files['image']) && $files['image']['error'] === UPLOAD_ERR_OK) {
-            $avatar_id = $this->handle_avatar_upload($files['image'], $user_id);
-            if (is_wp_error($avatar_id)) {
-                return $avatar_id;
-            }
-            // Update user meta with the new avatar ID
-            update_user_meta($user_id, 'image', $avatar_id);
-        } elseif (!empty($parameters['image'])) {
-            // If the image is passed as a URL in the parameters (meaning no file was uploaded), retain the current image and skip update
+        // Handle image removal if the action 'remove_image' is set
+        if (isset($parameters['remove_image']) && $parameters['remove_image'] === 'true') {
             $existing_image_id = get_user_meta($user_id, 'image', true);
             if (!empty($existing_image_id)) {
-                error_log('Retaining the existing image as no new image was uploaded.');
-                // Retain the existing image URL by leaving it unchanged in the meta
-                update_user_meta($user_id, 'image', $existing_image_id);
+                // Remove the image by deleting the user meta
+                delete_user_meta($user_id, 'image');
+                // Optionally: You can also delete the attachment if needed
+                wp_delete_attachment($existing_image_id, true); // true to force delete
+                error_log('User image removed.');
             }
         } else {
-            error_log('No image uploaded or image upload error occurred, skipping image update.');
+            // Handle image upload if a new image file is provided
+            $files = $request->get_file_params();
+            error_log('Received files: ' . print_r($files, true));
+
+            if (!empty($files['image']) && $files['image']['error'] === UPLOAD_ERR_OK) {
+                $avatar_id = $this->handle_avatar_upload($files['image'], $user_id);
+                if (is_wp_error($avatar_id)) {
+                    return $avatar_id;
+                }
+                // Update user meta with the new avatar ID
+                update_user_meta($user_id, 'image', $avatar_id);
+            } elseif (!empty($parameters['image'])) {
+                // Retain the current image if no new image is uploaded and no removal is requested
+                $existing_image_id = get_user_meta($user_id, 'image', true);
+                if (!empty($existing_image_id)) {
+                    error_log('Retaining the existing image as no new image was uploaded.');
+                    update_user_meta($user_id, 'image', $existing_image_id);
+                }
+            } else {
+                error_log('No image uploaded or image upload error occurred, skipping image update.');
+            }
         }
 
-        // Update user meta except for image if no file upload
+        // Update other user meta except for the image if no file upload or remove_image action
         foreach ($parameters as $key => $value) {
-            if (!in_array($key, ['user_login', 'user_email', 'id', 'registered', 'username', 'image'])) {
+            if (!in_array($key, ['user_login', 'user_email', 'id', 'registered', 'username', 'image', 'remove_image'])) {
                 update_user_meta($user_id, sanitize_key($key), maybe_serialize($value));
             }
         }
@@ -407,7 +418,6 @@ class WP_React_Settings_Rest_Route
             'user_id' => $user_id
         ]);
     }
-
 
 
 
