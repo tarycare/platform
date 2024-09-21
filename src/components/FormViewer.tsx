@@ -110,6 +110,8 @@ const FormViewer: FC<FormViewerProps> = ({
 }) => {
     const [formState, setFormState] = useState<{ [key: string]: any }>({})
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
+    const [isImageChanged, setIsImageChanged] = useState(false) // New state to track image change
+    const [isImageRemoved, setIsImageRemoved] = useState(false) // New state to track image removal
 
     useEffect(() => {
         if (isUpdating) {
@@ -140,47 +142,6 @@ const FormViewer: FC<FormViewerProps> = ({
     const debouncedTrigger = debounce((fieldName: string) => {
         validateField(fieldName, formState[fieldName])
     }, 300)
-
-    const onSubmit = (event) => {
-        event.preventDefault()
-        const errors = validateForm()
-        if (Object.keys(errors).length === 0) {
-            const formData = new FormData()
-
-            // Append all form fields to FormData
-            data.forEach((section) => {
-                section.Fields.forEach((field) => {
-                    const value = formState[field.name]
-
-                    // Handle file uploads
-                    if (field.type.toLowerCase() === 'upload_image' && value) {
-                        formData.append('image', value) // Use 'image' as the key
-                    } else if (Array.isArray(value)) {
-                        // Handle multi-select or checkbox arrays
-                        value.forEach((val, index) => {
-                            formData.append(`${field.name}[${index}]`, val)
-                        })
-                    } else if (value !== undefined) {
-                        formData.append(field.name, value)
-                    }
-                })
-            })
-
-            // Check if the user wants to remove the image
-            if (formState.remove_image === 'true') {
-                formData.append('remove_image', 'true') // Append remove_image flag to FormData
-            }
-
-            const currentPath = window.location.hash
-            const isAdding = currentPath === '#/add'
-
-            if (!isAdding) {
-                handleUpdate(formData)
-            } else {
-                handleSubmission(formData)
-            }
-        }
-    }
 
     const validateField = (fieldName: string, value: any) => {
         const field = data
@@ -238,19 +199,53 @@ const FormViewer: FC<FormViewerProps> = ({
     }
 
     const handleFileUpload = (fieldName, file) => {
-        setFormState((prevState) => ({
-            ...prevState,
-            [fieldName]: file, // Store the new image file
-            remove_image: null, // Reset the remove_image flag when a new image is uploaded
-        }))
+        setFormState((prevState) => ({ ...prevState, [fieldName]: file }))
+        setIsImageChanged(true) // Mark the image as changed
+        setIsImageRemoved(false) // Ensure we don't remove it if uploading a new image
     }
 
     const handleRemoveImage = (fieldName) => {
-        setFormState((prevState) => ({
-            ...prevState,
-            [fieldName]: null, // Remove the image from formState
-            remove_image: 'true', // Set a flag indicating that the image should be removed
-        }))
+        setFormState((prevState) => ({ ...prevState, [fieldName]: null }))
+        setIsImageRemoved(true) // Mark the image as removed
+        setIsImageChanged(false) // Not changing the image, just removing it
+    }
+
+    const onSubmit = (event) => {
+        event.preventDefault()
+        const errors = validateForm()
+        if (Object.keys(errors).length === 0) {
+            const formData = new FormData()
+
+            data.forEach((section) => {
+                section.Fields.forEach((field) => {
+                    const value = formState[field.name]
+
+                    // Handle file uploads
+                    if (field.type.toLowerCase() === 'upload_image') {
+                        if (isImageChanged && value) {
+                            formData.append('image', value)
+                        } else if (isImageRemoved) {
+                            formData.append('remove_image', 'true') // Mark image for removal
+                        }
+                    } else if (Array.isArray(value)) {
+                        value.forEach((val, index) =>
+                            formData.append(`${field.name}[${index}]`, val)
+                        )
+                    } else if (value !== undefined) {
+                        formData.append(field.name, value)
+                    }
+                })
+            })
+
+            const currentPath = window.location.hash
+            const isAdding = currentPath === '#/add'
+
+            if (!isAdding) {
+                handleUpdate(formData)
+            } else {
+                handleSubmission(formData)
+            }
+        }
     }
 
     const renderComponent = (field: any) => {

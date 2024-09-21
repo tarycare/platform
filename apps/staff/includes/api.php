@@ -224,15 +224,31 @@ class WP_React_Settings_Rest_Route
 
         if (!empty($custom_fields) && is_array($custom_fields)) {
             foreach ($custom_fields as $key => $value) {
-                $meta_value = $value[0];
+                if ($key === 'image') {
+                    $attachment_id = (int) $value[0];
 
-                // Unserialize repeatedly until it's no longer serialized
-                while (is_serialized($meta_value)) {
-                    $meta_value = maybe_unserialize($meta_value);
+                    // Check if the attachment ID is valid
+                    if ($attachment_id) {
+                        $image_url = wp_get_attachment_url($attachment_id);
+                        if ($image_url) {
+                            $user_data[$key] = $image_url;
+                        } else {
+                            $user_data[$key] = null; // Set as null if the image URL can't be retrieved
+                        }
+                    } else {
+                        $user_data[$key] = null; // Set as null if no valid image is found
+                    }
+                } else {
+                    $meta_value = $value[0];
+
+                    // Unserialize repeatedly until it's no longer serialized
+                    while (is_serialized($meta_value)) {
+                        $meta_value = maybe_unserialize($meta_value);
+                    }
+
+                    // Set the unserialized value or the original if not serialized
+                    $user_data[$key] = $meta_value;
                 }
-
-                // Set the unserialized value or the original if not serialized
-                $user_data[$key] = $meta_value;
             }
         } else {
             error_log('Custom fields are empty or not an array for user ID: ' . $user_id);
@@ -240,6 +256,7 @@ class WP_React_Settings_Rest_Route
 
         return rest_ensure_response($user_data);
     }
+
 
 
 
@@ -373,7 +390,7 @@ class WP_React_Settings_Rest_Route
             'user_nicename' => $new_email_with_prefix
         ]);
 
-        // Handle image removal if the action 'remove_image' is set
+        // Handle image removal if the 'remove_image' action is set
         if (isset($parameters['remove_image']) && $parameters['remove_image'] === 'true') {
             $existing_image_id = get_user_meta($user_id, 'image', true);
             if (!empty($existing_image_id)) {
@@ -395,7 +412,7 @@ class WP_React_Settings_Rest_Route
                 }
                 // Update user meta with the new avatar ID
                 update_user_meta($user_id, 'image', $avatar_id);
-            } elseif (!empty($parameters['image'])) {
+            } elseif (!isset($parameters['remove_image'])) {
                 // Retain the current image if no new image is uploaded and no removal is requested
                 $existing_image_id = get_user_meta($user_id, 'image', true);
                 if (!empty($existing_image_id)) {
@@ -420,6 +437,7 @@ class WP_React_Settings_Rest_Route
             'user_id' => $user_id
         ]);
     }
+
 
 
 
