@@ -175,6 +175,8 @@ export const MultiSelect = React.forwardRef<
             const newSelectedValues = selectedValues.includes(value)
                 ? selectedValues.filter((v) => v !== value)
                 : [...selectedValues, value]
+            console.log('Toggling option:', value) // Add this
+            console.log('New selected values:', newSelectedValues) // Add this
             setSelectedValues(newSelectedValues)
             onValueChange(newSelectedValues)
         }

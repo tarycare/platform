@@ -119,7 +119,6 @@ class WP_React_Settings_Rest_Route
     }
 
     // Function to get all users
-    // Function to get all users
     public function get_all_users()
     {
         $args = [
@@ -225,14 +224,15 @@ class WP_React_Settings_Rest_Route
 
         if (!empty($custom_fields) && is_array($custom_fields)) {
             foreach ($custom_fields as $key => $value) {
-                if ($key === 'image') {
-                    $attachment_id = (int) $value[0];
-                    $image_url = wp_get_attachment_url($attachment_id);
-                    // Store the image URL under the same key as the field name
-                    $user_data[$key] = $image_url;
-                } else {
-                    $user_data[$key] = is_serialized($value[0]) ? maybe_unserialize($value[0]) : $value[0];
+                $meta_value = $value[0];
+
+                // Unserialize repeatedly until it's no longer serialized
+                while (is_serialized($meta_value)) {
+                    $meta_value = maybe_unserialize($meta_value);
                 }
+
+                // Set the unserialized value or the original if not serialized
+                $user_data[$key] = $meta_value;
             }
         } else {
             error_log('Custom fields are empty or not an array for user ID: ' . $user_id);
@@ -240,6 +240,8 @@ class WP_React_Settings_Rest_Route
 
         return rest_ensure_response($user_data);
     }
+
+
 
 
     private function handle_avatar_upload($file, $user_id)
