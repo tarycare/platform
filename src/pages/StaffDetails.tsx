@@ -74,12 +74,12 @@ function StaffDetails() {
                     <p>
                         <strong>Email:</strong> {staff.email}
                     </p>
-                    <p>
+                    {/* <p>
                         <strong>Role:</strong>{' '}
                         {staff.wp_capabilities.administrator
                             ? 'Administrator'
                             : 'Subscriber'}
-                    </p>
+                    </p> */}
                 </div>
             )}
         </div>

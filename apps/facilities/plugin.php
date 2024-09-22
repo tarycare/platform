@@ -25,7 +25,7 @@ $config = [
     'capability'           => 'read',                           // Capability Required
     'icon'                 => 'dashicons-admin-multisite',      // Menu Icon
     'position'             => 4,                                // Menu Position
-    'app_script_handle'    => 'wp-react-facilities',            // Script Handle (Unique)
+    'app_script_handle'    => 'facilities',            // Script Handle (Unique)
     'app_script_dev'       => 'http://localhost:3000/apps/facilities/dist/facilities.js',  // Dev Script URL
     'app_style_dev'        => 'http://localhost:3000/apps/assets/style.css',               // Dev Style URL
     'app_script_prod'      => 'dist/facilities.js',             // Prod Script Path
@@ -185,3 +185,6 @@ if (!class_exists($config['class_name'])) {
     // Instantiate the class with the configuration
     new $config['class_name']($config);
 }
+
+
+require_once constant($config['path_constant']) . 'includes/api.php';

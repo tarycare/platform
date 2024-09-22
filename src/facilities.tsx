@@ -10,8 +10,8 @@ import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import List from './pages/department/ListDepartments'
-import CRUD_Department from './pages/department/AddOrUpdateDepartment'
+import List from './pages/facilities/ListFacilities'
+import CRUD_Facility from './pages/facilities/AddOrUpdateFacilities'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -24,7 +24,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CRUD_Department />
+                    <CRUD_Facility />
                 </div>
             </div>
         ),
@@ -34,7 +34,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CRUD_Department />
+                    <CRUD_Facility />
                 </div>
             </div>
         ),
