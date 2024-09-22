@@ -23,6 +23,7 @@ function FormBuilderWidget() {
     const baseUrl = isDev ? 'http://mytest.local' : ''
     const [userId, setUserId] = useState(0)
     const [departments, setDepartments] = useState([])
+    const [facilities, setFacilities] = useState([])
 
     const { id } = useParams() // Get user ID from the URL params
 
@@ -55,18 +56,31 @@ function FormBuilderWidget() {
 
     // get Departments from the API
     useEffect(() => {
-        async function getManagers() {
+        async function getDepartments() {
             try {
                 const response = await fetch(`/wp-json/department/v1/select`)
                 const data = await response.json()
-                console.log('department', data)
 
                 setDepartments(data)
             } catch (error) {
                 console.error('Error fetching users:', error)
             }
         }
-        getManagers()
+        getDepartments()
+    }, [])
+    // get Facilites from the API
+    useEffect(() => {
+        async function getFacilities() {
+            try {
+                const response = await fetch(`/wp-json/facility/v1/select`)
+                const data = await response.json()
+
+                setFacilities(data)
+            } catch (error) {
+                console.error('Error fetching users:', error)
+            }
+        }
+        getFacilities()
     }, [])
 
     // useEffect to to fetch staff/v1/site
@@ -153,6 +167,23 @@ function FormBuilderWidget() {
                 if (sectionIndex) {
                     // Push the department object into the Fields array of the first section
                     sectionIndex.Fields.push(department)
+                }
+
+                let facility = {
+                    name: 'facility',
+                    label_en: 'Facility',
+                    label_ar: 'المرفق',
+                    type: 'Select',
+                    order: '1',
+                    placeholder_en: 'Select Facility',
+                    placeholder_ar: 'اختيار المرفق',
+                    colSpan: '6',
+                }
+
+                facility.items = facilities
+                if (sectionIndex) {
+                    // Push the facility object into the Fields array of the first section
+                    sectionIndex.Fields.push(facility)
                 }
 
                 // Set form sections for both add and update modes
