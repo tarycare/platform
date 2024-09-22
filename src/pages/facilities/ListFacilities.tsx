@@ -16,7 +16,6 @@ import {
     Search,
     Settings,
     ShoppingCart,
-    User,
     Users2,
 } from 'lucide-react'
 
@@ -64,43 +63,42 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useEffect, useState } from 'react'
-import { IconEye, IconUser } from '@tabler/icons-react'
 
 export const description =
-    'An staff dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of staff in a table with actions.'
+    'An Facility dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of Facility in a table with actions.'
 
 export default function Dashboard() {
     const isDev = process.env.NODE_ENV === 'development'
 
     const WP_API_URL = isDev
-        ? `http://mytest.local/wp-json/staff/v1/all`
-        : `/wp-json/staff/v1/all`
+        ? `http://mytest.local/wp-json/facility/v1/all`
+        : `/wp-json/facility/v1/all`
     const DELETE_API_URL = isDev
-        ? `http://mytest.local/wp-json/staff/v1/delete`
-        : `/wp-json/staff/v1/delete`
+        ? `http://mytest.local/wp-json/facility/v1/delete`
+        : `/wp-json/facility/v1/delete`
 
-    const [users, setUsers] = useState([])
+    const [facilitys, setFacilitys] = useState([])
     const [refresh, setRefresh] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchFacilitys = async () => {
             try {
                 const response = await fetch(WP_API_URL)
                 if (!response.ok) {
                     throw new Error('Error fetching users')
                 }
                 const data = await response.json()
-                setUsers(data)
+                setFacilitys(data)
             } catch (error: any) {
                 setError(error)
             } finally {
                 setLoading(false)
             }
         }
-        fetchUsers()
+        fetchFacilitys()
     }, [refresh])
 
     return (
@@ -149,7 +147,7 @@ export default function Dashboard() {
                                         className="flex items-center gap-4 px-2.5 text-foreground"
                                     >
                                         <Package className="h-5 w-5" />
-                                        staff
+                                        Facility
                                     </Link>
                                     <Link
                                         to="#"
@@ -228,8 +226,8 @@ export default function Dashboard() {
                                         {' '}
                                         <Button size="sm" className="h-7 gap-1">
                                             <PlusCircle className="h-3.5 w-3.5" />
-                                            <span className="sm:whitespace-nowrap">
-                                                Add Staff
+                                            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                                Add Facility
                                             </span>
                                         </Button>
                                     </Link>
@@ -238,25 +236,22 @@ export default function Dashboard() {
                             <TabsContent value="all">
                                 <Card x-chunk="dashboard-06-chunk-0">
                                     <CardHeader>
-                                        <CardTitle>All Staff</CardTitle>
+                                        <CardTitle>All Facilities</CardTitle>
                                         <CardDescription>
-                                            Manage your staff by adding,
-                                            editing, and deleting staff
+                                            Manage your Facility by adding,
+                                            editing, and deleting Facility
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <Table>
                                             <TableHeader>
                                                 <TableRow>
-                                                    <TableHead className="hidden w-[100px] sm:table-cell">
-                                                        <span>Photo</span>
-                                                    </TableHead>
-                                                    <TableHead>
-                                                        Full Name
-                                                    </TableHead>
-                                                    <TableHead>Email</TableHead>
+                                                    {/* <TableHead className="hidden w-[100px] sm:table-cell">
+                            <span className="sr-only">img</span>
+                          </TableHead> */}
+                                                    <TableHead>Name</TableHead>
 
-                                                    <TableHead>Role</TableHead>
+                                                    {/* <TableHead>Desc</TableHead> */}
 
                                                     <TableHead>
                                                         <span className="">
@@ -266,101 +261,49 @@ export default function Dashboard() {
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {users.map((user: any, i) => (
-                                                    <TableRow key={i}>
-                                                        <TableCell className="hidden sm:table-cell">
-                                                            <div
-                                                                className="cursor-pointer"
-                                                                onClick={() => {
-                                                                    navigate(
-                                                                        `/view/${user.id}`
-                                                                    )
-                                                                }}
-                                                            >
-                                                                {user.meta
-                                                                    .image ? (
-                                                                    <img
-                                                                        src={
-                                                                            user
-                                                                                .meta
-                                                                                .image
-                                                                        }
-                                                                        alt="avatar"
-                                                                        className="h-10 w-10 rounded-full bg-contain hover:brightness-110"
-                                                                    />
-                                                                ) : (
-                                                                    <div className="flex size-10 items-center justify-center rounded-full border border-gray-400 bg-gray-300 text-white">
-                                                                        <User className="h-6 w-6 rounded-full" />
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </TableCell>
+                                                {facilitys.map(
+                                                    (facility: any, i) => (
+                                                        <TableRow key={i}>
+                                                            <TableCell>
+                                                                {facility.title}
+                                                            </TableCell>
 
-                                                        <TableCell
-                                                            onClick={() => {
-                                                                navigate(
-                                                                    `/view/${user.id}`
-                                                                )
-                                                            }}
-                                                            className="font-bold"
-                                                        >
-                                                            {user.meta
-                                                                .first_name +
-                                                                ' ' +
-                                                                user.meta
-                                                                    .last_name}
-                                                        </TableCell>
-                                                        <TableCell
-                                                            onClick={() => {
-                                                                navigate(
-                                                                    `/view/${user.id}`
-                                                                )
-                                                            }}
-                                                        >
-                                                            {user.meta.email}
-                                                        </TableCell>
+                                                            {/* <TableCell>
+                                                                <Badge variant="outline">
+                                                                    {
+                                                                        facility.content
+                                                                    }
+                                                                </Badge>
+                                                            </TableCell> */}
+                                                            <TableCell>
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger
+                                                                        asChild
+                                                                    >
+                                                                        <Button
+                                                                            aria-haspopup="true"
+                                                                            size="icon"
+                                                                            variant="ghost"
+                                                                        >
+                                                                            <MoreHorizontal className="h-4 w-4" />
+                                                                            <span className="sr-only">
+                                                                                Toggle
+                                                                                menu
+                                                                            </span>
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent align="end">
+                                                                        <DropdownMenuItem
+                                                                            className="cursor-pointer"
+                                                                            onClick={() => {
+                                                                                navigate(
+                                                                                    `/update/${facility.id}`
+                                                                                )
+                                                                            }}
+                                                                        >
+                                                                            Edit
+                                                                        </DropdownMenuItem>
 
-                                                        <TableCell
-                                                            onClick={() => {
-                                                                navigate(
-                                                                    `/view/${user.id}`
-                                                                )
-                                                            }}
-                                                        >
-                                                            <Badge variant="outline">
-                                                                {user.role}
-                                                            </Badge>
-                                                        </TableCell>
-                                                        <TableCell className="flex items-center gap-x-2">
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger
-                                                                    asChild
-                                                                >
-                                                                    <Button
-                                                                        aria-haspopup="true"
-                                                                        size="icon"
-                                                                        variant="ghost"
-                                                                    >
-                                                                        <MoreHorizontal className="h-4 w-4" />
-                                                                        <span className="sr-only">
-                                                                            Toggle
-                                                                            menu
-                                                                        </span>
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end">
-                                                                    <DropdownMenuItem
-                                                                        className="cursor-pointer"
-                                                                        onClick={() => {
-                                                                            navigate(
-                                                                                `/update/${user.id}`
-                                                                            )
-                                                                        }}
-                                                                    >
-                                                                        Edit
-                                                                    </DropdownMenuItem>
-                                                                    {user.role !==
-                                                                        'administrator' && (
                                                                         <DropdownMenuItem
                                                                             className="cursor-pointer"
                                                                             onClick={() => {
@@ -371,7 +314,7 @@ export default function Dashboard() {
                                                                                     ''
 
                                                                                 fetch(
-                                                                                    `${DELETE_API_URL}/${user.id}`,
+                                                                                    `${DELETE_API_URL}/${facility.id}`,
                                                                                     {
                                                                                         method: 'DELETE',
                                                                                         headers:
@@ -383,7 +326,7 @@ export default function Dashboard() {
                                                                                             },
                                                                                         body: JSON.stringify(
                                                                                             {
-                                                                                                id: user.id,
+                                                                                                id: facility.id,
                                                                                             }
                                                                                         ),
                                                                                     }
@@ -418,36 +361,22 @@ export default function Dashboard() {
                                                                         >
                                                                             Delete
                                                                         </DropdownMenuItem>
-                                                                    )}
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                            <Button
-                                                                variant={
-                                                                    'ghost'
-                                                                }
-                                                                size="icon"
-                                                            >
-                                                                <IconEye
-                                                                    onClick={() => {
-                                                                        navigate(
-                                                                            `/view/${user.id}`
-                                                                        )
-                                                                    }}
-                                                                    className="cursor-pointer"
-                                                                />
-                                                            </Button>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )
+                                                )}
                                             </TableBody>
                                         </Table>
                                     </CardContent>
                                     <CardFooter>
                                         <div className="text-xs text-muted-foreground">
                                             Showing{' '}
-                                            <strong>{users.length}</strong> of{' '}
-                                            <strong>{users.length}</strong>{' '}
-                                            staff
+                                            <strong>{facilitys.length}</strong>{' '}
+                                            of{' '}
+                                            <strong>{facilitys.length}</strong>{' '}
+                                            Facility
                                         </div>
                                     </CardFooter>
                                 </Card>
