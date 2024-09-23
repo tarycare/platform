@@ -244,7 +244,7 @@ class WP_React_Facility_Rest_Route
             return new WP_Error('facility_not_found', 'Facility not found', array('status' => 404));
         }
 
-        $parameters = $request->get_json_params();
+        $parameters = $request->get_params();
         $title = sanitize_text_field($parameters['title']);
         $content = sanitize_textarea_field($parameters['content']);
 
