@@ -143,7 +143,7 @@ export const MultiSelect = React.forwardRef<
         const [lang, setLang] = React.useState('en')
 
         React.useEffect(() => {
-            setLang(document.documentElement.dir === 'rtl' ? 'ar' : 'en')
+            setLang(document.documentElement.lang)
         }, [])
 
         const [selectedValues, setSelectedValues] =

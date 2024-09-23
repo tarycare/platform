@@ -114,6 +114,7 @@ const FormViewer: FC<FormViewerProps> = ({
     const [isImageRemoved, setIsImageRemoved] = useState(false) // New state to track image removal
 
     useEffect(() => {
+        console.log('FormViewer data', data)
         if (isUpdating) {
             const parsedData = JSON.parse(updateData)
 
@@ -363,14 +364,14 @@ const FormViewer: FC<FormViewerProps> = ({
                     return (
                         <div className="flex items-center gap-x-2">
                             <Checkbox
-                                id={`${item.value}-${field.name}`}
+                                id={`${field.name}`}
                                 checked={formState[field.name] || false}
                                 onCheckedChange={(checked) =>
                                     handleFieldChange(field.name, checked)
                                 }
                             />
                             <label
-                                htmlFor={`${item.value}-${field.name}`}
+                                htmlFor={`${field.name}`}
                                 className="text-sm font-medium"
                             >
                                 {label}
@@ -387,7 +388,7 @@ const FormViewer: FC<FormViewerProps> = ({
                                 key={item.value}
                                 className="flex items-center text-sm font-medium"
                             >
-                                <input
+                                <Input
                                     type="radio"
                                     value={item.value}
                                     checked={
@@ -574,13 +575,19 @@ const FormViewer: FC<FormViewerProps> = ({
                     {data
                         ?.sort((a, b) => Number(a.order) - Number(b.order))
                         .map((section, index) => (
-                            <AccordionItem key={index} value={`item-${index}`}>
+                            <AccordionItem
+                                key={index}
+                                value={`item-${index}`}
+                                className="mb-3"
+                            >
                                 <AccordionTrigger>
                                     <div className="flex flex-col gap-1">
                                         <div className="ms-[5px] flex items-center gap-x-2 px-3 py-[6px]">
-                                            <div className="size-5">
-                                                {section.section_icon}
-                                            </div>
+                                            {section.section_icon && (
+                                                <div className="size-5">
+                                                    {section.section_icon}
+                                                </div>
+                                            )}
                                             <div className="text-[16px] font-bold text-foreground">
                                                 {languge === 'ar'
                                                     ? section.section_label_ar

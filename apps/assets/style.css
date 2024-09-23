@@ -705,6 +705,9 @@ body{
 .col-span-4{
     grid-column: span 4 / span 4;
 }
+.col-span-6{
+    grid-column: span 6 / span 6;
+}
 .m-1{
     margin: 0.25rem;
 }
@@ -735,6 +738,10 @@ body{
 .my-2{
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+}
+.my-3{
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
 }
 .my-4{
     margin-top: 1rem;
@@ -858,6 +865,10 @@ body{
     width: 6rem;
     height: 6rem;
 }
+.size-4{
+    width: 1rem;
+    height: 1rem;
+}
 .size-5{
     width: 1.25rem;
     height: 1.25rem;
@@ -923,6 +934,9 @@ body{
 }
 .h-\[1px\]{
     height: 1px;
+}
+.h-\[36px\]{
+    height: 36px;
 }
 .h-\[calc\(100vh-10rem\)\]{
     height: calc(100vh - 10rem);
@@ -1031,6 +1045,12 @@ body{
 }
 .w-\[1px\]{
     width: 1px;
+}
+.w-\[200px\]{
+    width: 200px;
+}
+.w-\[800px\]{
+    width: 800px;
 }
 .w-auto{
     width: auto;
@@ -1196,6 +1216,12 @@ body{
 .grid-cols-12{
     grid-template-columns: repeat(12, minmax(0, 1fr));
 }
+.grid-cols-2{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid-cols-4{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 .flex-row{
     flex-direction: row;
 }
@@ -1222,6 +1248,9 @@ body{
 }
 .justify-start{
     justify-content: flex-start;
+}
+.justify-end{
+    justify-content: flex-end;
 }
 .justify-center{
     justify-content: center;
@@ -1452,6 +1481,10 @@ body{
 .bg-foreground{
     background-color: hsl(var(--foreground));
 }
+.bg-gray-100{
+    --tw-bg-opacity: 1;
+    background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+}
 .bg-gray-300{
     --tw-bg-opacity: 1;
     background-color: rgb(209 213 219 / var(--tw-bg-opacity));
@@ -1532,6 +1565,9 @@ body{
 .p-\[1px\]{
     padding: 1px;
 }
+.p-\[2px\]{
+    padding: 2px;
+}
 .px-2{
     padding-left: 0.5rem;
     padding-right: 0.5rem;
@@ -1590,14 +1626,14 @@ body{
 .pb-3{
     padding-bottom: 0.75rem;
 }
-.pb-4{
-    padding-bottom: 1rem;
-}
 .pb-\[6px\]{
     padding-bottom: 6px;
 }
 .pe-3{
     padding-inline-end: 0.75rem;
+}
+.pe-4{
+    padding-inline-end: 1rem;
 }
 .pl-2{
     padding-left: 0.5rem;
@@ -1626,11 +1662,17 @@ body{
 .pr-8{
     padding-right: 2rem;
 }
+.ps-4{
+    padding-inline-start: 1rem;
+}
 .pt-0{
     padding-top: 0px;
 }
 .pt-1{
     padding-top: 0.25rem;
+}
+.pt-2{
+    padding-top: 0.5rem;
 }
 .pt-3{
     padding-top: 0.75rem;

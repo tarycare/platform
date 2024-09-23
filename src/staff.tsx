@@ -11,6 +11,7 @@ import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import List from './pages/staff/List'
+import FormBuilder from './components/Builder/Formbuilder'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -50,6 +51,10 @@ const routes: RouteObject[] = [
     {
         path: '/create', // Catch-all route for undefined paths
         element: <CreateForm />,
+    },
+    {
+        path: '/form-builder',
+        element: <FormBuilder />,
     },
 ]
 
