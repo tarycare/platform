@@ -12,7 +12,7 @@ import {
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { v4 as uuidv4 } from 'uuid'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useToast } from './components/ui/use-toast'
 import { toast, Toaster } from 'sonner'
 import {
@@ -29,6 +29,8 @@ import {
 import { Label } from '../ui/label'
 
 const FormBuilder: React.FC = () => {
+    const navigate = useNavigate() // Initialize useNavigate
+
     const [formConfig, setFormConfig] = useState<FormConfig>({
         title: '',
         sections: [],
@@ -174,7 +176,10 @@ const FormBuilder: React.FC = () => {
             toast.success('Form saved successfully', {
                 dir: 'ltr',
             })
+
+            const id = data.post_id
             // Optionally redirect or show a success message
+            !isUpdating && navigate(`/update/${id}`)
         } catch (error) {
             console.error('Error submitting form data:', error)
             toast.error('Failed to save form data')
