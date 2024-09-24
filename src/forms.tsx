@@ -10,7 +10,7 @@ import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import List from './pages/staff/List'
+import List from './pages/form/ListForms'
 import FormBuilder from './components/Builder/Formbuilder'
 
 // Define routes for the app
@@ -23,8 +23,8 @@ const routes: RouteObject[] = [
         path: '/update/:id', // For editing a specific staff member
         element: (
             <div>
-                <div className="w-full lg:w-[800px]">
-                    <AddOrUpdateStaff />
+                <div className="w-full">
+                    <FormBuilder />
                 </div>
             </div>
         ),
@@ -33,35 +33,18 @@ const routes: RouteObject[] = [
         path: '/add', // For adding a new staff member
         element: (
             <div>
-                <div className="w-full lg:w-[800px]">
-                    {/* <CreateAndUpdateFormPage /> */}
-                    <AddOrUpdateStaff />
+                <div className="w-full">
+                    <FormBuilder />
                 </div>
             </div>
         ),
-    },
-    {
-        path: '/view/:id', // For viewing staff details
-        element: <StaffDetails />,
-    },
-    {
-        path: '*', // Catch-all route for undefined paths
-        element: <NotFound />,
-    },
-    {
-        path: '/create', // Catch-all route for undefined paths
-        element: <CreateForm />,
-    },
-    {
-        path: '/form-builder',
-        element: <FormBuilder />,
     },
 ]
 
 // Create a HashRouter to manage the navigation inside the WordPress admin
 const router = createHashRouter(routes)
 
-const rootElement = document.getElementById('staff')
+const rootElement = document.getElementById('forms')
 
 if (rootElement) {
     const root = ReactDOM.createRoot(rootElement)

@@ -41,7 +41,7 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
 
     const addField = () => {
         const newField: Field = {
-            id: Date.now().toString(),
+            id: uuid(),
             name: '',
             label_en: '',
             label_ar: '',
@@ -60,9 +60,16 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
                 return
             }
         }
+        const updatedFields = [...section.Fields, newField].map(
+            (field, index) => ({
+                ...field,
+                order: index,
+            })
+        )
+
         updateSection({
             ...section,
-            Fields: [...section.Fields, newField],
+            Fields: updatedFields,
         })
     }
 
@@ -212,20 +219,18 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
                                     className="mt-2 flex flex-col gap-3"
                                 >
                                     {section.Fields.map((field, index) => (
-                                        <div>
-                                            <FieldEditor
-                                                key={`field-${field.id}}`} // Ensure FieldEditor also has a unique key
-                                                field={field}
-                                                updateField={updateField}
-                                                removeField={removeField}
-                                                moveField={moveField}
-                                                isFirst={index === 0}
-                                                isLast={
-                                                    index ===
-                                                    section.Fields.length - 1
-                                                }
-                                            />
-                                        </div>
+                                        <FieldEditor
+                                            key={`field--${field.id}`} // Ensure FieldEditor also has a unique key
+                                            field={field}
+                                            updateField={updateField}
+                                            removeField={removeField}
+                                            moveField={moveField}
+                                            isFirst={index === 0}
+                                            isLast={
+                                                index ===
+                                                section.Fields.length - 1
+                                            }
+                                        />
                                     ))}
                                 </Accordion>
                             </div>

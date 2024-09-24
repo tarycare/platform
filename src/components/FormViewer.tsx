@@ -32,7 +32,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover'
 import { useNavigate, useParams } from 'react-router-dom'
-import { IconX } from '@tabler/icons-react'
+import { IconSend, IconSend2, IconX } from '@tabler/icons-react'
 
 // Function to apply custom validation based on field configuration
 const applyValidation = (field: any, value: any, languge: string) => {
@@ -669,9 +669,15 @@ const FormViewer: FC<FormViewerProps> = ({
                     {isSubmitting ? (
                         <Loader2 className="h-5 w-5 animate-spin text-background" />
                     ) : languge === 'ar' ? (
-                        'إرسال'
+                        <div className="flex items-center gap-2">
+                            <IconSend className="h-4 w-4" />
+                            إرسال
+                        </div>
                     ) : (
-                        'Submit'
+                        <div className="flex items-center gap-2">
+                            Submit
+                            <IconSend className="h-4 w-4" />
+                        </div>
                     )}
                 </Button>
             </form>
