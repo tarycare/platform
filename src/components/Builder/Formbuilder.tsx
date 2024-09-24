@@ -259,6 +259,7 @@ const FormBuilder: React.FC = () => {
                         <Button
                             onClick={addSection}
                             className="flex items-center gap-2"
+                            variant={'outline'}
                         >
                             Add Section
                             <IconNewSection size={20} />
@@ -288,7 +289,7 @@ const FormBuilder: React.FC = () => {
                                         <IconDeviceFloppy size={20} />
                                     </div>
                                 ) : (
-                                    <div className="felx">
+                                    <div className="flex items-center gap-2">
                                         <IconSend size={20} />
                                         Add Form
                                     </div>
