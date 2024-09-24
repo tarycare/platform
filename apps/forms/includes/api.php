@@ -4,7 +4,7 @@ class WP_React_Form_Rest_Route
 {
     public function __construct()
     {
-        add_action('init', [$this, 'register_department_post_type']); // Register custom post type
+        add_action('init', [$this, 'register_form_post_type']); // Register custom post type
         add_action('rest_api_init', [$this, 'create_rest_routes']); // Create REST routes
 
         if (defined('WP_ENV') && WP_ENV === 'development') {
@@ -14,18 +14,18 @@ class WP_React_Form_Rest_Route
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']); // Enqueue scripts
     }
 
-    // Function to register the Department custom post type
-    public function register_department_post_type()
+    // Function to register the Form custom post type
+    public function register_form_post_type()
     {
         $labels = array(
             'name'               => 'Forms',
-            'singular_name'      => 'Department',
+            'singular_name'      => 'Form',
             'menu_name'          => 'Forms',
             'add_new'            => 'Add New',
-            'add_new_item'       => 'Add New Department',
-            'edit_item'          => 'Edit Department',
-            'new_item'           => 'New Department',
-            'view_item'          => 'View Department',
+            'add_new_item'       => 'Add New Form',
+            'edit_item'          => 'Edit Form',
+            'new_item'           => 'New Form',
+            'view_item'          => 'View Form',
             'all_items'          => 'All Forms',
             'search_items'       => 'Search Forms',
             'not_found'          => 'No forms found',
@@ -75,12 +75,12 @@ class WP_React_Form_Rest_Route
         ));
     }
 
-    // Create REST routes for CRUD operations on Department
+    // Create REST routes for CRUD operations on Form
     public function create_rest_routes()
     {
         register_rest_route('form/v1', '/add', [
             'methods' => 'POST',
-            'callback' => [$this, 'add_department'],
+            'callback' => [$this, 'add_form'],
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             }
@@ -88,26 +88,33 @@ class WP_React_Form_Rest_Route
 
         register_rest_route('form/v1', '/all', [
             'methods' => 'GET',
-            'callback' => [$this, 'get_all_departments'],
+            'callback' => [$this, 'get_all_forms'],
             'permission_callback' => '__return_true'
         ]);
 
         // Add a dynamic route to for sletect all
         register_rest_route('form/v1', '/select', [
             'methods' => 'GET',
-            'callback' => [$this, 'get_select_departments'],
+            'callback' => [$this, 'get_select_forms'],
             'permission_callback' => '__return_true'
         ]);
 
         register_rest_route('form/v1', '/get/(?P<id>\d+)', [
             'methods' => 'GET',
-            'callback' => [$this, 'get_department_by_id'],
+            'callback' => [$this, 'get_form_by_id'],
             'permission_callback' => '__return_true'
         ]);
 
+        register_rest_route('form/v1', '/get', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_form_by_title'],
+            'permission_callback' => '__return_true'
+        ]);
+
+
         register_rest_route('form/v1', '/update/(?P<id>\d+)', [
-            'methods' => 'POST',
-            'callback' => [$this, 'update_department'],
+            'methods' => 'PUT',
+            'callback' => [$this, 'update_form'],
             'permission_callback' => function () {
                 return current_user_can('edit_posts');
             }
@@ -115,15 +122,63 @@ class WP_React_Form_Rest_Route
 
         register_rest_route('form/v1', '/delete/(?P<id>\d+)', [
             'methods' => 'DELETE',
-            'callback' => [$this, 'delete_department'],
+            'callback' => [$this, 'delete_form'],
             'permission_callback' => function () {
                 return current_user_can('delete_posts');
             }
         ]);
     }
 
+
+    // Function to get a form by title
+    public function get_form_by_title($request)
+    {
+        $title = sanitize_text_field($request->get_param('title'));
+
+        if (empty($title)) {
+            return new WP_Error('missing_title', 'Title is required', array('status' => 400));
+        }
+
+        $args = [
+            'post_type' => 'form',
+            'post_status' => 'publish',
+            'title' => $title,
+            'numberposts' => 1
+        ];
+
+        $forms = get_posts($args);
+
+        if (empty($forms)) {
+            return new WP_Error('form_not_found', 'Form not found', array('status' => 404));
+        }
+
+        $form = $forms[0];
+
+        $post_data = [
+            'id' => $form->ID,
+            'title' => $form->post_title,
+            'content' => $form->post_content,
+        ];
+
+        // Append custom fields to the post data
+        $post_meta = get_post_meta($form->ID);
+
+        foreach ($post_meta as $key => $value) {
+            $meta_value = $value[0];
+
+            // Unserialize recursively to handle double serialization
+            while (is_serialized($meta_value)) {
+                $meta_value = maybe_unserialize($meta_value);
+            }
+
+            $post_data[$key] = $meta_value;
+        }
+
+        return rest_ensure_response($post_data);
+    }
+
     // Function to add a form
-    public function add_department($request)
+    public function add_form($request)
     {
         $parameters = $request->get_params();
 
@@ -151,19 +206,19 @@ class WP_React_Form_Rest_Route
 
 
         if (is_wp_error($post_id)) {
-            return new WP_Error('department_creation_failed', $post_id->get_error_message(), array('status' => 500));
+            return new WP_Error('form_creation_failed', $post_id->get_error_message(), array('status' => 500));
         }
 
         return rest_ensure_response([
             'success' => true,
-            'message' => 'Department created successfully',
+            'message' => 'Form created successfully',
             'post_id' => $post_id,
             'data'    => $parameters
         ]);
     }
 
     // Function to get all forms
-    public function get_all_departments()
+    public function get_all_forms()
     {
         $args = [
             'post_type'   => 'form',
@@ -185,7 +240,7 @@ class WP_React_Form_Rest_Route
         return rest_ensure_response($data);
     }
 
-    public function get_select_departments()
+    public function get_select_forms()
     {
         $args = [
             'post_type'   => 'form',
@@ -210,13 +265,14 @@ class WP_React_Form_Rest_Route
 
 
     // Function to get a form by ID
-    public function get_department_by_id($request)
+
+    public function get_form_by_id($request)
     {
         $id = (int) $request['id'];
         $form = get_post($id);
 
         if (!$form || $form->post_type !== 'form') {
-            return new WP_Error('department_not_found', 'Department not found', array('status' => 404));
+            return new WP_Error('form_not_found', 'Form not found', array('status' => 404));
         }
 
         $post_data = [
@@ -224,24 +280,33 @@ class WP_React_Form_Rest_Route
             'title'   => $form->post_title,
             'content' => $form->post_content,
         ];
+
         // Append custom fields to the post data
         $post_meta = get_post_meta($id);
+
         foreach ($post_meta as $key => $value) {
-            // Only unserialize if the data is serialized
-            $post_data[$key] = maybe_unserialize($value[0]);
+            $meta_value = $value[0];
+
+            // Unserialize recursively to handle double serialization
+            while (is_serialized($meta_value)) {
+                $meta_value = maybe_unserialize($meta_value);
+            }
+
+            $post_data[$key] = $meta_value;
         }
 
         return rest_ensure_response($post_data);
     }
 
+
     // Function to update a form with meta keys
-    public function update_department($request)
+    public function update_form($request)
     {
         $id = (int) $request['id'];
         $form = get_post($id);
 
         if (!$form || $form->post_type !== 'form') {
-            return new WP_Error('department_not_found', 'Department not found', array('status' => 404));
+            return new WP_Error('form_not_found', 'Form not found', array('status' => 404));
         }
 
         $parameters = $request->get_params();
@@ -267,20 +332,20 @@ class WP_React_Form_Rest_Route
 
         return rest_ensure_response([
             'success' => true,
-            'message' => 'Department updated successfully',
+            'message' => 'Form updated successfully',
             'post_id' => $id,
             'updated_data' => $parameters
         ]);
     }
 
     // Function to delete a form and all related meta data
-    public function delete_department($request)
+    public function delete_form($request)
     {
         $id = (int) $request['id'];
         $form = get_post($id);
 
         if (!$form || $form->post_type !== 'form') {
-            return new WP_Error('department_not_found', 'Department not found', array('status' => 404));
+            return new WP_Error('form_not_found', 'Form not found', array('status' => 404));
         }
 
         // Delete all meta keys related to the form
@@ -294,7 +359,7 @@ class WP_React_Form_Rest_Route
 
         return rest_ensure_response([
             'success' => true,
-            'message' => 'Department and related meta deleted successfully'
+            'message' => 'Form and related meta deleted successfully'
         ]);
     }
 }

@@ -10,8 +10,8 @@ import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import List from './pages/department/ListDepartments'
-import CRUD_Department from './pages/department/AddOrUpdateDepartment'
+import List from './pages/form/ListForms'
+import FormBuilder from './components/Builder/Formbuilder'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -23,8 +23,8 @@ const routes: RouteObject[] = [
         path: '/update/:id', // For editing a specific staff member
         element: (
             <div>
-                <div className="w-full lg:w-[800px]">
-                    <CRUD_Department />
+                <div className="w-full">
+                    <FormBuilder />
                 </div>
             </div>
         ),
@@ -33,23 +33,11 @@ const routes: RouteObject[] = [
         path: '/add', // For adding a new staff member
         element: (
             <div>
-                <div className="w-full lg:w-[800px]">
-                    <CRUD_Department />
+                <div className="w-full">
+                    <FormBuilder />
                 </div>
             </div>
         ),
-    },
-    {
-        path: '/view/:id', // For viewing staff details
-        element: <StaffDetails />,
-    },
-    {
-        path: '*', // Catch-all route for undefined paths
-        element: <NotFound />,
-    },
-    {
-        path: '/create', // Catch-all route for undefined paths
-        element: <CreateForm />,
     },
 ]
 

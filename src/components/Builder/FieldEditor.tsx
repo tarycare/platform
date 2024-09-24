@@ -47,7 +47,7 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
 
     return (
         <div className="flex items-center gap-2">
-            <AccordionItem value={field.order} className="flex-1">
+            <AccordionItem value={`field-${field.order}`} className="flex-1">
                 {/* Ensure unique value */}
                 <div className="rounded-md bg-white px-4 py-[6px]">
                     <div className="flex items-center gap-2">

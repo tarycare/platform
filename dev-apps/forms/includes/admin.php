@@ -40,7 +40,7 @@ class FORMS_Create_Admin_Page
         $capability = 'read';
         $slug = 'forms';
         $locale = determine_locale();
-        $menu_title = ($locale === 'ar' || $locale === 'ar_AR') ? 'الفورم' : 'Forms';
+        $menu_title = ($locale === 'ar' || $locale === 'ar_AR') ? 'النماذج' : 'Forms';
 
         // Add the main menu page
         add_menu_page(
