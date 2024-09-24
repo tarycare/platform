@@ -30,6 +30,12 @@ $sub_plugins = [
         'prod_path' => 'apps/facilities/plugin.php',
         'option_name' => 'tary_plugins_facilities'
     ],
+    'forms' => [
+        'label' => 'Forms Plugin',
+        'dev_path' => 'dev-apps/forms/plugin.php',
+        'prod_path' => 'apps/forms/plugin.php',
+        'option_name' => 'tary_plugins_forms'
+    ],
 ];
 
 // Add menu to manage sub-plugins
