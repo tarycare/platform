@@ -209,7 +209,7 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
                                     variant={'outline'}
                                     className="flex items-center gap-2"
                                 >
-                                    <IconPlus size={14} /> Add Field
+                                    Add Field <IconPlus size={14} />
                                 </Button>
                             </div>
                             <div>
