@@ -46,6 +46,30 @@ function FormBuilderWidget() {
         getSiteId()
     }, [])
 
+    // load form data
+    useEffect(() => {
+        async function fetchData() {
+            setIsLoading(true)
+            setIsSubmitting(true)
+            try {
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                })
+                const data = await response.json()
+                setFormId(data.id)
+
+                // Set form sections for both add and update modes
+                setFormSections(data.sections)
+            } catch (error) {
+                console.error('Error fetching form data:', error)
+            } finally {
+                setIsLoading(false)
+                setIsSubmitting(false)
+            }
+        }
+
+        fetchData()
+    }, [])
     useEffect(() => {
         if (isUpdating) {
             // Fetch the user data to prefill the form
@@ -68,33 +92,6 @@ function FormBuilderWidget() {
             fetchUserData()
         }
     }, [isUpdating, id])
-
-    useEffect(() => {
-        async function fetchData() {
-            setIsLoading(true)
-            setIsSubmitting(true)
-            try {
-                const response = await fetch(fetchUrl, {
-                    method: 'GET',
-                })
-                const data = await response.json()
-                setFormId(data.id)
-
-                // Set form sections for both add and update modes
-                setFormSections(data.sections)
-            } catch (error) {
-                console.error('Error fetching form data:', error)
-            } finally {
-                setIsLoading(false)
-                setIsSubmitting(false)
-            }
-        }
-
-        // Fetch data for both add and update modes
-        if (fetchUrl) {
-            fetchData()
-        }
-    }, [fetchUrl, isUpdating, users, userId])
 
     if (isLoading) {
         return (

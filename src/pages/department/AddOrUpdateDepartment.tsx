@@ -17,7 +17,6 @@ function CRUD_Department() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [siteId, setSiteId] = useState(0)
-    const [users, setUsers] = useState([])
 
     const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = isDev ? 'http://mytest.local' : ''
@@ -27,6 +26,7 @@ function CRUD_Department() {
 
     const fetchUrl =
         '/wp-json/form/v1/get?title=Department&site_id=' + siteId + '&id=' + id
+
     const submitUrl = '/wp-json/department/v1/add'
 
     const updateUrl = `/wp-json/department/v1/update/${id}`
@@ -46,10 +46,32 @@ function CRUD_Department() {
     }, [])
 
     useEffect(() => {
-        console.log(isUpdating ? 'Updating user' : 'Creating new user')
+        async function fetchForm() {
+            setIsLoading(true)
+            setIsSubmitting(true)
+            try {
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                })
+                const data = await response.json()
+
+                setFormSections(data.sections)
+            } catch (error) {
+                console.error('Error fetching form data:', error)
+            } finally {
+                setIsLoading(false)
+                setIsSubmitting(false)
+            }
+        }
+
+        fetchForm()
+    }, [])
+
+    useEffect(() => {
+        console.log(isUpdating ? 'Updating dep' : 'Creating new dep')
         if (isUpdating) {
             // Fetch the user data to prefill the form
-            const fetchUserData = async () => {
+            const fetchDepartmentData = async () => {
                 try {
                     const response = await fetch(
                         `${baseUrl}/wp-json/department/v1/get/${id}`
@@ -60,43 +82,14 @@ function CRUD_Department() {
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
                     setPostId(data.id)
-                    console.log(data.id, 'user id')
-
-                    console.log('User data fetched:', data)
                 } catch (error) {
                     console.error('Error fetching user:', error)
                 }
             }
 
-            fetchUserData()
+            fetchDepartmentData()
         }
     }, [isUpdating, id])
-
-    useEffect(() => {
-        async function fetchData() {
-            setIsLoading(true)
-            setIsSubmitting(true)
-            try {
-                const response = await fetch(fetchUrl, {
-                    method: 'GET',
-                })
-                const data = await response.json()
-
-                setFormSections(data.sections)
-                console.log(data.sections, 'data.sections')
-            } catch (error) {
-                console.error('Error fetching form data:', error)
-            } finally {
-                setIsLoading(false)
-                setIsSubmitting(false)
-            }
-        }
-
-        // Fetch data for both add and update modes
-        if (fetchUrl) {
-            fetchData()
-        }
-    }, [fetchUrl, isUpdating, users, postId])
 
     if (isLoading) {
         return (

@@ -34,8 +34,6 @@ function CRUD_Facility() {
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
 
-    // get facilitys from the API and remap the data
-
     // useEffect to to fetch facility/v1/site
     useEffect(() => {
         async function getSiteId() {
@@ -48,7 +46,31 @@ function CRUD_Facility() {
     }, [])
 
     useEffect(() => {
-        console.log(isUpdating ? 'Updating user' : 'Creating new user')
+        async function fetchData() {
+            setIsLoading(true)
+            setIsSubmitting(true)
+            try {
+                const response = await fetch(fetchUrl, {
+                    method: 'GET',
+                })
+                const data = await response.json()
+
+                setFormSections(data.sections)
+            } catch (error) {
+                console.error('Error fetching form data:', error)
+            } finally {
+                setIsLoading(false)
+                setIsSubmitting(false)
+            }
+        }
+
+        // Fetch data for both add and update modes
+        if (fetchUrl) {
+            fetchData()
+        }
+    }, [])
+
+    useEffect(() => {
         if (isUpdating) {
             // Fetch the user data to prefill the form
             const fetchUserData = async () => {
@@ -62,9 +84,6 @@ function CRUD_Facility() {
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
                     setPostId(data.id)
-                    console.log(data.id, 'user id')
-
-                    console.log('User data fetched:', data)
                 } catch (error) {
                     console.error('Error fetching user:', error)
                 }
@@ -73,38 +92,6 @@ function CRUD_Facility() {
             fetchUserData()
         }
     }, [isUpdating, id])
-
-    useEffect(() => {
-        async function fetchData() {
-            setIsLoading(true)
-            setIsSubmitting(true)
-            try {
-                const response = await fetch(fetchUrl, {
-                    method: 'GET',
-                    headers: {
-                        Authorization:
-                            'Bearer pat4Qsb1Mw7JFJFh7.6c8455ef5b19cc8e9fc0f452a62bee582a4e04ac0cb954463b6acad99f72de5d',
-                    },
-                })
-                const data = await response.json()
-
-                // first section
-
-                setFormSections(data.sections)
-                console.log(data, 'JSONData')
-            } catch (error) {
-                console.error('Error fetching form data:', error)
-            } finally {
-                setIsLoading(false)
-                setIsSubmitting(false)
-            }
-        }
-
-        // Fetch data for both add and update modes
-        if (fetchUrl) {
-            fetchData()
-        }
-    }, [fetchUrl, isUpdating, users, postId])
 
     if (isLoading) {
         return (

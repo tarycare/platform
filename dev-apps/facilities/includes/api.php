@@ -144,7 +144,7 @@ class WP_React_Facility_Rest_Route
         // insert post meta
         foreach ($parameters as $key => $value) {
             $meta_key = sanitize_key($key);
-            $meta_value = maybe_serialize($value); // Handle arrays or complex values
+            $meta_value = is_array($value) ? $value : maybe_serialize($value);
 
             update_post_meta($post_id, $meta_key, $meta_value);
         }
@@ -260,7 +260,7 @@ class WP_React_Facility_Rest_Route
         // Update meta fields (replace old ones with new ones)
         foreach ($parameters as $key => $value) {
             $meta_key = sanitize_key($key);
-            $meta_value = maybe_serialize($value); // Handle arrays or complex values
+            $meta_value = is_array($value) ? $value : maybe_serialize($value);
 
             update_post_meta($id, $meta_key, $meta_value);
         }
