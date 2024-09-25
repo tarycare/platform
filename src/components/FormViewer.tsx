@@ -208,6 +208,8 @@ const FormViewer: FC<FormViewerProps> = ({
         }
 
         fetchAllApiOptions()
+
+        console.log('Updated optionsState', optionsState)
     }, [data]) // Re-run the effect whenever the `data` changes
 
     const debouncedTrigger = debounce((fieldName: string) => {
