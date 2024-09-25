@@ -10,7 +10,22 @@ import {
 } from '../ui/accordion'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import { ArrowDownCircle, ArrowUpCircleIcon, Trash2 } from 'lucide-react'
+import {
+    ArrowDownCircle,
+    ArrowUpCircleIcon,
+    AtSign,
+    CalendarClockIcon,
+    CircleDot,
+    FileDigit,
+    Image,
+    List,
+    Logs,
+    SquareCheck,
+    Text,
+    Trash2,
+    TypeIcon,
+} from 'lucide-react'
+import { IconTypography } from '@tabler/icons-react'
 
 interface FieldEditorProps {
     field: Field
@@ -67,6 +82,33 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
         updateField({ ...field, items: updatedOptions })
     }
 
+    const getIconByType = (type: string) => {
+        switch (type) {
+            case 'text':
+                return <TypeIcon />
+            case 'email':
+                return <AtSign />
+            case 'number':
+                return <FileDigit />
+            case 'textarea':
+                return <Text />
+            case 'checkbox':
+                return <SquareCheck />
+            case 'radio':
+                return <CircleDot />
+            case 'select':
+                return <List />
+            case 'multiselect':
+                return <Logs />
+            case 'date':
+                return <CalendarClockIcon />
+            case 'upload_image':
+                return <Image />
+            default:
+                return null
+        }
+    }
+
     return (
         <div className="flex items-center gap-2">
             <AccordionItem value={`field-${field.order}`} className="flex-1">
@@ -99,11 +141,17 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                             </Button>
                         </div>
                         <div className="w-full">
-                            <AccordionTrigger className="w-full flex-1">
-                                <div className="text-[16px] font-semibold">
-                                    {lang === 'ar'
-                                        ? field.label_ar
-                                        : field.label_en || 'New Field'}
+                            <AccordionTrigger className="flex w-full flex-1 items-center">
+                                <div className="flex items-center gap-2">
+                                    <div className="text-[16px] font-semibold">
+                                        {lang === 'ar'
+                                            ? field.label_ar
+                                            : field.label_en || 'New Field'}
+                                    </div>
+                                    {/* icon by type */}
+                                    <div className="mx-5 text-[14px] text-gray-500">
+                                        {getIconByType(field.type)}
+                                    </div>
                                 </div>
                             </AccordionTrigger>
                         </div>
