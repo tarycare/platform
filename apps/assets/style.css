@@ -723,6 +723,10 @@ body{
     margin-left: 0.5rem;
     margin-right: 0.5rem;
 }
+.mx-5{
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
+}
 .mx-auto{
     margin-left: auto;
     margin-right: auto;
@@ -1711,6 +1715,9 @@ body{
 }
 .text-\[0\.8rem\]{
     font-size: 0.8rem;
+}
+.text-\[14px\]{
+    font-size: 14px;
 }
 .text-\[16px\]{
     font-size: 16px;
