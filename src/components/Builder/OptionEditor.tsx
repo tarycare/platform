@@ -106,57 +106,73 @@ const OptionEditor: React.FC<OptionEditorProps> = ({
                 >
                     Add Options <PlusCircle className="size-4" />
                 </Button>
-                <Button
-                    onClick={fetchApiOptions}
-                    className="mb-4 flex items-center gap-2"
-                >
-                    Fetch from API <PlusCircle className="size-4" />
-                </Button>
+                {(field.type === 'select' || field.type === 'multiselect') && (
+                    <>
+                        <Button
+                            onClick={fetchApiOptions}
+                            className="mb-4 flex items-center gap-2"
+                        >
+                            Fetch from API <PlusCircle className="size-4" />
+                        </Button>
+                    </>
+                )}
             </div>
-
-            <Input
-                type="text"
-                value={apiUrl}
-                onChange={(e) => setApiUrl(e.target.value)}
-                placeholder="API URL"
-                className="mb-2"
-            />
-            <Input
-                type="text"
-                value={authorization}
-                onChange={(e) => setAuthorization(e.target.value)}
-                placeholder="Authorization (optional)"
-                className="mb-2"
-            />
-            <div className="grid grid-cols-3 gap-4">
-                <Input
-                    type="text"
-                    value={mapping.value}
-                    onChange={(e) =>
-                        setMapping({ ...mapping, value: e.target.value })
-                    }
-                    placeholder="Map Value"
-                    className="mb-2"
-                />
-                <Input
-                    type="text"
-                    value={mapping.label_en}
-                    onChange={(e) =>
-                        setMapping({ ...mapping, label_en: e.target.value })
-                    }
-                    placeholder="Map Label (EN)"
-                    className="mb-2"
-                />
-                <Input
-                    type="text"
-                    value={mapping.label_ar}
-                    onChange={(e) =>
-                        setMapping({ ...mapping, label_ar: e.target.value })
-                    }
-                    placeholder="Map Label (AR)"
-                    className="mb-2"
-                />
-            </div>
+            {(field.type === 'select' || field.type === 'multiselect') && (
+                <>
+                    <Input
+                        type="text"
+                        value={apiUrl}
+                        onChange={(e) => setApiUrl(e.target.value)}
+                        placeholder="API URL"
+                        className="mb-2"
+                    />
+                    <Input
+                        type="text"
+                        value={authorization}
+                        onChange={(e) => setAuthorization(e.target.value)}
+                        placeholder="Authorization (optional)"
+                        className="mb-2"
+                    />
+                    <div className="grid grid-cols-3 gap-4">
+                        <Input
+                            type="text"
+                            value={mapping.value}
+                            onChange={(e) =>
+                                setMapping({
+                                    ...mapping,
+                                    value: e.target.value,
+                                })
+                            }
+                            placeholder="Map Value"
+                            className="mb-2"
+                        />
+                        <Input
+                            type="text"
+                            value={mapping.label_en}
+                            onChange={(e) =>
+                                setMapping({
+                                    ...mapping,
+                                    label_en: e.target.value,
+                                })
+                            }
+                            placeholder="Map Label (EN)"
+                            className="mb-2"
+                        />
+                        <Input
+                            type="text"
+                            value={mapping.label_ar}
+                            onChange={(e) =>
+                                setMapping({
+                                    ...mapping,
+                                    label_ar: e.target.value,
+                                })
+                            }
+                            placeholder="Map Label (AR)"
+                            className="mb-2"
+                        />
+                    </div>
+                </>
+            )}
 
             {/* Display the fetched or manually added options */}
             {field.items?.map((item, idx) => (
