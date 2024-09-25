@@ -38,53 +38,6 @@ function FormBuilderWidget() {
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
 
-    // get Managers from the API and remap the data
-    useEffect(() => {
-        async function getManagers() {
-            try {
-                const response = await fetch(
-                    `/wp-json/staff/v1/managers?id=${id}`
-                )
-                const data = await response.json()
-                console.log('managers', data)
-
-                setUsers(data)
-            } catch (error) {
-                console.error('Error fetching users:', error)
-            }
-        }
-        getManagers()
-    }, [])
-
-    // get Departments from the API
-    useEffect(() => {
-        async function getDepartments() {
-            try {
-                const response = await fetch(`/wp-json/department/v1/select`)
-                const data = await response.json()
-
-                setDepartments(data)
-            } catch (error) {
-                console.error('Error fetching users:', error)
-            }
-        }
-        getDepartments()
-    }, [])
-    // get Facilites from the API
-    useEffect(() => {
-        async function getFacilities() {
-            try {
-                const response = await fetch(`/wp-json/facility/v1/select`)
-                const data = await response.json()
-
-                setFacilities(data)
-            } catch (error) {
-                console.error('Error fetching users:', error)
-            }
-        }
-        getFacilities()
-    }, [])
-
     // useEffect to to fetch staff/v1/site
     useEffect(() => {
         async function getSiteId() {
@@ -129,60 +82,6 @@ function FormBuilderWidget() {
                 const data = await response.json()
                 setFormId(data.id)
 
-                // first section
-                const sectionIndex = data.sections[1]
-
-                let manager = {
-                    name: 'staff_manager',
-                    label_en: 'Manager',
-                    label_ar: 'المدير',
-                    type: 'Select',
-                    order: '1',
-                    placeholder_en: 'Select Manager',
-                    placeholder_ar: 'اختيار المدير',
-                    colSpan: '6',
-                }
-
-                manager.items = users
-                if (sectionIndex) {
-                    // Push the manager object into the Fields array of the first section
-                    sectionIndex.Fields.push(manager)
-                }
-
-                let department = {
-                    name: 'department',
-                    label_en: 'Department',
-                    label_ar: 'القسم',
-                    type: 'Select',
-                    order: '1',
-                    placeholder_en: 'Select Department',
-                    placeholder_ar: 'اختيار القسم',
-                    colSpan: '6',
-                }
-
-                department.items = departments
-                if (sectionIndex) {
-                    // Push the department object into the Fields array of the first section
-                    sectionIndex.Fields.push(department)
-                }
-
-                let facility = {
-                    name: 'facility',
-                    label_en: 'Facility',
-                    label_ar: 'المرفق',
-                    type: 'Select',
-                    order: '1',
-                    placeholder_en: 'Select Facility',
-                    placeholder_ar: 'اختيار المرفق',
-                    colSpan: '6',
-                }
-
-                facility.items = facilities
-                if (sectionIndex) {
-                    // Push the facility object into the Fields array of the first section
-                    sectionIndex.Fields.push(facility)
-                }
-
                 // Set form sections for both add and update modes
                 setFormSections(data.sections)
             } catch (error) {
@@ -208,7 +107,6 @@ function FormBuilderWidget() {
     }
 
     const handleSubmission = async (formData) => {
-        console.log('form data', formData)
         try {
             setIsSubmitting(true)
 

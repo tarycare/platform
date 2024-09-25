@@ -146,8 +146,10 @@ export const MultiSelect = React.forwardRef<
             setLang(document.documentElement.lang)
         }, [])
 
-        const [selectedValues, setSelectedValues] =
-            React.useState<string[]>(defaultValue)
+        const [selectedValues, setSelectedValues] = React.useState<string[]>(
+            defaultValue || []
+        )
+
         const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
         const [isAnimating, setIsAnimating] = React.useState(false)
 
@@ -172,13 +174,16 @@ export const MultiSelect = React.forwardRef<
         }
 
         const toggleOption = (value: string) => {
-            const newSelectedValues = selectedValues.includes(value)
-                ? selectedValues.filter((v) => v !== value)
-                : [...selectedValues, value]
-            console.log('Toggling option:', value) // Add this
-            console.log('New selected values:', newSelectedValues) // Add this
-            setSelectedValues(newSelectedValues)
-            onValueChange(newSelectedValues)
+            if (!selectedValues) {
+                setSelectedValues([value]) // Initialize with the selected value
+                onValueChange([value])
+            } else {
+                const newSelectedValues = selectedValues.includes(value)
+                    ? selectedValues.filter((v) => v !== value)
+                    : [...selectedValues, value]
+                setSelectedValues(newSelectedValues)
+                onValueChange(newSelectedValues)
+            }
         }
 
         const handleClear = () => {
@@ -197,10 +202,10 @@ export const MultiSelect = React.forwardRef<
         }
 
         const toggleAll = () => {
-            if (selectedValues.length === options.length) {
+            if (selectedValues.length === (options?.length || 0)) {
                 handleClear()
             } else {
-                const allValues = options.map((option) => option.value)
+                const allValues = options?.map((option) => option.value) || []
                 setSelectedValues(allValues)
                 onValueChange(allValues)
             }
@@ -227,7 +232,7 @@ export const MultiSelect = React.forwardRef<
                                         {selectedValues
                                             .slice(0, maxCount)
                                             .map((value) => {
-                                                const option = options.find(
+                                                const option = options?.find(
                                                     (o) => o.value === value
                                                 )
                                                 const IconComponent =
@@ -240,7 +245,9 @@ export const MultiSelect = React.forwardRef<
                                                                 ? 'animate-bounce'
                                                                 : '',
                                                             multiSelectVariants(
-                                                                { variant }
+                                                                {
+                                                                    variant,
+                                                                }
                                                             )
                                                         )}
                                                         style={{
@@ -341,7 +348,7 @@ export const MultiSelect = React.forwardRef<
                                             className={cn(
                                                 'me-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
                                                 selectedValues.length ===
-                                                    options.length
+                                                    (options?.length || 0)
                                                     ? 'bg-primary text-primary-foreground'
                                                     : 'opacity-50 [&_svg]:invisible'
                                             )}
@@ -350,40 +357,43 @@ export const MultiSelect = React.forwardRef<
                                         </div>
                                         <span>(Select All)</span>
                                     </CommandItem>
-                                    {options.map((option) => {
-                                        const isSelected =
-                                            selectedValues.includes(
-                                                option.value
-                                            )
-                                        return (
-                                            <CommandItem
-                                                key={option.value}
-                                                onSelect={() =>
-                                                    toggleOption(option.value)
-                                                }
-                                                className="cursor-pointer"
-                                            >
-                                                <div
-                                                    className={cn(
-                                                        'me-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                                                        isSelected
-                                                            ? 'bg-primary text-primary-foreground'
-                                                            : 'opacity-50 [&_svg]:invisible'
-                                                    )}
+                                    {options?.length > 0 &&
+                                        options.map((option) => {
+                                            const isSelected =
+                                                selectedValues.includes(
+                                                    option.value
+                                                )
+                                            return (
+                                                <CommandItem
+                                                    key={option.value}
+                                                    onSelect={() =>
+                                                        toggleOption(
+                                                            option.value
+                                                        )
+                                                    }
+                                                    className="cursor-pointer"
                                                 >
-                                                    <CheckIcon className="h-4 w-4" />
-                                                </div>
-                                                {option.icon && (
-                                                    <option.icon className="me-2 h-4 w-4 text-muted-foreground" />
-                                                )}
-                                                <span>
-                                                    {lang === 'en'
-                                                        ? option.label_en
-                                                        : option.label_ar}
-                                                </span>
-                                            </CommandItem>
-                                        )
-                                    })}
+                                                    <div
+                                                        className={cn(
+                                                            'me-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                                                            isSelected
+                                                                ? 'bg-primary text-primary-foreground'
+                                                                : 'opacity-50 [&_svg]:invisible'
+                                                        )}
+                                                    >
+                                                        <CheckIcon className="h-4 w-4" />
+                                                    </div>
+                                                    {option.icon && (
+                                                        <option.icon className="me-2 h-4 w-4 text-muted-foreground" />
+                                                    )}
+                                                    <span>
+                                                        {lang === 'en'
+                                                            ? option.label_en
+                                                            : option.label_ar}
+                                                    </span>
+                                                </CommandItem>
+                                            )
+                                        })}
                                 </CommandGroup>
                                 <CommandSeparator />
                                 <CommandGroup>

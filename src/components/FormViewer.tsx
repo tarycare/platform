@@ -114,7 +114,6 @@ const FormViewer: FC<FormViewerProps> = ({
     const [isImageRemoved, setIsImageRemoved] = useState(false) // New state to track image removal
 
     useEffect(() => {
-        console.log('FormViewer data', data)
         if (isUpdating) {
             const parsedData = JSON.parse(updateData)
 
@@ -139,6 +138,73 @@ const FormViewer: FC<FormViewerProps> = ({
     useEffect(() => {
         console.log('Updated formState', formState)
     }, [formState])
+
+    useEffect(() => {
+        const fetchAllApiOptions = async () => {
+            console.log('Fetching API options...', data)
+
+            // Iterate through sections and fields to fetch API data or use provided items
+            for (const section of data || []) {
+                for (const field of section.Fields || []) {
+                    if (field.apiData && field.apiData.url) {
+                        // Fetch data from the API if url is provided
+                        console.log('Fetching API data for', field.name)
+
+                        // Prepare headers if provided
+                        const headers = {}
+                        if (field.apiData.header) {
+                            headers['Authorization'] = field.apiData.header
+                        }
+
+                        try {
+                            const response = await fetch(field.apiData.url, {
+                                headers: headers, // Pass headers if available
+                            })
+                            const items = await response.json()
+                            console.log(items, 'apiData')
+
+                            // Check if there is custom mapping in the apiData
+                            const valueKey =
+                                field.apiData.mapping?.value || 'value'
+                            const labelEnKey =
+                                field.apiData.mapping?.label_en || 'label_en'
+                            const labelArKey =
+                                field.apiData.mapping?.label_ar || 'label_ar'
+
+                            // Update the form state with the new API data and apply the mapping if available
+                            setFormState((prevState) => ({
+                                ...prevState,
+                                [field.name]: items.map((item) => ({
+                                    value: item[valueKey], // Map 'value' to the correct key
+                                    label_en: item[labelEnKey], // Map 'label_en' to the correct key
+                                    label_ar: item[labelArKey], // Map 'label_ar' to the correct key
+                                })),
+                            }))
+                        } catch (error) {
+                            console.error(
+                                `Failed to fetch data from ${field.apiData.url}`,
+                                error
+                            )
+                        }
+                    } else if (field.items && field.items.length > 0) {
+                        // Use the provided items if no apiData.url is available
+                        console.log('Using provided items for', field.name)
+
+                        setFormState((prevState) => ({
+                            ...prevState,
+                            [field.name]: field.items.map((item) => ({
+                                value: item.value,
+                                label_en: item.label_en,
+                                label_ar: item.label_ar,
+                            })),
+                        }))
+                    }
+                }
+            }
+        }
+
+        fetchAllApiOptions()
+    }, [data]) // Re-run the effect whenever the `data` changes
 
     const debouncedTrigger = debounce((fieldName: string) => {
         validateField(fieldName, formState[fieldName])
@@ -311,11 +377,10 @@ const FormViewer: FC<FormViewerProps> = ({
                 )
 
             case 'checkbox':
-                if (field.items && field.items?.length > 0) {
-                    // Multiple checkboxes
+                if (formState[field.name]?.length > 0) {
                     return (
                         <div className="flex flex-wrap items-center gap-2">
-                            {field.items?.map((item: any) => (
+                            {formState[field.name]?.map((item: any) => (
                                 <div
                                     key={item.value}
                                     className="flex items-center gap-x-2"
@@ -359,66 +424,50 @@ const FormViewer: FC<FormViewerProps> = ({
                             ))}
                         </div>
                     )
-                } else {
-                    // Single checkbox
+                }
+                break
+
+            case 'radio':
+                if (formState[field.name]?.length > 0) {
                     return (
-                        <div className="flex items-center gap-x-2">
-                            <Checkbox
-                                id={`${field.name}`}
-                                checked={formState[field.name] || false}
-                                onCheckedChange={(checked) =>
-                                    handleFieldChange(field.name, checked)
-                                }
-                            />
-                            <label
-                                htmlFor={`${field.name}`}
-                                className="text-sm font-medium"
-                            >
-                                {label}
-                            </label>
+                        <div className="flex flex-wrap items-center gap-2">
+                            {formState[field.name]?.map((item: any) => (
+                                <div
+                                    key={item.value}
+                                    className="flex items-center text-sm font-medium"
+                                >
+                                    <Input
+                                        type="radio"
+                                        value={item.value}
+                                        checked={
+                                            formState[field.name] === item.value
+                                        }
+                                        onChange={() =>
+                                            handleFieldChange(
+                                                field.name,
+                                                item.value
+                                            )
+                                        }
+                                        id={`${item.value}-${field.name}`}
+                                    />
+                                    <label
+                                        className="ms-1 translate-y-[-1px] font-normal"
+                                        htmlFor={`${item.value}-${field.name}`}
+                                    >
+                                        {languge === 'ar'
+                                            ? item.label_ar
+                                            : item.label_en}
+                                    </label>
+                                </div>
+                            ))}
                         </div>
                     )
                 }
 
-            case 'radio':
-                return (
-                    <div className="flex flex-wrap items-center gap-2">
-                        {field.items?.map((item: any) => (
-                            <div
-                                key={item.value}
-                                className="flex items-center text-sm font-medium"
-                            >
-                                <Input
-                                    type="radio"
-                                    value={item.value}
-                                    checked={
-                                        formState[field.name] === item.value
-                                    }
-                                    onChange={() =>
-                                        handleFieldChange(
-                                            field.name,
-                                            item.value
-                                        )
-                                    }
-                                    id={`${item.value}-${field.name}`}
-                                />
-                                <label
-                                    className="ms-1 translate-y-[-1px] font-normal"
-                                    htmlFor={`${item.value}-${field.name}`}
-                                >
-                                    {languge === 'ar'
-                                        ? item.label_ar
-                                        : item.label_en}
-                                </label>
-                            </div>
-                        ))}
-                    </div>
-                )
-
             case 'multiselect':
                 return (
                     <MultiSelect
-                        options={field.items?.map((item) => ({
+                        options={formState[field.name]?.map((item) => ({
                             value: item.value,
                             label_en: item.label_en,
                             label_ar: item.label_ar,
@@ -443,7 +492,7 @@ const FormViewer: FC<FormViewerProps> = ({
                 )
 
             case 'select':
-                const selectedItem = field?.items?.find(
+                const selectedItem = formState[field.name]?.find(
                     (item: any) => item.value === formState[field.name]
                 )
 
@@ -456,7 +505,6 @@ const FormViewer: FC<FormViewerProps> = ({
                                     role="combobox"
                                     className="justify-between text-muted-foreground hover:bg-background"
                                 >
-                                    {/* Display the selected label in the correct language */}
                                     {selectedItem
                                         ? languge === 'ar'
                                             ? selectedItem.label_ar
@@ -476,32 +524,33 @@ const FormViewer: FC<FormViewerProps> = ({
                                             No items found.
                                         </CommandEmpty>
                                         <CommandGroup>
-                                            {field.items?.map((item: any) => (
-                                                <CommandItem
-                                                    key={item.value}
-                                                    value={item.value}
-                                                    onSelect={() =>
-                                                        handleFieldChange(
-                                                            field.name,
-                                                            item.value
-                                                        )
-                                                    }
-                                                >
-                                                    {/* Display the label in the correct language */}
-                                                    {languge === 'ar'
-                                                        ? item.label_ar
-                                                        : item.label_en}
-                                                    <CheckIcon
-                                                        className={`ms-auto h-4 w-4 ${
-                                                            formState[
-                                                                field.name
-                                                            ] === item.value
-                                                                ? 'opacity-100'
-                                                                : 'opacity-0'
-                                                        }`}
-                                                    />
-                                                </CommandItem>
-                                            ))}
+                                            {formState[field.name]?.map(
+                                                (item: any) => (
+                                                    <CommandItem
+                                                        key={item.value}
+                                                        value={item.value}
+                                                        onSelect={() =>
+                                                            handleFieldChange(
+                                                                field.name,
+                                                                item.value
+                                                            )
+                                                        }
+                                                    >
+                                                        {languge === 'ar'
+                                                            ? item.label_ar
+                                                            : item.label_en}
+                                                        <CheckIcon
+                                                            className={`ms-auto h-4 w-4 ${
+                                                                formState[
+                                                                    field.name
+                                                                ] === item.value
+                                                                    ? 'opacity-100'
+                                                                    : 'opacity-0'
+                                                            }`}
+                                                        />
+                                                    </CommandItem>
+                                                )
+                                            )}
                                         </CommandGroup>
                                     </CommandList>
                                 </Command>

@@ -1,5 +1,4 @@
 // @ts-nocheck
-// FieldEditor.tsx
 import React, { useEffect, useState } from 'react'
 import OptionEditor from './OptionEditor'
 import { Field } from './types'
@@ -9,7 +8,6 @@ import {
     AccordionTrigger,
     AccordionContent,
 } from '../ui/accordion'
-import { v4 as uuidv4 } from 'uuid'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { ArrowDownCircle, ArrowUpCircleIcon, Trash2 } from 'lucide-react'
@@ -40,15 +38,38 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
             [name]: type === 'checkbox' ? checked : value,
         })
     }
+
     const [lang, setLang] = useState(document.documentElement.lang)
     useEffect(() => {
         setLang(document.documentElement.lang)
     }, [document.documentElement.lang])
 
+    const moveOption = (direction: 'up' | 'down', optionId: string) => {
+        const updatedOptions = [...(field.items || [])]
+        const index = updatedOptions.findIndex((item) => item.id === optionId)
+
+        if (index < 0) return
+
+        const targetIndex = direction === 'up' ? index - 1 : index + 1
+
+        if (targetIndex < 0 || targetIndex >= updatedOptions.length) return
+
+        // Swap options
+        const temp = updatedOptions[index]
+        updatedOptions[index] = updatedOptions[targetIndex]
+        updatedOptions[targetIndex] = temp
+
+        // Update order values
+        updatedOptions.forEach((item, idx) => {
+            item.order = idx
+        })
+
+        updateField({ ...field, items: updatedOptions })
+    }
+
     return (
         <div className="flex items-center gap-2">
             <AccordionItem value={`field-${field.order}`} className="flex-1">
-                {/* Ensure unique value */}
                 <div className="rounded-md bg-white px-4 py-[6px]">
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-x-2">
@@ -60,7 +81,7 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                                 <ArrowUpCircleIcon className="size-4" />
                             </Button>
                             <p className="rounded-sm bg-[#f1f1f1] p-[2px] px-2 font-bold">
-                                {/* order number */} {field.order + 1}
+                                {field.order + 1}
                             </p>
                             <Button
                                 disabled={isLast}
@@ -69,7 +90,6 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                             >
                                 <ArrowDownCircle className="size-4" />
                             </Button>
-                            {/*  remove field */}
                             <Button
                                 variant={'destructive'}
                                 className="p-1"
@@ -99,16 +119,16 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                                 />
                                 Required
                             </label>
-                            <label className="col-span-6 mb-2 flex items-center">
+                            <label className="col-span-6 flex items-center">
                                 <Input
                                     type="checkbox"
-                                    name="required"
+                                    name="showInList"
                                     checked={field.showInList}
                                     onChange={handleFieldChange}
                                 />
                                 Show in List
                             </label>
-                            <label className="col-span-6" htmlFor="field-typ">
+                            <label className="col-span-6">
                                 <div className="mb-1">Type:</div>
                                 <select
                                     name="type"
@@ -153,7 +173,6 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                                 placeholder="Field Name (unique identifier)"
                                 className="col-span-6"
                             />
-
                             <Input
                                 type="text"
                                 name="label_en"
@@ -186,7 +205,6 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                                 placeholder="Help (AR)"
                                 className="col-span-6"
                             />
-
                             <Input
                                 type="text"
                                 name="placeholder_en"
@@ -203,6 +221,26 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                                 placeholder="Placeholder (AR)"
                                 className="col-span-6"
                             />
+                            {field.type === 'number' && (
+                                <>
+                                    <Input
+                                        type="number"
+                                        name="min"
+                                        value={field.min}
+                                        onChange={handleFieldChange}
+                                        placeholder="Min characters"
+                                        className="col-span-6"
+                                    />
+                                    <Input
+                                        type="number"
+                                        name="max"
+                                        value={field.max}
+                                        onChange={handleFieldChange}
+                                        placeholder="Max characters"
+                                        className="col-span-6"
+                                    />
+                                </>
+                            )}
                         </div>
 
                         {[
@@ -214,6 +252,7 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                             <OptionEditor
                                 field={field}
                                 updateField={updateField}
+                                moveOption={moveOption}
                             />
                         )}
                     </AccordionContent>

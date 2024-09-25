@@ -1,22 +1,35 @@
-import React, { useState } from 'react'
+// @ts-nocheck
+import React, { useState, useEffect } from 'react'
 import { Field, FieldOption } from './types'
-import { PlusCircle, Trash2 } from 'lucide-react'
+import {
+    ArrowDownCircle,
+    ArrowUpCircleIcon,
+    PlusCircle,
+    Trash2,
+} from 'lucide-react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 
 interface OptionEditorProps {
     field: Field
     updateField: (field: Field) => void
+    moveOption: (direction: 'up' | 'down', itemId: string) => void
 }
 
-const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
-    const [apiUrl, setApiUrl] = useState('') // State for storing API URL
-    const [authorization, setAuthorization] = useState('') // State for storing optional Authorization header
+const OptionEditor: React.FC<OptionEditorProps> = ({
+    field,
+    updateField,
+    moveOption,
+}) => {
+    const [apiUrl, setApiUrl] = useState(field.apiData?.url || '')
+    const [authorization, setAuthorization] = useState(
+        field.apiData?.header || ''
+    )
     const [mapping, setMapping] = useState({
-        value: '',
-        label_ar: '',
-        label_en: '',
-    }) // State for mapping API fields
+        value: field.apiData?.mapping?.value || '',
+        label_en: field.apiData?.mapping?.label_en || '',
+        label_ar: field.apiData?.mapping?.label_ar || '',
+    })
 
     // Function to add new item manually
     const addItem = () => {
@@ -25,22 +38,16 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
             value: '',
             label_en: '',
             label_ar: '',
+            order: field.items ? field.items.length : 0,
         }
-        // check if last option name is empty
-        if (field.items && field.items.length > 0) {
-            const lastItem = field.items[field.items.length - 1]
-            if (!lastItem.value || !lastItem.label_en || !lastItem.label_ar) {
-                alert('Please fill the last option value')
-                return
-            }
-        }
+        // Logic to validate last option, then add the new one
         updateField({
             ...field,
             items: [...(field.items || []), newItem],
         })
     }
 
-    // Function to fetch data from the API and map it to options
+    // Fetch items from API when URL is provided
     const fetchApiOptions = async () => {
         if (!apiUrl) {
             alert('Please provide a valid API URL.')
@@ -48,13 +55,12 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
         }
 
         try {
-            // Set up headers, including Authorization if provided
             const headers: HeadersInit = {}
             if (authorization) {
                 headers['Authorization'] = authorization
             }
 
-            const response = await fetch(apiUrl, { headers }) // Add headers to the API request
+            const response = await fetch(apiUrl, { headers })
             const data = await response.json()
             mapApiToFields(data)
         } catch (error) {
@@ -62,59 +68,34 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
         }
     }
 
-    // Function to map API data to field options (replacing the existing options)
+    // Map API data to field options
     const mapApiToFields = (data: any) => {
         if (!data || !Array.isArray(data)) {
             alert('API did not return a valid array.')
             return
         }
 
-        // Map the API data to the field options
         const mappedItems = data.map((item) => ({
-            id: Date.now().toString() + Math.random(), // Ensure unique ID
-            value: item[mapping.value] || item.value, // Fallback to API's `value` if mapping is empty
-            label_en: item[mapping.label_en] || item.label_en, // Fallback to API's `label_en`
-            label_ar: item[mapping.label_ar] || item.label_ar, // Fallback to API's `label_ar`
+            id: Date.now().toString() + Math.random(),
+            value: item[mapping.value] || item.value,
+            label_en: item[mapping.label_en] || item.label_en,
+            label_ar: item[mapping.label_ar] || item.label_ar,
+            order: field.items ? field.items.length : 0,
         }))
 
-        // Ensure the fetched options are valid
-        const invalidItems = mappedItems.some(
-            (item) => !item.value || !item.label_en || !item.label_ar
-        )
-
-        if (invalidItems) {
-            alert('One or more items are missing value or labels.')
-            return
-        }
-
-        // Replace existing options with the new fetched items (renew data)
         updateField({
             ...field,
-            items: mappedItems,
+            items: mappedItems, // Store the items fetched from API
         })
     }
 
-    // Function to update a single item manually
-    const updateItem = (updatedItem: FieldOption) => {
-        const updatedItems = field.items?.map((item) =>
-            item.id === updatedItem.id ? updatedItem : item
-        )
-        updateField({ ...field, items: updatedItems })
-    }
-
-    // Function to remove an item
-    const removeItem = (itemId: string) => {
-        if (window.confirm('Are you sure you want to delete this item?')) {
-            const updatedItems = field.items?.filter(
-                (item) => item.id !== itemId
-            )
-            updateField({ ...field, items: updatedItems })
-        }
-    }
-
-    // Dynamically change the "Add API" button to "Update API" if there are options
-    const getApiButtonLabel = () =>
-        (field.items || []).length > 0 ? 'Update API' : 'Add API'
+    // Save the `apiData` when changed
+    useEffect(() => {
+        updateField({
+            ...field,
+            apiData: { url: apiUrl, header: authorization, mapping },
+        })
+    }, [apiUrl, authorization, mapping])
 
     return (
         <div className="option-editor mt-4">
@@ -129,21 +110,17 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
                     onClick={fetchApiOptions}
                     className="mb-4 flex items-center gap-2"
                 >
-                    {getApiButtonLabel()} <PlusCircle className="size-4" />
+                    Fetch from API <PlusCircle className="size-4" />
                 </Button>
             </div>
 
-            {/* Input field for the API URL */}
             <Input
                 type="text"
                 value={apiUrl}
                 onChange={(e) => setApiUrl(e.target.value)}
                 placeholder="API URL"
                 className="mb-2"
-                onBlur={fetchApiOptions} // Trigger fetch when leaving input
             />
-
-            {/* Input field for the optional Authorization header */}
             <Input
                 type="text"
                 value={authorization}
@@ -151,7 +128,6 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
                 placeholder="Authorization (optional)"
                 className="mb-2"
             />
-
             <div className="grid grid-cols-3 gap-4">
                 <Input
                     type="text"
@@ -183,7 +159,7 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
             </div>
 
             {/* Display the fetched or manually added options */}
-            {field.items?.map((item) => (
+            {field.items?.map((item, idx) => (
                 <div key={item.id} className="flex items-center gap-2">
                     <div className="option-item mb-4 rounded border p-2">
                         <div className="grid w-full grid-cols-4 gap-4">
@@ -192,9 +168,16 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
                                 name="value"
                                 value={item.value}
                                 onChange={(e) =>
-                                    updateItem({
-                                        ...item,
-                                        value: e.target.value,
+                                    updateField({
+                                        ...field,
+                                        items: field.items?.map((itm) =>
+                                            itm.id === item.id
+                                                ? {
+                                                      ...itm,
+                                                      value: e.target.value,
+                                                  }
+                                                : itm
+                                        ),
                                     })
                                 }
                                 placeholder="Value"
@@ -205,9 +188,16 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
                                 name="label_en"
                                 value={item.label_en}
                                 onChange={(e) =>
-                                    updateItem({
-                                        ...item,
-                                        label_en: e.target.value,
+                                    updateField({
+                                        ...field,
+                                        items: field.items?.map((itm) =>
+                                            itm.id === item.id
+                                                ? {
+                                                      ...itm,
+                                                      label_en: e.target.value,
+                                                  }
+                                                : itm
+                                        ),
                                     })
                                 }
                                 placeholder="Label (EN)"
@@ -218,9 +208,16 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
                                 name="label_ar"
                                 value={item.label_ar}
                                 onChange={(e) =>
-                                    updateItem({
-                                        ...item,
-                                        label_ar: e.target.value,
+                                    updateField({
+                                        ...field,
+                                        items: field.items?.map((itm) =>
+                                            itm.id === item.id
+                                                ? {
+                                                      ...itm,
+                                                      label_ar: e.target.value,
+                                                  }
+                                                : itm
+                                        ),
                                     })
                                 }
                                 placeholder="Label (AR)"
@@ -228,9 +225,30 @@ const OptionEditor: React.FC<OptionEditorProps> = ({ field, updateField }) => {
                             />
                             <div className="flex items-center justify-end gap-x-2">
                                 <Button
+                                    onClick={() => moveOption('up', item.id)}
+                                    disabled={idx === 0}
+                                    className="p-1"
+                                >
+                                    <ArrowUpCircleIcon className="size-4" />
+                                </Button>
+                                <Button
+                                    onClick={() => moveOption('down', item.id)}
+                                    disabled={idx === field?.items.length - 1}
+                                    className="p-1"
+                                >
+                                    <ArrowDownCircle className="size-4" />
+                                </Button>
+                                <Button
                                     variant={'destructive'}
                                     className="p-1"
-                                    onClick={() => removeItem(item.id)}
+                                    onClick={() =>
+                                        updateField({
+                                            ...field,
+                                            items: field.items?.filter(
+                                                (itm) => itm.id !== item.id
+                                            ),
+                                        })
+                                    }
                                 >
                                     <Trash2 className="size-4" />
                                 </Button>

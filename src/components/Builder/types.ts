@@ -1,6 +1,7 @@
 // types.ts
 export interface FieldOption {
     id: string
+    order: number
     value: string
     label_en: string
     label_ar: string
@@ -14,9 +15,12 @@ export interface Field {
     type: string
     placeholder_en: string
     placeholder_ar: string
-    required: boolean
+    required?: boolean
     order: number
-    colSpan: number
+    colSpan?: number
+    min?: number
+    max?: number
+    apidata?: object
     items?: FieldOption[]
 }
 
