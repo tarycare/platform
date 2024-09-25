@@ -376,7 +376,7 @@ const FormViewer: FC<FormViewerProps> = ({
                             handleFieldChange(field.name, e.target.value)
                         }
                         className="col-span-12 rounded-md border bg-background p-2"
-                        rows={4}
+                        rows={field.rows || 4}
                     />
                 )
 

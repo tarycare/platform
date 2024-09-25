@@ -14,6 +14,7 @@ import {
     ArrowDownCircle,
     ArrowUpCircleIcon,
     AtSign,
+    Binary,
     CalendarClockIcon,
     CircleDot,
     FileDigit,
@@ -85,25 +86,25 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
     const getIconByType = (type: string) => {
         switch (type) {
             case 'text':
-                return <TypeIcon />
+                return <TypeIcon size={16} />
             case 'email':
-                return <AtSign />
+                return <AtSign size={16} />
             case 'number':
-                return <FileDigit />
+                return <Binary size={16} />
             case 'textarea':
-                return <Text />
+                return <Text size={16} />
             case 'checkbox':
-                return <SquareCheck />
+                return <SquareCheck size={16} />
             case 'radio':
-                return <CircleDot />
+                return <CircleDot size={16} />
             case 'select':
-                return <List />
+                return <List size={16} />
             case 'multiselect':
-                return <Logs />
+                return <Logs size={16} />
             case 'date':
-                return <CalendarClockIcon />
+                return <CalendarClockIcon size={16} />
             case 'upload_image':
-                return <Image />
+                return <Image size={16} />
             default:
                 return null
         }
@@ -269,6 +270,16 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                                 placeholder="Placeholder (AR)"
                                 className="col-span-6"
                             />
+                            {field.type === 'textarea' && (
+                                <Input
+                                    type="number"
+                                    name="rows"
+                                    value={field.rows}
+                                    onChange={handleFieldChange}
+                                    placeholder="4"
+                                    className="col-span-6"
+                                />
+                            )}
                             {field.type === 'number' && (
                                 <>
                                     <Input
