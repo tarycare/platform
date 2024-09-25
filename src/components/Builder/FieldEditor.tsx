@@ -81,7 +81,7 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                                 <ArrowUpCircleIcon className="size-4" />
                             </Button>
                             <p className="rounded-sm bg-[#f1f1f1] p-[2px] px-2 font-bold">
-                                {field.order + 1}
+                                {Number(field.order)}
                             </p>
                             <Button
                                 disabled={isLast}
