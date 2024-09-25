@@ -778,11 +778,11 @@ body{
 .me-1{
     margin-inline-end: 0.25rem;
 }
-.me-2{
-    margin-inline-end: 0.5rem;
-}
 .ml-1{
     margin-left: 0.25rem;
+}
+.ml-2{
+    margin-left: 0.5rem;
 }
 .ml-auto{
     margin-left: auto;
@@ -795,9 +795,6 @@ body{
 }
 .ms-2{
     margin-inline-start: 0.5rem;
-}
-.ms-5{
-    margin-inline-start: 1.25rem;
 }
 .ms-\[5px\]{
     margin-inline-start: 5px;

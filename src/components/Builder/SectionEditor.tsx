@@ -137,7 +137,8 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
                                 </Button>
 
                                 <p className="rounded-sm bg-background p-1 px-2 font-bold">
-                                    {/* order number */} {section.order + 1}
+                                    {/* order number */}{' '}
+                                    {Number(section.order) + 1}
                                 </p>
                                 <Button
                                     disabled={isLast}

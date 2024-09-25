@@ -35,11 +35,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IconSend, IconSend2, IconX } from '@tabler/icons-react'
 
 // Function to apply custom validation based on field configuration
-const applyValidation = (field: any, value: any, languge: string) => {
+const applyValidation = (field: any, value: any, language: string) => {
     let error = ''
 
     // Determine which language to display
-    const label = languge === 'ar' ? field.label_ar : field.label_en
+    const label = language === 'ar' ? field.label_ar : field.label_en
 
     // Convert value to string for length validation checks
     const valueAsString = value?.toString() || ''
@@ -48,7 +48,7 @@ const applyValidation = (field: any, value: any, languge: string) => {
 
     // Required field validation
     if (field.required && (!value || valueAsString === '')) {
-        error = languge === 'ar' ? `${label} مطلوب` : `${label} is required`
+        error = language === 'ar' ? `${label} مطلوب` : `${label} is required`
         return error
     }
 
@@ -59,7 +59,7 @@ const applyValidation = (field: any, value: any, languge: string) => {
             if (minLength && maxLength && minLength === maxLength) {
                 if (valueAsString.length !== minLength) {
                     error =
-                        languge === 'ar'
+                        language === 'ar'
                             ? `${label} يجب أن يكون ${minLength} أرقام`
                             : `${label} must be exactly ${minLength} characters`
                     return error
@@ -68,14 +68,14 @@ const applyValidation = (field: any, value: any, languge: string) => {
                 // Validate if the input is within the range of allowed lengths
                 if (minLength && valueAsString.length < minLength) {
                     error =
-                        languge === 'ar'
+                        language === 'ar'
                             ? `${label} يجب أن يكون على الأقل ${minLength} أرقام`
                             : `${label} must be at least ${minLength} characters`
                     return error
                 }
                 if (maxLength && valueAsString.length > maxLength) {
                     error =
-                        languge === 'ar'
+                        language === 'ar'
                             ? `${label} يجب أن يكون على الأكثر ${maxLength} أرقام`
                             : `${label} must be no more than ${maxLength} characters`
                     return error
@@ -99,7 +99,7 @@ const debounce = (func: Function, delay: number) => {
 
 const FormViewer: FC<FormViewerProps> = ({
     data = { sections: [] },
-    languge = document.documentElement.lang,
+    language = document.documentElement.lang,
     handleSubmission,
     handleUpdate,
     isSubmitting,
@@ -112,6 +112,10 @@ const FormViewer: FC<FormViewerProps> = ({
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
     const [isImageChanged, setIsImageChanged] = useState(false) // New state to track image change
     const [isImageRemoved, setIsImageRemoved] = useState(false) // New state to track image removal
+
+    const [optionsState, setOptionsState] = useState<{ [key: string]: any[] }>(
+        {}
+    )
 
     useEffect(() => {
         if (isUpdating) {
@@ -171,8 +175,8 @@ const FormViewer: FC<FormViewerProps> = ({
                             const labelArKey =
                                 field.apiData.mapping?.label_ar || 'label_ar'
 
-                            // Update the form state with the new API data and apply the mapping if available
-                            setFormState((prevState) => ({
+                            // Update the optionsState with the new API data and apply the mapping if available
+                            setOptionsState((prevState) => ({
                                 ...prevState,
                                 [field.name]: items.map((item) => ({
                                     value: item[valueKey], // Map 'value' to the correct key
@@ -190,7 +194,7 @@ const FormViewer: FC<FormViewerProps> = ({
                         // Use the provided items if no apiData.url is available
                         console.log('Using provided items for', field.name)
 
-                        setFormState((prevState) => ({
+                        setOptionsState((prevState) => ({
                             ...prevState,
                             [field.name]: field.items.map((item) => ({
                                 value: item.value,
@@ -216,7 +220,7 @@ const FormViewer: FC<FormViewerProps> = ({
             .find((f) => f.name === fieldName)
 
         if (field) {
-            const error = applyValidation(field, value, languge) // Pass the language prop
+            const error = applyValidation(field, value, language) // Pass the language prop
             setFormErrors((prev) => ({ ...prev, [fieldName]: error }))
         }
     }
@@ -227,7 +231,7 @@ const FormViewer: FC<FormViewerProps> = ({
         data.forEach((section) => {
             section.Fields.forEach((field: any) => {
                 const value = formState[field.name]
-                const error = applyValidation(field, value, languge) // Pass the language prop
+                const error = applyValidation(field, value, language) // Pass the language prop
                 if (error) {
                     errors[field.name] = error
                 }
@@ -316,9 +320,9 @@ const FormViewer: FC<FormViewerProps> = ({
     }
 
     const renderComponent = (field: any) => {
-        const label = languge === 'ar' ? field.label_ar : field.label_en
+        const label = language === 'ar' ? field.label_ar : field.label_en
         const placeholder =
-            languge === 'ar' ? field.placeholder_ar : field.placeholder_en
+            language === 'ar' ? field.placeholder_ar : field.placeholder_en
 
         switch (field.type.toLowerCase()) {
             case 'text':
@@ -377,10 +381,11 @@ const FormViewer: FC<FormViewerProps> = ({
                 )
 
             case 'checkbox':
-                if (formState[field.name]?.length > 0) {
+                if (field.items && field.items?.length > 0) {
+                    // Multiple checkboxes
                     return (
                         <div className="flex flex-wrap items-center gap-2">
-                            {formState[field.name]?.map((item: any) => (
+                            {field.items?.map((item: any) => (
                                 <div
                                     key={item.value}
                                     className="flex items-center gap-x-2"
@@ -416,7 +421,7 @@ const FormViewer: FC<FormViewerProps> = ({
                                         htmlFor={item.value}
                                         className="text-sm"
                                     >
-                                        {languge === 'ar'
+                                        {language === 'ar'
                                             ? item.label_ar
                                             : item.label_en}
                                     </label>
@@ -424,54 +429,67 @@ const FormViewer: FC<FormViewerProps> = ({
                             ))}
                         </div>
                     )
+                } else {
+                    // Single checkbox
+                    return (
+                        <div className="flex items-center gap-x-2">
+                            <Checkbox
+                                id={`${field.name}`}
+                                checked={formState[field.name] || false}
+                                onCheckedChange={(checked) =>
+                                    handleFieldChange(field.name, checked)
+                                }
+                            />
+                            <label
+                                htmlFor={`${field.name}`}
+                                className="text-sm font-medium"
+                            >
+                                {label}
+                            </label>
+                        </div>
+                    )
                 }
-                break
 
             case 'radio':
-                if (formState[field.name]?.length > 0) {
-                    return (
-                        <div className="flex flex-wrap items-center gap-2">
-                            {formState[field.name]?.map((item: any) => (
-                                <div
-                                    key={item.value}
-                                    className="flex items-center text-sm font-medium"
+                return (
+                    <div className="flex flex-wrap items-center gap-2">
+                        {field.items?.map((item: any) => (
+                            <div
+                                key={item.value}
+                                className="flex items-center text-sm font-medium"
+                            >
+                                <Input
+                                    type="radio"
+                                    value={item.value}
+                                    checked={
+                                        formState[field.name] === item.value
+                                    }
+                                    onChange={() =>
+                                        handleFieldChange(
+                                            field.name,
+                                            item.value
+                                        )
+                                    }
+                                    id={`${item.value}-${field.name}`}
+                                />
+                                <label
+                                    className="ms-1 translate-y-[-1px] font-normal"
+                                    htmlFor={`${item.value}-${field.name}`}
                                 >
-                                    <Input
-                                        type="radio"
-                                        value={item.value}
-                                        checked={
-                                            formState[field.name] === item.value
-                                        }
-                                        onChange={() =>
-                                            handleFieldChange(
-                                                field.name,
-                                                item.value
-                                            )
-                                        }
-                                        id={`${item.value}-${field.name}`}
-                                    />
-                                    <label
-                                        className="ms-1 translate-y-[-1px] font-normal"
-                                        htmlFor={`${item.value}-${field.name}`}
-                                    >
-                                        {languge === 'ar'
-                                            ? item.label_ar
-                                            : item.label_en}
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                    )
-                }
+                                    {language === 'ar'
+                                        ? item.label_ar
+                                        : item.label_en}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                )
 
-            case 'multiselect':
+            case 'multiselect': {
+                const options = optionsState[field.name] || field.items || []
                 return (
                     <MultiSelect
-                        options={formState[field.name]?.map((item) => ({
-                            value: item.value,
-                            label_en: item.label_en,
-                            label_ar: item.label_ar,
-                        }))}
+                        options={options}
                         onValueChange={(values) =>
                             handleFieldChange(field.name, values)
                         }
@@ -479,6 +497,7 @@ const FormViewer: FC<FormViewerProps> = ({
                         placeholder={placeholder}
                     />
                 )
+            }
 
             case 'date':
                 return (
@@ -491,9 +510,10 @@ const FormViewer: FC<FormViewerProps> = ({
                     />
                 )
 
-            case 'select':
-                const selectedItem = formState[field.name]?.find(
-                    (item: any) => item.value === formState[field.name]
+            case 'select': {
+                const options = optionsState[field.name] || field.items || []
+                const selectedItem = options.find(
+                    (item) => item.value === formState[field.name]
                 )
 
                 return (
@@ -506,7 +526,7 @@ const FormViewer: FC<FormViewerProps> = ({
                                     className="justify-between text-muted-foreground hover:bg-background"
                                 >
                                     {selectedItem
-                                        ? languge === 'ar'
+                                        ? language === 'ar'
                                             ? selectedItem.label_ar
                                             : selectedItem.label_en
                                         : placeholder}
@@ -524,33 +544,31 @@ const FormViewer: FC<FormViewerProps> = ({
                                             No items found.
                                         </CommandEmpty>
                                         <CommandGroup>
-                                            {formState[field.name]?.map(
-                                                (item: any) => (
-                                                    <CommandItem
-                                                        key={item.value}
-                                                        value={item.value}
-                                                        onSelect={() =>
-                                                            handleFieldChange(
-                                                                field.name,
-                                                                item.value
-                                                            )
-                                                        }
-                                                    >
-                                                        {languge === 'ar'
-                                                            ? item.label_ar
-                                                            : item.label_en}
-                                                        <CheckIcon
-                                                            className={`ms-auto h-4 w-4 ${
-                                                                formState[
-                                                                    field.name
-                                                                ] === item.value
-                                                                    ? 'opacity-100'
-                                                                    : 'opacity-0'
-                                                            }`}
-                                                        />
-                                                    </CommandItem>
-                                                )
-                                            )}
+                                            {options.map((item) => (
+                                                <CommandItem
+                                                    key={item.value}
+                                                    value={item.value}
+                                                    onSelect={() =>
+                                                        handleFieldChange(
+                                                            field.name,
+                                                            item.value
+                                                        )
+                                                    }
+                                                >
+                                                    {language === 'ar'
+                                                        ? item.label_ar
+                                                        : item.label_en}
+                                                    <CheckIcon
+                                                        className={`ms-auto h-4 w-4 ${
+                                                            formState[
+                                                                field.name
+                                                            ] === item.value
+                                                                ? 'opacity-100'
+                                                                : 'opacity-0'
+                                                        }`}
+                                                    />
+                                                </CommandItem>
+                                            ))}
                                         </CommandGroup>
                                     </CommandList>
                                 </Command>
@@ -558,6 +576,7 @@ const FormViewer: FC<FormViewerProps> = ({
                         </Popover>
                     </>
                 )
+            }
 
             case 'upload_image':
                 return (
@@ -609,9 +628,6 @@ const FormViewer: FC<FormViewerProps> = ({
     if (!data) {
         return null
     }
-    // if (!data || !formState || Object.keys(formState).length === 0) {
-    //   return <div>Loading...</div>; // Avoid rendering form until data is available
-    // }
 
     return (
         <>
@@ -638,7 +654,7 @@ const FormViewer: FC<FormViewerProps> = ({
                                                 </div>
                                             )}
                                             <div className="text-[16px] font-bold text-foreground">
-                                                {languge === 'ar'
+                                                {language === 'ar'
                                                     ? section.section_label_ar
                                                     : section.section_label_en}
                                             </div>
@@ -648,7 +664,7 @@ const FormViewer: FC<FormViewerProps> = ({
                                             section.section_description_en) && (
                                             <div className="mx-1 flex flex-col px-3 pt-[5px]">
                                                 <Label className="mb-2 mt-[-12px] text-start text-sm font-normal text-slate-500">
-                                                    {languge === 'ar'
+                                                    {language === 'ar'
                                                         ? section.section_description_ar
                                                         : section.section_description_en}
                                                 </Label>
@@ -673,7 +689,7 @@ const FormViewer: FC<FormViewerProps> = ({
                                                     htmlFor={field.name}
                                                     className="font-bold"
                                                 >
-                                                    {languge === 'ar'
+                                                    {language === 'ar'
                                                         ? field.label_ar
                                                         : field.label_en}
                                                     {/* red star if req */}
@@ -692,7 +708,7 @@ const FormViewer: FC<FormViewerProps> = ({
                                                         <PopoverContent className="w-fit">
                                                             <div className="">
                                                                 <p className="text-xs font-normal">
-                                                                    {languge ===
+                                                                    {language ===
                                                                     'ar'
                                                                         ? field.help_ar
                                                                         : field.help_en}
@@ -717,7 +733,7 @@ const FormViewer: FC<FormViewerProps> = ({
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (
                         <Loader2 className="h-5 w-5 animate-spin text-background" />
-                    ) : languge === 'ar' ? (
+                    ) : language === 'ar' ? (
                         <div className="flex items-center gap-2">
                             <IconSend className="h-4 w-4" />
                             إرسال

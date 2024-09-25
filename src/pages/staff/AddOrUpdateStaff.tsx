@@ -22,10 +22,8 @@ function FormBuilderWidget() {
 
     const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = isDev ? 'http://mytest.local' : ''
-    const [userId, setUserId] = useState(0)
-    const [departments, setDepartments] = useState([])
-    const [facilities, setFacilities] = useState([])
     const [formId, setFormId] = useState(0)
+    const [userId, setUserId] = useState(0)
 
     const { id } = useParams() // Get user ID from the URL params
 

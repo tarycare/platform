@@ -26,7 +26,7 @@ function CRUD_Department() {
     const { id } = useParams() // Get user ID from the URL params
 
     const fetchUrl =
-        'https://api.airtable.com/v0/app9i3YvEiYbCo4XN/apps/recQfOAi80T3ZOy4A'
+        '/wp-json/form/v1/get?title=Department&site_id=' + siteId + '&id=' + id
     const submitUrl = '/wp-json/department/v1/add'
 
     const updateUrl = `/wp-json/department/v1/update/${id}`
@@ -34,38 +34,10 @@ function CRUD_Department() {
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
 
-    // get departments from the API and remap the data
-    useEffect(() => {
-        async function getDepartments() {
-            try {
-                const response = await fetch('/wp-json/department/v1/all')
-                const data = await response.json()
-
-                console.log('users all', data)
-                const mappedUsers = data.map((user) => ({
-                    value: user.id.toString(),
-                    label_en:
-                        user.meta?.staff_first_name +
-                        ' ' +
-                        user.meta?.staff_last_name,
-                    label_ar:
-                        user.meta?.staff_first_name +
-                        ' ' +
-                        user.meta?.staff_last_name,
-                }))
-                setUsers(mappedUsers)
-                console.log(mappedUsers, 'mapped users')
-            } catch (error) {
-                console.error('Error fetching users:', error)
-            }
-        }
-        getDepartments()
-    }, [])
-
     // useEffect to to fetch department/v1/site
     useEffect(() => {
         async function getSiteId() {
-            const response = await fetch('/wp-json/department/v1/site')
+            const response = await fetch('/wp-json/staff/v1/site')
             const data = await response.json()
             setSiteId(data.site_id)
             console.log(data, 'site data')
@@ -107,20 +79,11 @@ function CRUD_Department() {
             try {
                 const response = await fetch(fetchUrl, {
                     method: 'GET',
-                    headers: {
-                        Authorization:
-                            'Bearer pat4Qsb1Mw7JFJFh7.6c8455ef5b19cc8e9fc0f452a62bee582a4e04ac0cb954463b6acad99f72de5d',
-                    },
                 })
                 const data = await response.json()
-                const fields = data.fields
-                const JSONData = JSON.parse(fields.JSONData)
 
-                // first section
-                const sectionIndex = JSONData.sections[0]
-
-                setFormSections(JSONData.sections)
-                console.log(JSONData, 'JSONData')
+                setFormSections(data.sections)
+                console.log(data.sections, 'data.sections')
             } catch (error) {
                 console.error('Error fetching form data:', error)
             } finally {
