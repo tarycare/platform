@@ -89,6 +89,11 @@ const combinedConfig = {
                     to: 'forms/',
                     noErrorOnMissing: true,
                 },
+                {
+                    from: 'dev-apps/documents',
+                    to: 'documents/',
+                    noErrorOnMissing: true,
+                },
             ],
         }),
     ],
