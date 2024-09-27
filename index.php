@@ -36,6 +36,12 @@ $sub_plugins = [
         'prod_path' => 'apps/forms/plugin.php',
         'option_name' => 'tary_plugins_forms'
     ],
+    'documents' => [
+        'label' => 'Documents Plugin',
+        'dev_path' => 'dev-apps/documents/plugin.php',
+        'prod_path' => 'apps/documents/plugin.php',
+        'option_name' => 'tary_plugins_documents'
+    ],
 ];
 
 // Add menu to manage sub-plugins
@@ -43,9 +49,13 @@ add_action('admin_menu', 'tary_plugins_menu');
 
 function tary_plugins_menu()
 {
+    // Get the current user's locale
+    $locale = determine_locale();
+    $menu_title = ($locale === 'ar' || $locale === 'ar_AR') ? 'منصة طاري' : 'Tary platform';
+
     add_menu_page(
-        'Tary platform',
-        'Tary platform',
+        $menu_title,
+        $menu_title,
         'manage_options',
         'tary_plugins',
         'tary_plugins_page',
@@ -151,3 +161,209 @@ foreach ($sub_plugins as $plugin_key => $plugin) {
         }
     }, 10, 2);
 }
+
+
+// Remove custom post types "Departments", "Facilities", "Forms", default post types "Posts", "Pages", "Documents", "Comments", "Media", and "Appearance"
+function remove_custom_post_type_menus()
+{
+    // Default post types
+    remove_menu_page('edit.php'); // Removes "Posts"
+    remove_menu_page('edit.php?post_type=page'); // Removes "Pages"
+    remove_menu_page('edit.php?post_type=document'); // Removes "Documents"
+    remove_menu_page('upload.php'); // Removes "Media"
+    remove_menu_page('edit-comments.php'); // Removes "Comments"
+    remove_menu_page('themes.php'); // Removes "Appearance"
+
+    // Custom post types
+    remove_menu_page('edit.php?post_type=department'); // Removes "Departments"
+    remove_menu_page('edit.php?post_type=facility');   // Removes "Facilities"
+    remove_menu_page('edit.php?post_type=form');       // Removes "Forms"
+}
+add_action('admin_menu', 'remove_custom_post_type_menus');
+
+// Remove meta boxes related to Posts, Pages, Documents, Departments, Facilities, Forms, and Comments
+function remove_custom_meta_boxes()
+{
+    // Default post types
+    remove_meta_box('categorydiv', 'post', 'side'); // Remove categories for "Posts"
+    remove_meta_box('tagsdiv-post_tag', 'post', 'side'); // Remove tags for "Posts"
+    remove_meta_box('postimagediv', 'post', 'side'); // Remove featured image for "Posts"
+    remove_meta_box('commentsdiv', 'post', 'normal'); // Remove comments for "Posts"
+    remove_meta_box('commentstatusdiv', 'post', 'normal'); // Remove comment status for "Posts"
+
+    // Custom post types
+    remove_meta_box('departmentdiv', 'department', 'side'); // Remove "Departments" meta boxes
+    remove_meta_box('facilitydiv', 'facility', 'side');     // Remove "Facilities" meta boxes
+    remove_meta_box('formdiv', 'form', 'side');             // Remove "Forms" meta boxes
+    remove_meta_box('documentdiv', 'document', 'side');     // Remove "Documents" meta boxes
+}
+add_action('admin_menu', 'remove_custom_meta_boxes');
+
+// Remove "New" items from the admin bar for Posts, Pages, Documents, Departments, Facilities, Forms, Media, and Comments
+function remove_custom_post_type_admin_bar_links($wp_admin_bar)
+{
+    // Default post types
+    $wp_admin_bar->remove_node('new-post');     // Removes "New Post"
+    $wp_admin_bar->remove_node('new-page');     // Removes "New Page"
+    $wp_admin_bar->remove_node('new-document'); // Removes "New Document"
+    $wp_admin_bar->remove_node('new-media');    // Removes "New Media"
+
+    // Custom post types
+    $wp_admin_bar->remove_node('new-department'); // Removes "New Department"
+    $wp_admin_bar->remove_node('new-facility');   // Removes "New Facility"
+    $wp_admin_bar->remove_node('new-form');       // Removes "New Form"
+}
+add_action('admin_bar_menu', 'remove_custom_post_type_admin_bar_links', 999);
+
+// Redirect access to post type pages for Posts, Pages, Documents, Departments, Facilities, Forms, Media, Comments, and Appearance to the admin dashboard
+function redirect_custom_post_type_pages()
+{
+    global $pagenow;
+
+    if ($pagenow == 'edit.php' && isset($_GET['post_type'])) {
+        $post_type = $_GET['post_type'];
+
+        // Redirect for default and custom post types
+        if (in_array($post_type, ['post', 'page', 'document', 'department', 'facility', 'form', 'media', 'comment'])) {
+            wp_redirect(admin_url());
+            exit;
+        }
+    }
+}
+add_action('admin_init', 'redirect_custom_post_type_pages');
+
+
+// Disable the top admin bar
+add_filter('show_admin_bar', '__return_false');
+
+// Hide the admin bar with CSS (for all users)
+function hide_admin_bar_css()
+{
+    echo '<style>
+        #wpadminbar { display: none !important; }
+        html { margin-top: 0 !important; }
+    </style>';
+}
+add_action('admin_head', 'hide_admin_bar_css');
+
+// Add a logout link in the sidebar
+function add_logout_link_to_sidebar()
+{
+    add_menu_page(
+        'Logout',                   // Page title
+        'Logout',                   // Menu title
+        'read',                     // Capability
+        wp_logout_url(),            // URL to logout
+        '',                         // No callback function, direct URL link
+        'dashicons-external',       // Dashicon for logout
+        100                         // Position in the menu
+    );
+}
+add_action('admin_menu', 'add_logout_link_to_sidebar');
+
+
+
+// Add custom CSS and HTML for the logo at the top of the admin sidebar
+function add_logo_to_admin_sidebar()
+{
+    echo '
+    <style>
+        #adminmenuwrap::before {
+            content: "";
+            display: block;
+
+            height: 40px; /* Adjust based on logo size */
+            width: 60%;
+            background: url("' . plugins_url('tarylogo.svg', __FILE__) . '") no-repeat center;
+            background-size: contain;
+            margin-bottom: 20px;
+               margin:10px
+
+
+        }
+            #adminmenu, #adminmenu .wp-submenu, #adminmenuback, #adminmenuwrap {
+    width: 175px;
+    background-color: #f7f7f7;
+    color: #444;
+    border-right: 1px solid #f1f1f1;
+
+}
+
+
+
+
+#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head, #adminmenu .wp-menu-arrow, #adminmenu .wp-menu-arrow div, #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {
+    background: #7b39ed;
+    color: #fff;
+}
+    #adminmenu a {
+    display: block;
+    line-height: 1.3;
+    padding: 2px 5px;
+    color: #000;
+}
+
+#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head, #adminmenu .wp-menu-arrow, #adminmenu .wp-menu-arrow div, #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {
+    background: #7b39ed;
+    color: #fff;
+}
+#adminmenu .current div.wp-menu-image:before, #adminmenu .wp-has-current-submenu div.wp-menu-image:before, #adminmenu a.current:hover div.wp-menu-image:before, #adminmenu a.wp-has-current-submenu:hover div.wp-menu-image:before, #adminmenu li.wp-has-current-submenu a:focus div.wp-menu-image:before, #adminmenu li.wp-has-current-submenu.opensub div.wp-menu-image:before, #adminmenu li.wp-has-current-submenu:hover div.wp-menu-image:before {
+    color: #fff;
+}
+    #adminmenu .wp-submenu a {
+    color: #000;
+
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 5px 0;
+}
+    #adminmenu .opensub .wp-submenu li.current a, #adminmenu .wp-submenu li.current, #adminmenu .wp-submenu li.current a, #adminmenu .wp-submenu li.current a:focus, #adminmenu .wp-submenu li.current a:hover, #adminmenu a.wp-has-current-submenu:focus+.wp-submenu li.current a {
+    color: #000;
+}
+#adminmenu div.wp-menu-image:before {
+    color: #7b39ed;
+}
+
+#adminmenu li.menu-top:hover, #adminmenu li.opensub>a.menu-top, #adminmenu li>a.menu-top:focus {
+    position: relative;
+    background-color: #f1f1f1;
+    color: #000;
+
+}
+    #adminmenu li.menu-top:hover, #adminmenu li.opensub>a.menu-top, #adminmenu li>a.menu-top:focus {
+    position: relative;
+    color: #000;
+}
+
+#adminmenu .wp-submenu a:focus, #adminmenu .wp-submenu a:hover, #adminmenu a:hover, #adminmenu li.menu-top>a:focus {
+    color: #000;
+}
+#adminmenu li a:focus div.wp-menu-image:before, #adminmenu li.opensub div.wp-menu-image:before, #adminmenu li:hover div.wp-menu-image:before {
+    color: #000;
+}
+
+.wrap {
+    margin: 10px 20px 0 2px;
+    padding: 20px;
+}
+
+    </style>';
+}
+add_action('admin_head', 'add_logo_to_admin_sidebar');
+
+
+// remove footer 
+// Remove the default WordPress admin footer text
+function remove_admin_footer_text()
+{
+    return '';
+}
+add_filter('admin_footer_text', 'remove_admin_footer_text');
+
+// Remove the WordPress version from the footer
+function remove_admin_footer_version()
+{
+    return '';
+}
+add_filter('update_footer', 'remove_admin_footer_version', 999);

@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { createHashRouter, RouterProvider, RouteObject } from 'react-router-dom'
 
 import AddOrUpdateStaff from './pages/staff/AddOrUpdateStaff'
-import StaffDetails from './pages/StaffDetails'
+import StaffDetails from './pages/staff/StaffDetails'
 import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
