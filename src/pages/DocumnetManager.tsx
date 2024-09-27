@@ -233,7 +233,7 @@ const DocumentManager = ({
                                     {getReadableFileType(file.file.type)}
                                 </td>
                                 <td className="border-b px-4 py-2">
-                                    <RadioGroup
+                                    {/* <RadioGroup
                                         defaultValue={file.visibility}
                                         onValueChange={(value) =>
                                             handleFileChange(
@@ -267,7 +267,35 @@ const DocumentManager = ({
                                                 Private
                                             </label>
                                         </div>
-                                    </RadioGroup>
+                                    </RadioGroup> */}
+                                    <Select
+                                        value={file.visibility}
+                                        onValueChange={(value) =>
+                                            handleFileChange(
+                                                index,
+                                                'visibility',
+                                                value
+                                            )
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Visibility" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="public">
+                                                Public
+                                            </SelectItem>
+                                            <SelectItem value="all-staff">
+                                                All Staff
+                                            </SelectItem>
+                                            <SelectItem value="members">
+                                                Members
+                                            </SelectItem>
+                                            <SelectItem value="admin">
+                                                Admin
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </td>
                                 <td className="border-b px-4 py-2">
                                     <Select
