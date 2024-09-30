@@ -12,6 +12,8 @@ import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import List from './pages/form/ListForms'
 import FormBuilder from './components/Builder/Formbuilder'
+import SubmmisionsList from './pages/form/SubmmisionsList'
+import CRUD_Submission from './pages/form/AddOrUpdateSubmission'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -20,7 +22,7 @@ const routes: RouteObject[] = [
         element: <List />,
     },
     {
-        path: '/update/:id', // For editing a specific staff member
+        path: '/update/:id', // For editing a specific form
         element: (
             <div>
                 <div className="w-full">
@@ -30,7 +32,7 @@ const routes: RouteObject[] = [
         ),
     },
     {
-        path: '/add', // For adding a new staff member
+        path: '/add', // For adding a new form
         element: (
             <div>
                 <div className="w-full">
@@ -38,6 +40,19 @@ const routes: RouteObject[] = [
                 </div>
             </div>
         ),
+    },
+    {
+        path: 'form-submissions/:id', // For viewing form submissions
+        element: <SubmmisionsList />,
+    },
+    {
+        path: ':formid/add',
+        element: <CRUD_Submission />,
+    },
+
+    {
+        path: ':formid/update/:id',
+        element: <CRUD_Submission />,
     },
 ]
 

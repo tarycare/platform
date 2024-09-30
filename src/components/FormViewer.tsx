@@ -311,7 +311,8 @@ const FormViewer: FC<FormViewerProps> = ({
             })
 
             const currentPath = window.location.hash
-            const isAdding = currentPath === '#/add'
+
+            const isAdding = currentPath.includes('add')
 
             if (!isAdding) {
                 handleUpdate(formData)

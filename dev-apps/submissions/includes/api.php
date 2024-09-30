@@ -18,16 +18,16 @@ class WP_React_Submissions_Rest_Route
     public function register_submission_post_type()
     {
         $labels = array(
-            'name'               => 'Departments',
+            'name'               => 'Submissions',
             'singular_name'      => 'Submission',
-            'menu_name'          => 'Departments',
+            'menu_name'          => 'Submissions',
             'add_new'            => 'Add New',
             'add_new_item'       => 'Add New Submission',
             'edit_item'          => 'Edit Submission',
             'new_item'           => 'New Submission',
             'view_item'          => 'View Submission',
-            'all_items'          => 'All Departments',
-            'search_items'       => 'Search Departments',
+            'all_items'          => 'All Submissions',
+            'search_items'       => 'Search Submissions',
             'not_found'          => 'No submissions found',
             'not_found_in_trash' => 'No submissions found in trash'
         );
@@ -126,8 +126,9 @@ class WP_React_Submissions_Rest_Route
     public function add_submission($request)
     {
         $parameters = $request->get_params();
+        // if not title set date as title
 
-        $title = sanitize_text_field($parameters['title']);
+        $title = sanitize_text_field($parameters['title']) ? sanitize_text_field($parameters['title']) : date('Y-m-d H:i:s');
         $content = sanitize_textarea_field($parameters['content']);
 
         if (empty($title)) {

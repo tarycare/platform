@@ -309,6 +309,14 @@ export default function Dashboard() {
                                                                         <DropdownMenuItem
                                                                             className="cursor-pointer"
                                                                             onClick={() => {
+                                                                                if (
+                                                                                    !window.confirm(
+                                                                                        'Are you sure you want to delete this Department?'
+                                                                                    )
+                                                                                ) {
+                                                                                    return
+                                                                                }
+
                                                                                 const nonce =
                                                                                     window
                                                                                         ?.appLocalizer

@@ -251,12 +251,8 @@ export default function Dashboard() {
                           </TableHead> */}
                                                     <TableHead>Name</TableHead>
 
-                                                    <TableHead>Desc</TableHead>
-
-                                                    <TableHead>
-                                                        <span className="">
-                                                            Actions
-                                                        </span>
+                                                    <TableHead className="w-[50px]">
+                                                        <span>Actions</span>
                                                     </TableHead>
                                                 </TableRow>
                                             </TableHeader>
@@ -267,11 +263,11 @@ export default function Dashboard() {
                                                             {form.title}
                                                         </TableCell>
 
-                                                        <TableCell>
+                                                        {/* <TableCell>
                                                             <Badge variant="outline">
                                                                 {form.content}
                                                             </Badge>
-                                                        </TableCell>
+                                                        </TableCell> */}
                                                         <TableCell>
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger
@@ -304,6 +300,15 @@ export default function Dashboard() {
                                                                     <DropdownMenuItem
                                                                         className="cursor-pointer"
                                                                         onClick={() => {
+                                                                            // confirm before deleting
+                                                                            if (
+                                                                                !window.confirm(
+                                                                                    'Are you sure you want to delete this Form?'
+                                                                                )
+                                                                            ) {
+                                                                                return
+                                                                            }
+
                                                                             const nonce =
                                                                                 window
                                                                                     ?.appLocalizer
@@ -365,7 +370,7 @@ export default function Dashboard() {
                                                                             className="cursor-pointer"
                                                                             onClick={() => {
                                                                                 navigate(
-                                                                                    `/submissions/${form.id}`
+                                                                                    `/form-submissions/${form.id}`
                                                                                 )
                                                                             }}
                                                                         >

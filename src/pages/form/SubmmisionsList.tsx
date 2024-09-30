@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { Button } from '@/components/ui/button'
 
-import { Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate, useParams } from 'react-router-dom'
 
 import {
     File,
@@ -65,40 +65,41 @@ import {
 import { useEffect, useState } from 'react'
 
 export const description =
-    'An Facility dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of Facility in a table with actions.'
+    'An Submission dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of Submission in a table with actions.'
 
-export default function Dashboard() {
+export default function SubmmisionsList() {
     const isDev = process.env.NODE_ENV === 'development'
 
     const WP_API_URL = isDev
-        ? `http://mytest.local/wp-json/facility/v1/all`
-        : `/wp-json/facility/v1/all`
+        ? `http://mytest.local/wp-json/submission/v1/all`
+        : `/wp-json/submission/v1/all`
     const DELETE_API_URL = isDev
-        ? `http://mytest.local/wp-json/facility/v1/delete`
-        : `/wp-json/facility/v1/delete`
+        ? `http://mytest.local/wp-json/submission/v1/delete`
+        : `/wp-json/submission/v1/delete`
 
-    const [facilitys, setFacilitys] = useState([])
+    const [forms, setDepartments] = useState([])
     const [refresh, setRefresh] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const navigate = useNavigate()
+    const { id } = useParams()
 
     useEffect(() => {
-        const fetchFacilitys = async () => {
+        const fetchDepartments = async () => {
             try {
                 const response = await fetch(WP_API_URL)
                 if (!response.ok) {
                     throw new Error('Error fetching users')
                 }
                 const data = await response.json()
-                setFacilitys(data)
+                setDepartments(data)
             } catch (error: any) {
                 setError(error)
             } finally {
                 setLoading(false)
             }
         }
-        fetchFacilitys()
+        fetchDepartments()
     }, [refresh])
 
     return (
@@ -147,7 +148,7 @@ export default function Dashboard() {
                                         className="flex items-center gap-4 px-2.5 text-foreground"
                                     >
                                         <Package className="h-5 w-5" />
-                                        Facility
+                                        Submission
                                     </Link>
                                     <Link
                                         to="#"
@@ -222,12 +223,12 @@ export default function Dashboard() {
                       Export
                     </span>
                   </Button> */}
-                                    <Link to="/add">
+                                    <Link to={`/${id}/add-submission/`}>
                                         {' '}
                                         <Button size="sm" className="h-7 gap-1">
                                             <PlusCircle className="h-3.5 w-3.5" />
                                             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                                Add Facility
+                                                Add Submission
                                             </span>
                                         </Button>
                                     </Link>
@@ -236,10 +237,10 @@ export default function Dashboard() {
                             <TabsContent value="all">
                                 <Card x-chunk="dashboard-06-chunk-0">
                                     <CardHeader>
-                                        <CardTitle>All Facilities</CardTitle>
+                                        <CardTitle>All Submission</CardTitle>
                                         <CardDescription>
-                                            Manage your Facility by adding,
-                                            editing, and deleting Facility
+                                            Manage your Submission by adding,
+                                            editing, and deleting Submission
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
@@ -251,7 +252,7 @@ export default function Dashboard() {
                           </TableHead> */}
                                                     <TableHead>Name</TableHead>
 
-                                                    {/* <TableHead>Desc</TableHead> */}
+                                                    <TableHead>Desc</TableHead>
 
                                                     <TableHead>
                                                         <span className="">
@@ -261,20 +262,22 @@ export default function Dashboard() {
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {facilitys.map(
-                                                    (facility: any, i) => (
+                                                {forms.map(
+                                                    (submission: any, i) => (
                                                         <TableRow key={i}>
                                                             <TableCell>
-                                                                {facility.title}
+                                                                {
+                                                                    submission.title
+                                                                }
                                                             </TableCell>
 
-                                                            {/* <TableCell>
+                                                            <TableCell>
                                                                 <Badge variant="outline">
                                                                     {
-                                                                        facility.content
+                                                                        submission.content
                                                                     }
                                                                 </Badge>
-                                                            </TableCell> */}
+                                                            </TableCell>
                                                             <TableCell>
                                                                 <DropdownMenu>
                                                                     <DropdownMenuTrigger
@@ -297,7 +300,7 @@ export default function Dashboard() {
                                                                             className="cursor-pointer"
                                                                             onClick={() => {
                                                                                 navigate(
-                                                                                    `/update/${facility.id}`
+                                                                                    `/${id}/update/${submission.id}`
                                                                                 )
                                                                             }}
                                                                         >
@@ -309,7 +312,7 @@ export default function Dashboard() {
                                                                             onClick={() => {
                                                                                 if (
                                                                                     !window.confirm(
-                                                                                        'Are you sure you want to delete this Facility?'
+                                                                                        'Are you sure you want to delete this Submission?'
                                                                                     )
                                                                                 ) {
                                                                                     return
@@ -322,7 +325,7 @@ export default function Dashboard() {
                                                                                     ''
 
                                                                                 fetch(
-                                                                                    `${DELETE_API_URL}/${facility.id}`,
+                                                                                    `${DELETE_API_URL}/${submission.id}`,
                                                                                     {
                                                                                         method: 'DELETE',
                                                                                         headers:
@@ -334,7 +337,7 @@ export default function Dashboard() {
                                                                                             },
                                                                                         body: JSON.stringify(
                                                                                             {
-                                                                                                id: facility.id,
+                                                                                                id: submission.id,
                                                                                             }
                                                                                         ),
                                                                                     }
@@ -369,6 +372,20 @@ export default function Dashboard() {
                                                                         >
                                                                             Delete
                                                                         </DropdownMenuItem>
+
+                                                                        {/* submission submission list */}
+                                                                        {!submission.is_app_form && (
+                                                                            <DropdownMenuItem
+                                                                                className="cursor-pointer"
+                                                                                onClick={() => {
+                                                                                    navigate(
+                                                                                        `/submissions/${submission.id}`
+                                                                                    )
+                                                                                }}
+                                                                            >
+                                                                                Submissions
+                                                                            </DropdownMenuItem>
+                                                                        )}
                                                                     </DropdownMenuContent>
                                                                 </DropdownMenu>
                                                             </TableCell>
@@ -381,10 +398,9 @@ export default function Dashboard() {
                                     <CardFooter>
                                         <div className="text-xs text-muted-foreground">
                                             Showing{' '}
-                                            <strong>{facilitys.length}</strong>{' '}
-                                            of{' '}
-                                            <strong>{facilitys.length}</strong>{' '}
-                                            Facility
+                                            <strong>{forms.length}</strong> of{' '}
+                                            <strong>{forms.length}</strong>{' '}
+                                            Submission
                                         </div>
                                     </CardFooter>
                                 </Card>
