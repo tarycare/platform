@@ -154,6 +154,7 @@ const FormBuilder: React.FC = () => {
             const payload = {
                 title: formConfig.title,
                 sections: formConfig.sections,
+                is_app_form: 0,
             }
 
             const response = await fetch(url, {
@@ -287,7 +288,14 @@ const FormBuilder: React.FC = () => {
                 {formConfig.sections.length > 0 && (
                     <div className="w-[800px] p-2">
                         <div className="mb-5 flex justify-center">
-                            <Button onClick={handleSubmit}>
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={
+                                    formConfig.title === '' ||
+                                    formConfig.sections.length === 0 ||
+                                    isSubmitting
+                                }
+                            >
                                 {isUpdating ? (
                                     <div className="flex items-center gap-2">
                                         Update Form

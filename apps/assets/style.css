@@ -702,6 +702,9 @@ body{
 .col-span-12{
     grid-column: span 12 / span 12;
 }
+.col-span-2{
+    grid-column: span 2 / span 2;
+}
 .col-span-4{
     grid-column: span 4 / span 4;
 }
@@ -935,6 +938,9 @@ body{
 }
 .h-\[1px\]{
     height: 1px;
+}
+.h-\[200px\]{
+    height: 200px;
 }
 .h-\[36px\]{
     height: 36px;
@@ -1306,6 +1312,11 @@ body{
     margin-right: calc(0.5rem * var(--tw-space-x-reverse));
     margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
+.space-x-4 > :not([hidden]) ~ :not([hidden]){
+    --tw-space-x-reverse: 0;
+    margin-right: calc(1rem * var(--tw-space-x-reverse));
+    margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
 .space-y-1 > :not([hidden]) ~ :not([hidden]){
     --tw-space-y-reverse: 0;
     margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
@@ -1326,6 +1337,11 @@ body{
     margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(1rem * var(--tw-space-y-reverse));
 }
+.space-y-6 > :not([hidden]) ~ :not([hidden]){
+    --tw-space-y-reverse: 0;
+    margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
+}
 .overflow-auto{
     overflow: auto;
 }
@@ -1337,6 +1353,11 @@ body{
 }
 .overflow-x-hidden{
     overflow-x: hidden;
+}
+.truncate{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .whitespace-nowrap{
     white-space: nowrap;
@@ -1729,6 +1750,10 @@ body{
     font-size: 0.875rem;
     line-height: 1.25rem;
 }
+.text-xl{
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+}
 .text-xs{
     font-size: 0.75rem;
     line-height: 1rem;
@@ -1770,6 +1795,10 @@ body{
 .text-blue-500{
     --tw-text-opacity: 1;
     color: rgb(59 130 246 / var(--tw-text-opacity));
+}
+.text-blue-600{
+    --tw-text-opacity: 1;
+    color: rgb(37 99 235 / var(--tw-text-opacity));
 }
 .text-card-foreground{
     color: hsl(var(--card-foreground));
@@ -1823,6 +1852,10 @@ body{
 .text-white{
     --tw-text-opacity: 1;
     color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+.text-yellow-500{
+    --tw-text-opacity: 1;
+    color: rgb(234 179 8 / var(--tw-text-opacity));
 }
 .underline-offset-4{
     text-underline-offset: 4px;
@@ -2229,6 +2262,11 @@ textarea {
 .hover\:text-white:hover{
     --tw-text-opacity: 1;
     color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.hover\:text-yellow-700:hover{
+    --tw-text-opacity: 1;
+    color: rgb(161 98 7 / var(--tw-text-opacity));
 }
 
 .hover\:underline:hover{

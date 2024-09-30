@@ -205,6 +205,9 @@ class WP_React_Form_Rest_Route
         }
 
 
+
+
+
         if (is_wp_error($post_id)) {
             return new WP_Error('form_creation_failed', $post_id->get_error_message(), array('status' => 500));
         }
@@ -234,6 +237,7 @@ class WP_React_Form_Rest_Route
                 'id'      => $form->ID,
                 'title'   => $form->post_title,
                 'content' => $form->post_content,
+                'is_app_form' => get_post_meta($form->ID, 'is_app_form', true) === '0' ? false : true,
             ];
         }
 

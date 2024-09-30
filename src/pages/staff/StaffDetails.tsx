@@ -4,6 +4,8 @@ import { ArrowLeft, User } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import DocumnetManager from '../DocumnetManager'
+import DocumentList from '../DocumentList'
+import { IconUpload } from '@tabler/icons-react'
 
 // WordPress custom API base URL
 const isDev = process.env.NODE_ENV === 'development'
@@ -16,6 +18,9 @@ function StaffDetails() {
     const [staff, setStaff] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [refreshList, setRefreshList] = useState(false)
+
+    const [showUpload, setShowUpload] = useState(false)
 
     useEffect(() => {
         const fetchStaffDetails = async () => {
@@ -46,7 +51,7 @@ function StaffDetails() {
 
     return (
         <div>
-            <div className="container mx-auto p-6">
+            <div className="container mx-auto gap-5 p-6">
                 {/* back link */}
                 <Button asChild className="mb-2">
                     <a href="#" onClick={() => window.history.back()}>
@@ -55,7 +60,7 @@ function StaffDetails() {
                 </Button>
                 <h2 className="my-4 text-2xl text-foreground">Staff Details</h2>
                 {staff && (
-                    <div className="w-fit rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                    <div className="mb-5 w-fit rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                         {staff.image ? (
                             <img
                                 src={staff.image}
@@ -77,8 +82,28 @@ function StaffDetails() {
                         </p>
                     </div>
                 )}
+
+                <Button
+                    className="flex items-center gap-2"
+                    onClick={() => setShowUpload(!showUpload)}
+                >
+                    <IconUpload /> Upload Document
+                </Button>
             </div>
-            <DocumnetManager appName="staff" itemId={id} />
+
+            {showUpload && (
+                <DocumnetManager
+                    appName="staff"
+                    itemId={id}
+                    setRefreshList={console.log('refresh')}
+                />
+            )}
+            <DocumentList
+                appName="staff"
+                siteId={1} // Hardcoded site ID
+                itemId={id} // Staff
+                refreshList={refreshList}
+            />
         </div>
     )
 }

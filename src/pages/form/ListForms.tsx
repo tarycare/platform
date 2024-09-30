@@ -358,6 +358,20 @@ export default function Dashboard() {
                                                                     >
                                                                         Delete
                                                                     </DropdownMenuItem>
+
+                                                                    {/* form submission list */}
+                                                                    {!form.is_app_form && (
+                                                                        <DropdownMenuItem
+                                                                            className="cursor-pointer"
+                                                                            onClick={() => {
+                                                                                navigate(
+                                                                                    `/submissions/${form.id}`
+                                                                                )
+                                                                            }}
+                                                                        >
+                                                                            Submissions
+                                                                        </DropdownMenuItem>
+                                                                    )}
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </TableCell>

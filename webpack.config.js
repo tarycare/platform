@@ -16,6 +16,7 @@ const combinedConfig = {
         department: './src/department.tsx',
         facilities: './src/facilities.tsx',
         forms: './src/forms.tsx',
+        submissions: './src/submissions.tsx',
     },
     output: {
         path: path.resolve(__dirname, 'apps'),
@@ -94,6 +95,11 @@ const combinedConfig = {
                     to: 'documents/',
                     noErrorOnMissing: true,
                 },
+                {
+                    from: 'dev-apps/submissions',
+                    to: 'submissions/',
+                    noErrorOnMissing: true,
+                },
             ],
         }),
     ],
@@ -122,6 +128,14 @@ const combinedConfig = {
             {
                 directory: path.resolve(__dirname, 'apps/forms/dist'),
                 publicPath: '/apps/forms/dist/',
+            },
+            {
+                directory: path.resolve(__dirname, 'apps/documents/dist'),
+                publicPath: '/apps/documents/dist/',
+            },
+            {
+                directory: path.resolve(__dirname, 'apps/submissions/dist'),
+                publicPath: '/apps/submissions/dist/',
             },
         ],
         hot: true,
