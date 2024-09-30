@@ -184,6 +184,8 @@ function remove_custom_post_type_menus()
     remove_menu_page('edit.php?post_type=department'); // Removes "Departments"
     remove_menu_page('edit.php?post_type=facility');   // Removes "Facilities"
     remove_menu_page('edit.php?post_type=form');       // Removes "Forms"
+    remove_menu_page('edit.php?post_type=submission');       // Removes "Forms"
+
 }
 add_action('admin_menu', 'remove_custom_post_type_menus');
 
