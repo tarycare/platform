@@ -1,6 +1,6 @@
 <?php
 
-class WP_React_Department_Rest_Route
+class WP_React_Submissions_Rest_Route
 {
     public function __construct()
     {
@@ -303,4 +303,4 @@ class WP_React_Department_Rest_Route
 
 
 
-new WP_React_Department_Rest_Route();
+new WP_React_Submissions_Rest_Route();
