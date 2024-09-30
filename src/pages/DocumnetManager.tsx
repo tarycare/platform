@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {
     Select,
     SelectContent,
@@ -11,13 +11,29 @@ import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { FaFileImage, FaFileVideo, FaFileAlt, FaTrash } from 'react-icons/fa'
 import { MultiSelect } from '@/components/ui/multi-select'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from '@/components/ui/command'
+import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
 
 const DocumentManager = ({
     appName,
     itemId,
+    setRefreshList,
 }: {
     appName: string
     itemId: string
+    setRefreshList: (value: boolean) => void
 }) => {
     const [files, setFiles] = useState([])
     const fileInputRef = useRef(null)
@@ -34,6 +50,55 @@ const DocumentManager = ({
         { value: 'review', label: 'Review' },
         { value: 'archive', label: 'Archive' },
     ])
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch(
+                    '/wp-json/do-spaces/v1/document-categories'
+                )
+                const data = await response.json()
+                if (response.ok) {
+                    setCategories(
+                        data.map((category) => ({
+                            value: category.id,
+                            label: category.name,
+                        }))
+                    )
+                } else {
+                    console.error('Failed to fetch categories:', data.message)
+                }
+            } catch (error) {
+                console.error('Error fetching categories:', error)
+            }
+        }
+        fetchCategories()
+    }, [])
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const response = await fetch(
+                    '/wp-json/do-spaces/v1/document-tags'
+                )
+                const data = await response.json()
+                if (response.ok) {
+                    setTags(
+                        data.map((tag) => ({
+                            value: tag.id,
+                            label_en: tag.name, // Map the label field to label_en
+                            label_ar: tag.name, // Since you don't need multiple languages, use the same value for label_ar
+                        }))
+                    )
+                } else {
+                    console.error('Failed to fetch tags:', data.message)
+                }
+            } catch (error) {
+                console.error('Error fetching tags:', error)
+            }
+        }
+        fetchTags()
+    }, [])
 
     // Handle file selection through input or drag-and-drop
     const handleFiles = (selectedFiles) => {
@@ -105,6 +170,9 @@ const DocumentManager = ({
 
                 if (response.ok) {
                     console.log('Document created successfully:', result)
+                    toast.success('Document uploaded successfully!')
+                    // update the list from parent component
+                    setRefreshList(true)
                 } else {
                     console.error('Upload failed:', result.message)
                 }
@@ -153,7 +221,7 @@ const DocumentManager = ({
         <div className="container mx-auto p-4">
             {/* Clickable Drag-and-Drop Area */}
             <div
-                className="mb-4 cursor-pointer rounded-lg border-2 border-dashed border-gray-400 p-6 text-center"
+                className="mb-4 flex h-[200px] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-400 p-6 text-center"
                 onClick={() => fileInputRef.current.click()} // Trigger file input on click
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDrop}
@@ -226,48 +294,13 @@ const DocumentManager = ({
                                         getFileIcon(file.file.type)
                                     )}
                                 </td>
-                                <td className="border-b px-4 py-2">
+                                <td className="truncate border-b px-4 py-2">
                                     {file.file.name}
                                 </td>
                                 <td className="border-b px-4 py-2">
                                     {getReadableFileType(file.file.type)}
                                 </td>
                                 <td className="border-b px-4 py-2">
-                                    {/* <RadioGroup
-                                        defaultValue={file.visibility}
-                                        onValueChange={(value) =>
-                                            handleFileChange(
-                                                index,
-                                                'visibility',
-                                                value
-                                            )
-                                        }
-                                    >
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem
-                                                value="public"
-                                                id={`public-${file.id}`}
-                                            />
-                                            <label
-                                                htmlFor={`public-${file.id}`}
-                                                className="text-sm font-medium text-gray-700"
-                                            >
-                                                Public
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem
-                                                value="private"
-                                                id={`private-${file.id}`}
-                                            />
-                                            <label
-                                                htmlFor={`private-${file.id}`}
-                                                className="text-sm font-medium text-gray-700"
-                                            >
-                                                Private
-                                            </label>
-                                        </div>
-                                    </RadioGroup> */}
                                     <Select
                                         value={file.visibility}
                                         onValueChange={(value) =>
@@ -297,8 +330,8 @@ const DocumentManager = ({
                                         </SelectContent>
                                     </Select>
                                 </td>
-                                <td className="border-b px-4 py-2">
-                                    <Select
+                                <td className="w-[200px] border-b px-4 py-2">
+                                    {/* <Select
                                         value={file.category}
                                         onValueChange={(value) =>
                                             handleFileChange(
@@ -321,7 +354,77 @@ const DocumentManager = ({
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
-                                    </Select>
+                                    </Select> */}
+
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className="justify-between text-muted-foreground hover:bg-background"
+                                            >
+                                                {files[index].category.length >
+                                                0
+                                                    ? categories.find(
+                                                          (cat) =>
+                                                              cat.value ===
+                                                              files[index]
+                                                                  .category
+                                                      )?.label || placeholder
+                                                    : 'Select Category'}
+                                                <CaretSortIcon className="ms-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="p-0 text-muted-foreground">
+                                            <Command>
+                                                <CommandInput
+                                                    placeholder="Search categories"
+                                                    className="h-9"
+                                                />
+                                                <CommandList>
+                                                    <CommandEmpty>
+                                                        No items found.
+                                                    </CommandEmpty>
+                                                    <CommandGroup>
+                                                        {categories.map(
+                                                            (category) => (
+                                                                <CommandItem
+                                                                    key={
+                                                                        category.value
+                                                                    }
+                                                                    value={
+                                                                        category.value
+                                                                    }
+                                                                    onSelect={() =>
+                                                                        handleFileChange(
+                                                                            index,
+                                                                            'category',
+                                                                            category.value
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        category.label
+                                                                    }
+                                                                    <CheckIcon
+                                                                        className={`ms-auto h-4 w-4 ${
+                                                                            files[
+                                                                                index
+                                                                            ]
+                                                                                .category ===
+                                                                            category.value
+                                                                                ? 'opacity-100'
+                                                                                : 'opacity-0'
+                                                                        }`}
+                                                                    />
+                                                                </CommandItem>
+                                                            )
+                                                        )}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
                                 </td>
                                 <td className="border-b px-4 py-2">
                                     <MultiSelect

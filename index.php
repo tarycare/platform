@@ -42,6 +42,12 @@ $sub_plugins = [
         'prod_path' => 'apps/documents/plugin.php',
         'option_name' => 'tary_plugins_documents'
     ],
+    'submissions' => [
+        'label' => 'Submittions Plugin',
+        'dev_path' => 'dev-apps/submissions/plugin.php',
+        'prod_path' => 'apps/submissions/plugin.php',
+        'option_name' => 'tary_plugins_submittions'
+    ],
 ];
 
 // Add menu to manage sub-plugins
@@ -256,7 +262,6 @@ function add_logout_link_to_sidebar()
         wp_logout_url(),            // URL to logout
         '',                         // No callback function, direct URL link
         'dashicons-external',       // Dashicon for logout
-        100                         // Position in the menu
     );
 }
 add_action('admin_menu', 'add_logout_link_to_sidebar');
