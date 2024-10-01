@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Tary Platform
  * Description: A plugin to manage all the Tary's Platform.
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: Husam Nasrallah
  * Text-Domain: platform
  * GitHub Plugin URI: tarycare/platform
