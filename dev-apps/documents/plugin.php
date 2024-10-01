@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-require 'vendor/autoload.php'; // Include AWS SDK if using Composer
+require __DIR__ . '/../lib/vendor/autoload.php';
 
 use Aws\S3\S3Client;
 

@@ -105,6 +105,9 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                 return <CalendarClockIcon size={16} />
             case 'upload_image':
                 return <Image size={16} />
+
+            case 'file':
+                return <FileDigit size={16} />
             default:
                 return null
         }
@@ -200,6 +203,7 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                                     <option value="upload_image">
                                         Upload Image
                                     </option>
+                                    <option value="file">File</option>
                                 </select>
                             </label>
                             <label className="col-span-6">

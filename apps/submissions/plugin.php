@@ -12,7 +12,11 @@
  */
 
 if (!defined('ABSPATH')) : exit();
+
+
 endif; // No direct access allowed.
+
+
 
 // Configuration Variables
 $config = [

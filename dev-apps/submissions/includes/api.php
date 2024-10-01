@@ -1,7 +1,60 @@
 <?php
 
+
+require __DIR__ . '/../../lib/vendor/autoload.php';
+
+use Aws\S3\S3Client;
+
 class WP_React_Submissions_Rest_Route
 {
+
+
+
+
+    // Function to upload files to DO Spaces
+    public function upload_file_to_do_spaces($file, $visibility)
+    {
+
+        $s3 = new S3Client([
+            'version' => 'latest',
+            'region' => DO_SPACES_REGION,
+            'endpoint' => 'https://sgp1.digitaloceanspaces.com',
+            'credentials' => [
+                'key' => DO_SPACES_KEY,
+                'secret' => DO_SPACES_SECRET,
+            ],
+        ]);
+
+        $file_path = $file['tmp_name'];
+        $file_name = basename($file['name']);
+        // $acl = ($visibility === 'public') ? 'public-read' : 'private';
+        $acl =  'private';
+
+        try {
+            // site id 
+            $site_id = get_current_blog_id();
+            $result = $s3->putObject([
+                'Bucket' => DO_SPACES_BUCKET,
+                'Key' => 'uploads/' . $site_id . '/forms/' . $file_name, //todo: add post id
+                'SourceFile' => $file_path,
+                'ACL' => $acl,
+            ]);
+
+            return [
+                'success' => true,
+                'url' => $result['ObjectURL'],
+                'result' => $result,
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+
+
     public function __construct()
     {
         add_action('init', [$this, 'register_submission_post_type']); // Register custom post type
@@ -131,6 +184,28 @@ class WP_React_Submissions_Rest_Route
         $title = sanitize_text_field($parameters['title']) ? sanitize_text_field($parameters['title']) : date('Y-m-d H:i:s');
         $content = sanitize_textarea_field($parameters['content']);
 
+        // add by current user
+        $parameters['user_id'] = get_current_user_id();
+
+
+        // Loop through all files in the $_FILES array
+        foreach ($_FILES as $key => $file) {
+            if ($file['error'] === UPLOAD_ERR_OK) {
+                // Upload each file to DO Spaces
+                $upload = $this->upload_file_to_do_spaces($file, 'private');
+
+                if ($upload['success']) {
+                    // Store the uploaded file URL in the parameters array
+                    $parameters[$key] = $upload['url'];
+                } else {
+                    return new WP_Error('file_upload_failed', $upload['message'], array('status' => 500));
+                }
+            }
+        }
+
+
+
+
         if (empty($title)) {
             return new WP_Error('missing_fields', 'Missing title', array('status' => 400));
         }
@@ -256,6 +331,31 @@ class WP_React_Submissions_Rest_Route
                 'post_title' => $title,
                 'post_content' => $content
             ]);
+        }
+
+        // loop through all params that equal to removed
+
+        foreach ($parameters as $key => $value) {
+            if ($value === 'removed___file__meta') {
+                delete_post_meta($id, $key);
+                // delete param from parameters
+                unset($parameters[$key]);
+            }
+        }
+
+        // loop through all files in the $_FILES array
+        foreach ($_FILES as $key => $file) {
+            if ($file['error'] === UPLOAD_ERR_OK) {
+                // Upload each file to DO Spaces
+                $upload = $this->upload_file_to_do_spaces($file, 'private');
+
+                if ($upload['success']) {
+                    // Store the uploaded file URL in the parameters array
+                    $parameters[$key] = $upload['url'];
+                } else {
+                    return new WP_Error('file_upload_failed', $upload['message'], array('status' => 500));
+                }
+            }
         }
 
         // Update meta fields (replace old ones with new ones)

@@ -100,6 +100,11 @@ const combinedConfig = {
                     to: 'submissions/',
                     noErrorOnMissing: true,
                 },
+                {
+                    from: 'dev-apps/lib',
+                    to: 'lib/',
+                    noErrorOnMissing: true,
+                },
             ],
         }),
     ],

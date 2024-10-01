@@ -223,8 +223,7 @@ export default function SubmmisionsList() {
                       Export
                     </span>
                   </Button> */}
-                                    <Link to={`/${id}/add-submission/`}>
-                                        {' '}
+                                    <Link to={`/${id}/add/`}>
                                         <Button size="sm" className="h-7 gap-1">
                                             <PlusCircle className="h-3.5 w-3.5" />
                                             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -372,20 +371,6 @@ export default function SubmmisionsList() {
                                                                         >
                                                                             Delete
                                                                         </DropdownMenuItem>
-
-                                                                        {/* submission submission list */}
-                                                                        {!submission.is_app_form && (
-                                                                            <DropdownMenuItem
-                                                                                className="cursor-pointer"
-                                                                                onClick={() => {
-                                                                                    navigate(
-                                                                                        `/submissions/${submission.id}`
-                                                                                    )
-                                                                                }}
-                                                                            >
-                                                                                Submissions
-                                                                            </DropdownMenuItem>
-                                                                        )}
                                                                     </DropdownMenuContent>
                                                                 </DropdownMenu>
                                                             </TableCell>

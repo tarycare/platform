@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -32,7 +32,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover'
 import { useNavigate, useParams } from 'react-router-dom'
-import { IconSend, IconSend2, IconX } from '@tabler/icons-react'
+import { IconFile, IconSend, IconSend2, IconX } from '@tabler/icons-react'
 
 // Function to apply custom validation based on field configuration
 const applyValidation = (field: any, value: any, language: string) => {
@@ -116,6 +116,9 @@ const FormViewer: FC<FormViewerProps> = ({
     const [optionsState, setOptionsState] = useState<{ [key: string]: any[] }>(
         {}
     )
+
+    // Create a ref for the file input
+    const fileInputRef = useRef(null)
 
     useEffect(() => {
         if (isUpdating) {
@@ -277,10 +280,20 @@ const FormViewer: FC<FormViewerProps> = ({
         setIsImageRemoved(false) // Ensure we don't remove it if uploading a new image
     }
 
-    const handleRemoveImage = (fieldName) => {
-        setFormState((prevState) => ({ ...prevState, [fieldName]: null }))
-        setIsImageRemoved(true) // Mark the image as removed
-        setIsImageChanged(false) // Not changing the image, just removing it
+    const handleRemoveFile = (fieldName) => {
+        setFormState((prevState) => {
+            const newState = { ...prevState }
+            delete newState[fieldName]
+            newState[fieldName] = 'removed___file__meta' // Mark the image for removal
+            return newState
+        })
+        setIsImageRemoved(true)
+        setIsImageChanged(false)
+
+        // Reset the file input value
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null
+        }
     }
 
     const onSubmit = (event) => {
@@ -601,9 +614,7 @@ const FormViewer: FC<FormViewerProps> = ({
                                 />
                                 <Button
                                     type="button"
-                                    onClick={() =>
-                                        handleRemoveImage(field.name)
-                                    }
+                                    onClick={() => handleRemoveFile(field.name)}
                                     variant={'destructive'}
                                     size={'icon'}
                                     className="absolute end-0 top-0 size-6 rounded-full border-2"
@@ -619,6 +630,60 @@ const FormViewer: FC<FormViewerProps> = ({
                             onChange={(e) =>
                                 handleFileUpload(field.name, e.target.files[0])
                             }
+                            ref={fileInputRef} // Attach the ref to the input
+                        />
+                    </div>
+                )
+            case 'file':
+                return (
+                    <div>
+                        {/* Show existing image from server or the selected new image */}
+                        {formState[field.name] &&
+                            formState[field.name] !==
+                                'removed___file__meta' && (
+                                <div className="relative mb-2 flex size-24 items-center gap-5">
+                                    {formState[field.name] &&
+                                    formState[field.name].name &&
+                                    formState[field.name].name.match(
+                                        /\.(jpg|jpeg|png)$/
+                                    ) ? (
+                                        <img
+                                            src={
+                                                typeof formState[field.name] ===
+                                                'string'
+                                                    ? formState[field.name] // Existing image URL
+                                                    : URL.createObjectURL(
+                                                          formState[field.name]
+                                                      ) // New image file
+                                            }
+                                            alt="file"
+                                            className="h-24 w-24 rounded-sm object-cover"
+                                        />
+                                    ) : (
+                                        <IconFile className="h-20 w-20 rounded-sm object-cover" />
+                                    )}
+                                    <Button
+                                        type="button"
+                                        onClick={() =>
+                                            handleRemoveFile(field.name)
+                                        }
+                                        variant={'destructive'}
+                                        size={'icon'}
+                                        className="absolute end-0 top-0 size-6 rounded-full border-2"
+                                    >
+                                        <IconX className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )}
+
+                        {/* Input field to upload a file no svg and xml */}
+                        <input
+                            type="file"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
+                            onChange={(e) =>
+                                handleFileUpload(field.name, e.target.files[0])
+                            }
+                            ref={fileInputRef} // Attach the ref to the input
                         />
                     </div>
                 )
@@ -739,11 +804,11 @@ const FormViewer: FC<FormViewerProps> = ({
                     ) : language === 'ar' ? (
                         <div className="flex items-center gap-2">
                             <IconSend className="h-4 w-4" />
-                            إرسال
+                            {isUpdating ? 'حفظ' : 'إرسال'}
                         </div>
                     ) : (
                         <div className="flex items-center gap-2">
-                            Submit
+                            {isUpdating ? 'save' : 'submit'}
                             <IconSend className="h-4 w-4" />
                         </div>
                     )}
