@@ -19,7 +19,6 @@ function StaffDetails() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [refreshList, setRefreshList] = useState(false)
-
     const [showUpload, setShowUpload] = useState(false)
 
     useEffect(() => {
@@ -40,6 +39,10 @@ function StaffDetails() {
 
         fetchStaffDetails()
     }, [id])
+
+    const handleCloseUpload = () => {
+        setShowUpload(false)
+    }
 
     if (loading) {
         return <p>Loading staff details...</p>
@@ -95,7 +98,9 @@ function StaffDetails() {
                 <DocumnetManager
                     appName="staff"
                     itemId={id}
-                    setRefreshList={console.log('refresh')}
+                    setRefreshList={setRefreshList}
+                    refreshList={refreshList}
+                    onClose={handleCloseUpload} // Pass the close handler
                 />
             )}
             <DocumentList

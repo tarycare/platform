@@ -30,26 +30,23 @@ const DocumentManager = ({
     appName,
     itemId,
     setRefreshList,
+    refreshList,
+    onClose, // Receive the onClose prop
 }: {
     appName: string
     itemId: string
     setRefreshList: (value: boolean) => void
+    refreshList: boolean
+    onClose: () => void
 }) => {
     const [files, setFiles] = useState([])
     const fileInputRef = useRef(null)
 
     // State for categories and tags
-    const [categories, setCategories] = useState([
-        { value: 'finance', label: 'Finance' },
-        { value: 'legal', label: 'Legal' },
-        { value: 'marketing', label: 'Marketing' },
-    ])
+    const [categories, setCategories] = useState([])
 
-    const [tags, setTags] = useState([
-        { value: 'urgent', label: 'Urgent' },
-        { value: 'review', label: 'Review' },
-        { value: 'archive', label: 'Archive' },
-    ])
+    const [tags, setTags] = useState([])
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -138,6 +135,7 @@ const DocumentManager = ({
 
     // Handle file upload via API request
     const handleSubmit = async () => {
+        setIsSubmitting(true)
         for (let file of files) {
             const formData = new FormData()
             formData.append('file', file.file)
@@ -170,14 +168,17 @@ const DocumentManager = ({
 
                 if (response.ok) {
                     console.log('Document created successfully:', result)
-                    toast.success('Document uploaded successfully!')
-                    // update the list from parent component
-                    setRefreshList(true)
+                    // toast.success('Document uploaded successfully!')
+                    setRefreshList((prev) => !prev)
+
+                    onClose() // Close the form after success
                 } else {
                     console.error('Upload failed:', result.message)
                 }
             } catch (error) {
                 console.error('Error during upload:', error)
+            } finally {
+                setIsSubmitting(false)
             }
         }
     }
@@ -495,8 +496,12 @@ const DocumentManager = ({
                 </table>
             )}
 
-            <Button className="mt-4" onClick={handleSubmit}>
-                Submit
+            <Button
+                className="mt-4"
+                onClick={handleSubmit}
+                disabled={files.length === 0 || isSubmitting}
+            >
+                {isSubmitting ? 'Uploading...' : 'Submit'}
             </Button>
         </div>
     )
