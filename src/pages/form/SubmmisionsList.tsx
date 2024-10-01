@@ -68,38 +68,41 @@ export const description =
     'An Submission dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of Submission in a table with actions.'
 
 export default function SubmmisionsList() {
-    const isDev = process.env.NODE_ENV === 'development'
-
-    const WP_API_URL = isDev
-        ? `http://mytest.local/wp-json/submission/v1/all`
-        : `/wp-json/submission/v1/all`
-    const DELETE_API_URL = isDev
-        ? `http://mytest.local/wp-json/submission/v1/delete`
-        : `/wp-json/submission/v1/delete`
-
-    const [forms, setDepartments] = useState([])
+    const [submissions, setSubmissions] = useState([])
     const [refresh, setRefresh] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const navigate = useNavigate()
     const { id } = useParams()
+    console.log(useParams(), 'useParams()')
+
+    const isDev = process.env.NODE_ENV === 'development'
+
+    const WP_API_URL = isDev
+        ? `http://mytest.local/wp-json/submission/v1/all/${id}`
+        : `/wp-json/submission/v1/all/${id}`
+    const DELETE_API_URL = isDev
+        ? `http://mytest.local/wp-json/submission/v1/delete`
+        : `/wp-json/submission/v1/delete`
 
     useEffect(() => {
-        const fetchDepartments = async () => {
+        const fetchSubmissions = async () => {
             try {
                 const response = await fetch(WP_API_URL)
                 if (!response.ok) {
-                    throw new Error('Error fetching users')
+                    throw new Error('Error fetching submissions')
                 }
                 const data = await response.json()
-                setDepartments(data)
-            } catch (error: any) {
+                console.log(data, 'submissons') // Log the data to see its structure
+
+                setSubmissions([...data])
+            } catch (error) {
                 setError(error)
             } finally {
                 setLoading(false)
             }
         }
-        fetchDepartments()
+        fetchSubmissions()
     }, [refresh])
 
     return (
@@ -261,7 +264,7 @@ export default function SubmmisionsList() {
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {forms.map(
+                                                {submissions.map(
                                                     (submission: any, i) => (
                                                         <TableRow key={i}>
                                                             <TableCell>
@@ -383,8 +386,13 @@ export default function SubmmisionsList() {
                                     <CardFooter>
                                         <div className="text-xs text-muted-foreground">
                                             Showing{' '}
-                                            <strong>{forms.length}</strong> of{' '}
-                                            <strong>{forms.length}</strong>{' '}
+                                            <strong>
+                                                {submissions.length}
+                                            </strong>{' '}
+                                            of{' '}
+                                            <strong>
+                                                {submissions.length}
+                                            </strong>{' '}
                                             Submission
                                         </div>
                                     </CardFooter>

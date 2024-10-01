@@ -1,20 +1,26 @@
 <?php
 
-
 require __DIR__ . '/../../lib/vendor/autoload.php';
 
 use Aws\S3\S3Client;
 
 class WP_React_Submissions_Rest_Route
 {
+    public function __construct()
+    {
+        add_action('init', [$this, 'register_submission_post_type']);
+        add_action('rest_api_init', [$this, 'create_rest_routes']);
 
+        if (defined('WP_ENV') && WP_ENV === 'development') {
+            add_action('rest_api_init', [$this, 'add_cors_headers']);
+        }
 
-
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+    }
 
     // Function to upload files to DO Spaces
     public function upload_file_to_do_spaces($file, $visibility)
     {
-
         $s3 = new S3Client([
             'version' => 'latest',
             'region' => DO_SPACES_REGION,
@@ -27,15 +33,13 @@ class WP_React_Submissions_Rest_Route
 
         $file_path = $file['tmp_name'];
         $file_name = basename($file['name']);
-        // $acl = ($visibility === 'public') ? 'public-read' : 'private';
-        $acl =  'private';
+        $acl = 'private';
 
         try {
-            // site id 
             $site_id = get_current_blog_id();
             $result = $s3->putObject([
                 'Bucket' => DO_SPACES_BUCKET,
-                'Key' => 'uploads/' . $site_id . '/forms/' . $file_name, //todo: add post id
+                'Key' => 'uploads/' . $site_id . '/forms/' . $file_name,
                 'SourceFile' => $file_path,
                 'ACL' => $acl,
             ]);
@@ -53,24 +57,10 @@ class WP_React_Submissions_Rest_Route
         }
     }
 
-
-
-    public function __construct()
-    {
-        add_action('init', [$this, 'register_submission_post_type']); // Register custom post type
-        add_action('rest_api_init', [$this, 'create_rest_routes']); // Create REST routes
-
-        if (defined('WP_ENV') && WP_ENV === 'development') {
-            add_action('rest_api_init', [$this, 'add_cors_headers']); // Add CORS headers in dev
-        }
-
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']); // Enqueue scripts
-    }
-
     // Function to register the Submission custom post type
     public function register_submission_post_type()
     {
-        $labels = array(
+        $labels = [
             'name'               => 'Submissions',
             'singular_name'      => 'Submission',
             'menu_name'          => 'Submissions',
@@ -83,17 +73,17 @@ class WP_React_Submissions_Rest_Route
             'search_items'       => 'Search Submissions',
             'not_found'          => 'No submissions found',
             'not_found_in_trash' => 'No submissions found in trash'
-        );
+        ];
 
-        $args = array(
+        $args = [
             'labels'              => $labels,
             'public'              => true,
             'has_archive'         => true,
-            'rewrite'             => array('slug' => 'submissions'),
-            'supports'            => array('title', 'editor', 'thumbnail'),
-            'show_in_rest'        => true, // Enable REST API support
+            'rewrite'             => ['slug' => 'submissions'],
+            'supports'            => ['title', 'editor', 'thumbnail'],
+            'show_in_rest'        => true,
             'rest_base'           => 'submissions',
-        );
+        ];
 
         register_post_type('submission', $args);
     }
@@ -117,15 +107,15 @@ class WP_React_Submissions_Rest_Route
         wp_enqueue_script(
             'my-submission-script',
             get_template_directory_uri() . '/dist/submission.js',
-            array('jquery'),
+            ['jquery'],
             null,
             true
         );
 
-        wp_localize_script('my-submission-script', 'myApiSettings', array(
+        wp_localize_script('my-submission-script', 'myApiSettings', [
             'root' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest')
-        ));
+        ]);
     }
 
     // Create REST routes for CRUD operations on Submission
@@ -139,13 +129,12 @@ class WP_React_Submissions_Rest_Route
             }
         ]);
 
-        register_rest_route('submission/v1', '/all', [
+        register_rest_route('submission/v1', '/all/(?P<id>\d+)', [
             'methods' => 'GET',
-            'callback' => [$this, 'get_all_submissions'],
+            'callback' => [$this, 'get_all_submissions_by_id'],
             'permission_callback' => '__return_true'
         ]);
 
-        // Add a dynamic route to for sletect all
         register_rest_route('submission/v1', '/select', [
             'methods' => 'GET',
             'callback' => [$this, 'get_select_submissions'],
@@ -179,35 +168,24 @@ class WP_React_Submissions_Rest_Route
     public function add_submission($request)
     {
         $parameters = $request->get_params();
-        // if not title set date as title
-
-        $title = sanitize_text_field($parameters['title']) ? sanitize_text_field($parameters['title']) : date('Y-m-d H:i:s');
+        $title = sanitize_text_field($parameters['title']) ?: date('Y-m-d H:i:s');
         $content = sanitize_textarea_field($parameters['content']);
-
-        // add by current user
         $parameters['user_id'] = get_current_user_id();
 
-
-        // Loop through all files in the $_FILES array
         foreach ($_FILES as $key => $file) {
             if ($file['error'] === UPLOAD_ERR_OK) {
-                // Upload each file to DO Spaces
                 $upload = $this->upload_file_to_do_spaces($file, 'private');
 
                 if ($upload['success']) {
-                    // Store the uploaded file URL in the parameters array
                     $parameters[$key] = $upload['url'];
                 } else {
-                    return new WP_Error('file_upload_failed', $upload['message'], array('status' => 500));
+                    return new WP_Error('file_upload_failed', $upload['message'], ['status' => 500]);
                 }
             }
         }
 
-
-
-
         if (empty($title)) {
-            return new WP_Error('missing_fields', 'Missing title', array('status' => 400));
+            return new WP_Error('missing_fields', 'Missing title', ['status' => 400]);
         }
 
         $post_id = wp_insert_post([
@@ -217,17 +195,14 @@ class WP_React_Submissions_Rest_Route
             'post_type'    => 'submission'
         ]);
 
-        // insert post meta
+        if (is_wp_error($post_id)) {
+            return new WP_Error('submission_creation_failed', $post_id->get_error_message(), ['status' => 500]);
+        }
+
         foreach ($parameters as $key => $value) {
             $meta_key = sanitize_key($key);
             $meta_value = is_array($value) ? $value : maybe_serialize($value);
-
             update_post_meta($post_id, $meta_key, $meta_value);
-        }
-
-
-        if (is_wp_error($post_id)) {
-            return new WP_Error('submission_creation_failed', $post_id->get_error_message(), array('status' => 500));
         }
 
         return rest_ensure_response([
@@ -239,17 +214,35 @@ class WP_React_Submissions_Rest_Route
     }
 
     // Function to get all submissions
-    public function get_all_submissions()
+    public function get_all_submissions_by_id($request)
     {
+        // Get the ID from the request
+        $id = (int) $request['id'];
+
+        // Set up the query arguments to filter by the specific form_id
         $args = [
             'post_type'   => 'submission',
             'post_status' => 'publish',
-            'numberposts' => -1
+            'meta_query'  => [
+                [
+                    'key'   => 'form_id',
+                    'value' => $id,
+                    'compare' => '='
+                ]
+            ],
+            'numberposts' => -1 // Ensure all matching posts are retrieved
         ];
 
+        // Fetch the posts
         $submissions = get_posts($args);
-        $data = [];
 
+        // Check if any submissions exist
+        if (empty($submissions)) {
+            return new WP_Error('submission_not_found', 'No submissions found for the given form ID', ['status' => 404]);
+        }
+
+        // Prepare the response data
+        $data = [];
         foreach ($submissions as $submission) {
             $data[] = [
                 'id'      => $submission->ID,
@@ -277,13 +270,11 @@ class WP_React_Submissions_Rest_Route
                 'value' => (string) $submission->ID,
                 'label_en' => $submission->post_title,
                 'label_ar' => $submission->post_title,
-
             ];
         }
 
         return rest_ensure_response($data);
     }
-
 
     // Function to get a submission by ID
     public function get_submission_by_id($request)
@@ -292,7 +283,7 @@ class WP_React_Submissions_Rest_Route
         $submission = get_post($id);
 
         if (!$submission || $submission->post_type !== 'submission') {
-            return new WP_Error('submission_not_found', 'Submission not found', array('status' => 404));
+            return new WP_Error('submission_not_found', 'Submission not found', ['status' => 404]);
         }
 
         $post_data = [
@@ -300,10 +291,9 @@ class WP_React_Submissions_Rest_Route
             'title'   => $submission->post_title,
             'content' => $submission->post_content,
         ];
-        // Append custom fields to the post data
+
         $post_meta = get_post_meta($id);
         foreach ($post_meta as $key => $value) {
-            // Only unserialize if the data is serialized
             $post_data[$key] = maybe_unserialize($value[0]);
         }
 
@@ -317,14 +307,13 @@ class WP_React_Submissions_Rest_Route
         $submission = get_post($id);
 
         if (!$submission || $submission->post_type !== 'submission') {
-            return new WP_Error('submission_not_found', 'Submission not found', array('status' => 404));
+            return new WP_Error('submission_not_found', 'Submission not found', ['status' => 404]);
         }
 
         $parameters = $request->get_params();
         $title = sanitize_text_field($parameters['title']);
         $content = sanitize_textarea_field($parameters['content']);
 
-        // Update post title and content
         if (!empty($title)) {
             wp_update_post([
                 'ID'         => $id,
@@ -333,37 +322,28 @@ class WP_React_Submissions_Rest_Route
             ]);
         }
 
-        // loop through all params that equal to removed
-
         foreach ($parameters as $key => $value) {
             if ($value === 'removed___file__meta') {
                 delete_post_meta($id, $key);
-                // delete param from parameters
                 unset($parameters[$key]);
             }
         }
 
-        // loop through all files in the $_FILES array
         foreach ($_FILES as $key => $file) {
             if ($file['error'] === UPLOAD_ERR_OK) {
-                // Upload each file to DO Spaces
                 $upload = $this->upload_file_to_do_spaces($file, 'private');
 
                 if ($upload['success']) {
-                    // Store the uploaded file URL in the parameters array
                     $parameters[$key] = $upload['url'];
                 } else {
-                    return new WP_Error('file_upload_failed', $upload['message'], array('status' => 500));
+                    return new WP_Error('file_upload_failed', $upload['message'], ['status' => 500]);
                 }
             }
         }
 
-        // Update meta fields (replace old ones with new ones)
         foreach ($parameters as $key => $value) {
             $meta_key = sanitize_key($key);
-            // dont serialize if the value is an array
             $meta_value = is_array($value) ? $value : maybe_serialize($value);
-
             update_post_meta($id, $meta_key, $meta_value);
         }
 
@@ -382,16 +362,14 @@ class WP_React_Submissions_Rest_Route
         $submission = get_post($id);
 
         if (!$submission || $submission->post_type !== 'submission') {
-            return new WP_Error('submission_not_found', 'Submission not found', array('status' => 404));
+            return new WP_Error('submission_not_found', 'Submission not found', ['status' => 404]);
         }
 
-        // Delete all meta keys related to the submission
         $meta_keys = get_post_meta($id);
         foreach ($meta_keys as $key => $value) {
             delete_post_meta($id, $key);
         }
 
-        // Delete the post
         wp_delete_post($id, true);
 
         return rest_ensure_response([
@@ -400,8 +378,5 @@ class WP_React_Submissions_Rest_Route
         ]);
     }
 }
-
-
-
 
 new WP_React_Submissions_Rest_Route();

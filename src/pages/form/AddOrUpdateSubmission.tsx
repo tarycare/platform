@@ -105,6 +105,8 @@ function CRUD_Submission() {
             setIsSubmitting(true)
             const nonce = window?.appLocalizer?.nonce || ''
             const isFormDataInstance = formData instanceof FormData
+            // append formId to formData
+            formData.append('form_id', formid)
 
             const response = await fetch(submitUrl, {
                 method: 'POST',
