@@ -42,7 +42,7 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
     const addField = () => {
         const newField: Field = {
             id: uuid(),
-            name: '',
+            name: `field-name-${uuid().slice(0, 8)}`,
             label_en: '',
             label_ar: '',
             type: 'text',

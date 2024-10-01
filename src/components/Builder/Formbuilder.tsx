@@ -154,8 +154,8 @@ const FormBuilder: React.FC = () => {
             const payload = {
                 title: formConfig.title,
                 sections: formConfig.sections,
-                is_app_form: 0,
             }
+            !isUpdating && (payload.is_app_form = 0)
 
             const response = await fetch(url, {
                 method,
