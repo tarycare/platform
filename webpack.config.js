@@ -15,6 +15,8 @@ const combinedConfig = {
         staff: './src/staff.tsx',
         department: './src/department.tsx',
         facilities: './src/facilities.tsx',
+        equipment: './src/equipment.tsx',
+        material: './src/material.tsx',
         forms: './src/forms.tsx',
         submissions: './src/submissions.tsx',
     },
@@ -85,6 +87,18 @@ const combinedConfig = {
                     to: 'facilities/',
                     noErrorOnMissing: true,
                 },
+                // equipment
+                {
+                    from: 'dev-apps/equipment',
+                    to: 'equipment/',
+                    noErrorOnMissing: true,
+                },
+                // matierial
+                {
+                    from: 'dev-apps/material',
+                    to: 'material/',
+                    noErrorOnMissing: true,
+                },
                 {
                     from: 'dev-apps/forms',
                     to: 'forms/',
@@ -131,6 +145,14 @@ const combinedConfig = {
                 publicPath: '/apps/facilities/dist/',
             },
             {
+                directory: path.resolve(__dirname, 'apps/equipment/dist'),
+                publicPath: '/apps/equipment/dist/',
+            },
+            {
+                directory: path.resolve(__dirname, 'apps/material/dist'),
+                publicPath: '/apps/material/dist/',
+            },
+            {
                 directory: path.resolve(__dirname, 'apps/forms/dist'),
                 publicPath: '/apps/forms/dist/',
             },
@@ -141,6 +163,10 @@ const combinedConfig = {
             {
                 directory: path.resolve(__dirname, 'apps/submissions/dist'),
                 publicPath: '/apps/submissions/dist/',
+            },
+            {
+                directory: path.resolve(__dirname, 'apps/lib'),
+                publicPath: '/apps/lib/',
             },
         ],
         hot: true,

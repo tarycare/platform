@@ -1,41 +1,37 @@
 <?php
 
 /**
- * Plugin Name: Submissions 
+ * Plugin Name: Equipments 
  * Author: Husam Nasrallah
  * Author URI: https://github.com/tarycare
  * Version: 1.3.0
- * Description: Manage Submission Members
- * Text-Domain: submissions
- * GitHub Plugin URI: tarycare/submissions
- * GitHub Plugin URI: https://github.com/tarycare/submissions
+ * Description: Manage Equipment Members
+ * Text-Domain: equipments
+ * GitHub Plugin URI: tarycare/equipments
+ * GitHub Plugin URI: https://github.com/tarycare/equipments
  */
 
 if (!defined('ABSPATH')) : exit();
-
-
 endif; // No direct access allowed.
-
-
 
 // Configuration Variables
 $config = [
-    'plugin_name'          => 'Submissions',               // Plugin Name
-    'plugin_slug'          => 'submissions',               // Plugin Slug
-    'menu_title_en'        => 'Submissions',               // English Menu Title
-    'menu_title_ar'        => 'الأقسام',                   // Arabic Menu Title
+    'plugin_name'          => 'Equipments',               // Plugin Name
+    'plugin_slug'          => 'equipments',               // Plugin Slug
+    'menu_title_en'        => 'Equipments',               // English Menu Title
+    'menu_title_ar'        => 'المعدات',                   // Arabic Menu Title
     'capability'           => 'read',                      // Capability Required
-    'icon'                 => 'dashicons-building',        // Menu Icon
-    'position'             => 4,                           // Menu Position
-    'app_script_handle'    => 'submission-react-app',      // Script Handle
-    'app_script_dev'       => 'http://localhost:3000/apps/submissions/dist/submissions.js',  // Dev Script URL
+    'icon'                 => 'dashicons-admin-plugins',        // Menu Icon
+    'position'             => 5,                           // Menu Position
+    'app_script_handle'    => 'equipment-react-app',      // Script Handle
+    'app_script_dev'       => 'http://localhost:3000/apps/equipment/dist/equipment.js',  // Dev Script URL
     'app_style_dev'        => 'http://localhost:3000/apps/assets/style.css',              // Dev Style URL
-    'app_script_prod'      => 'dist/submissions.js',        // Prod Script Path
+    'app_script_prod'      => 'dist/equipment.js',        // Prod Script Path
     'app_style_prod'       => '../assets/style.css',       // Prod Style Path
-    'dynamic_id'           => 'submissions',   // Dynamic ID for React App Container
-    'path_constant'        => 'PATH_Submissions',                    // Dynamic Path Constant
-    'url_constant'         => 'URL_Submissions',                     // Dynamic URL Constant
-    'class_name'           => 'Submissions_Admin_Page',     // Dynamic Class Name
+    'dynamic_id'           => 'equipment',   // Dynamic ID for React App Container
+    'path_constant'        => 'PATH_equipment',                    // Dynamic Path Constant
+    'url_constant'         => 'URL_equipment',                     // Dynamic URL Constant
+    'class_name'           => 'equipment_Admin_Page',     // Dynamic Class Name
 ];
 
 /**
@@ -52,7 +48,7 @@ if (!defined($config['url_constant'])) {
  * Class for Creating Admin Pages
  */
 if (!class_exists($config['class_name'])) {
-    class Submissions_Admin_Page
+    class equipment_Admin_Page
     {
         private $config;
 
@@ -86,16 +82,16 @@ if (!class_exists($config['class_name'])) {
 
             // Check if $user_meta is an array before accessing it
             $access = '';
-            if (is_array($user_meta) && isset($user_meta['department_access'][0])) {
-                $access = $user_meta['department_access'][0]; // Get the first value of the array
+            if (is_array($user_meta) && isset($user_meta['equipment_access'][0])) {
+                $access = $user_meta['equipment_access'][0]; // Get the first value of the array
             }
 
             // Add the appropriate admin menus based on user role
-            // if ($is_admin || $access === 'admin') {
-            //     add_action('admin_menu', [$this, 'create_admin_menu']);
-            // } elseif ($access === 'member') {
-            //     add_action('admin_menu', [$this, 'create_member_menu']);
-            // }
+            if ($is_admin || $access === 'admin') {
+                add_action('admin_menu', [$this, 'create_admin_menu']);
+            } elseif ($access === 'member') {
+                add_action('admin_menu', [$this, 'create_member_menu']);
+            }
         }
 
         public function create_admin_menu()

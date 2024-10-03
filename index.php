@@ -30,6 +30,18 @@ $sub_plugins = [
         'prod_path' => 'apps/facilities/plugin.php',
         'option_name' => 'tary_plugins_facilities'
     ],
+    'equipment' => [
+        'label' => 'Equipment Plugin',
+        'dev_path' => 'dev-apps/equipment/plugin.php',
+        'prod_path' => 'apps/equipment/plugin.php',
+        'option_name' => 'tary_plugins_equipment'
+    ],
+    'material' => [
+        'label' => 'Material Plugin',
+        'dev_path' => 'dev-apps/material/plugin.php',
+        'prod_path' => 'apps/material/plugin.php',
+        'option_name' => 'tary_plugins_material'
+    ],
     'forms' => [
         'label' => 'Forms Plugin',
         'dev_path' => 'dev-apps/forms/plugin.php',
@@ -179,12 +191,18 @@ function remove_custom_post_type_menus()
     remove_menu_page('upload.php'); // Removes "Media"
     remove_menu_page('edit-comments.php'); // Removes "Comments"
     remove_menu_page('themes.php'); // Removes "Appearance"
+    // remvoe dashboard
+    remove_menu_page('index.php'); // Removes "Dashboard"
 
     // Custom post types
     remove_menu_page('edit.php?post_type=department'); // Removes "Departments"
     remove_menu_page('edit.php?post_type=facility');   // Removes "Facilities"
     remove_menu_page('edit.php?post_type=form');       // Removes "Forms"
     remove_menu_page('edit.php?post_type=submission');       // Removes "Forms"
+    remove_menu_page('edit.php?post_type=equipment');       // Removes "Forms"
+    remove_menu_page('edit.php?post_type=material');       // Removes "Forms"
+    remove_menu_page('edit.php?post_type=document');       // Removes "Documents"
+    remove_menu_page('edit.php?post_type=comment');       // Removes "Comments"
 
 }
 add_action('admin_menu', 'remove_custom_post_type_menus');
@@ -204,6 +222,9 @@ function remove_custom_meta_boxes()
     remove_meta_box('facilitydiv', 'facility', 'side');     // Remove "Facilities" meta boxes
     remove_meta_box('formdiv', 'form', 'side');             // Remove "Forms" meta boxes
     remove_meta_box('documentdiv', 'document', 'side');     // Remove "Documents" meta boxes
+    remove_meta_box('submissiondiv', 'submission', 'side');     // Remove "Documents" meta boxes
+    remove_meta_box('equipmentdiv', 'equipment', 'side');     // Remove "Documents" meta boxes
+    remove_meta_box('materialdiv', 'material', 'side');     // Remove "Documents" meta boxes
 }
 add_action('admin_menu', 'remove_custom_meta_boxes');
 
@@ -220,6 +241,11 @@ function remove_custom_post_type_admin_bar_links($wp_admin_bar)
     $wp_admin_bar->remove_node('new-department'); // Removes "New Department"
     $wp_admin_bar->remove_node('new-facility');   // Removes "New Facility"
     $wp_admin_bar->remove_node('new-form');       // Removes "New Form"
+    $wp_admin_bar->remove_node('new-submission');       // Removes "New Form"
+    $wp_admin_bar->remove_node('new-equipment');       // Removes "New Form"
+    $wp_admin_bar->remove_node('new-material');       // Removes "New Form"
+
+
 }
 add_action('admin_bar_menu', 'remove_custom_post_type_admin_bar_links', 999);
 
@@ -232,7 +258,7 @@ function redirect_custom_post_type_pages()
         $post_type = $_GET['post_type'];
 
         // Redirect for default and custom post types
-        if (in_array($post_type, ['post', 'page', 'document', 'department', 'facility', 'form', 'media', 'comment'])) {
+        if (in_array($post_type, ['post', 'page', 'document', 'department', 'facility', 'form', 'media', 'comment', 'appearance', 'submission', 'equipment', 'material'])) {
             wp_redirect(admin_url());
             exit;
         }

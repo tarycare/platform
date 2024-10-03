@@ -91,11 +91,11 @@ if (!class_exists($config['class_name'])) {
             }
 
             // Add the appropriate admin menus based on user role
-            if ($is_admin || $access === 'admin') {
-                add_action('admin_menu', [$this, 'create_admin_menu']);
-            } elseif ($access === 'member') {
-                add_action('admin_menu', [$this, 'create_member_menu']);
-            }
+            // if ($is_admin || $access === 'admin') {
+            //     add_action('admin_menu', [$this, 'create_admin_menu']);
+            // } elseif ($access === 'member') {
+            //     add_action('admin_menu', [$this, 'create_member_menu']);
+            // }
         }
 
         public function create_admin_menu()
