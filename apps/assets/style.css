@@ -1498,6 +1498,10 @@ body{
 .bg-background{
     background-color: hsl(var(--background));
 }
+.bg-black{
+    --tw-bg-opacity: 1;
+    background-color: rgb(0 0 0 / var(--tw-bg-opacity));
+}
 .bg-black\/80{
     background-color: rgb(0 0 0 / 0.8);
 }
@@ -2201,6 +2205,10 @@ textarea {
 
 .hover\:bg-background:hover{
     background-color: hsl(var(--background));
+}
+
+.hover\:bg-black\/70:hover{
+    background-color: rgb(0 0 0 / 0.7);
 }
 
 .hover\:bg-card\/80:hover{
