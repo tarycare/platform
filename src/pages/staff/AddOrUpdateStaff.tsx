@@ -8,8 +8,9 @@ import { useToast } from './components/ui/use-toast'
 import { toast, Toaster } from 'sonner'
 import FormViewer from '@/components/FormViewer'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 
-function CRUD_Material() {
+function FormBuilderWidget() {
     const navigate = useNavigate() // Initialize useNavigate
 
     const [formSections, setFormSections] = useState([])
@@ -17,35 +18,36 @@ function CRUD_Material() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [siteId, setSiteId] = useState(0)
+    const [users, setUsers] = useState([])
 
     const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = isDev ? 'http://mytest.local' : ''
-    const [postId, setPostId] = useState(0)
+    const [formId, setFormId] = useState(0)
+    const [userId, setUserId] = useState(0)
 
     const { id } = useParams() // Get user ID from the URL params
 
-    const fetchUrl = '/wp-json/form/v1/get?title=Material + &id=' + id
+    const fetchUrl = '/wp-json/form/v1/get?title=Staff + &id=' + id
+    const submitUrl = '/wp-json/staff/v1/add'
 
-    const submitUrl = '/wp-json/material/v1/add'
-
-    const updateUrl = `/wp-json/material/v1/update/${id}`
+    const updateUrl = `/wp-json/staff/v1/update/${id}`
 
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
 
-    // useEffect to to fetch material/v1/site
+    // useEffect to to fetch staff/v1/site
     useEffect(() => {
         async function getSiteId() {
             const response = await fetch('/wp-json/staff/v1/site')
             const data = await response.json()
             setSiteId(data.site_id)
-            console.log(data, 'site data')
         }
         getSiteId()
     }, [])
 
+    // load form data
     useEffect(() => {
-        async function fetchForm() {
+        async function fetchData() {
             setIsLoading(true)
             setIsSubmitting(true)
             try {
@@ -53,7 +55,9 @@ function CRUD_Material() {
                     method: 'GET',
                 })
                 const data = await response.json()
+                setFormId(data.id)
 
+                // Set form sections for both add and update modes
                 setFormSections(data.sections)
             } catch (error) {
                 console.error('Error fetching form data:', error)
@@ -63,30 +67,28 @@ function CRUD_Material() {
             }
         }
 
-        fetchForm()
+        fetchData()
     }, [])
-
     useEffect(() => {
-        console.log(isUpdating ? 'Updating dep' : 'Creating new dep')
         if (isUpdating) {
             // Fetch the user data to prefill the form
-            const fetchMaterialData = async () => {
+            const fetchUserData = async () => {
                 try {
                     const response = await fetch(
-                        `${baseUrl}/wp-json/material/v1/get/${id}`
+                        `${baseUrl}/wp-json/staff/v1/users/${id}`
                     )
                     if (!response.ok) {
                         throw new Error('Failed to fetch user data')
                     }
                     const data = await response.json()
                     setFormData(data) // Assuming the user data contains manager information
-                    setPostId(data.id)
+                    setUserId(data.id)
                 } catch (error) {
                     console.error('Error fetching user:', error)
                 }
             }
 
-            fetchMaterialData()
+            fetchUserData()
         }
     }, [isUpdating, id])
 
@@ -98,11 +100,13 @@ function CRUD_Material() {
         )
     }
 
-    // Handle form submission (add mode)
     const handleSubmission = async (formData) => {
         try {
             setIsSubmitting(true)
+
             const nonce = window?.appLocalizer?.nonce || ''
+
+            // If formData is an instance of FormData, we will not use JSON headers
             const isFormDataInstance = formData instanceof FormData
 
             const response = await fetch(submitUrl, {
@@ -117,44 +121,48 @@ function CRUD_Material() {
             })
 
             const result = await response.json()
+
             if (result.success) {
                 await toast.success('Form submitted successfully!', {
                     description: result.message,
                 })
-                navigate(`/update/${result.post_id}`)
+                const id = result.user_id // Extract the ID from the server response
+
+                // Navigate to the update page with the new `id`
+                navigate(`/update/${id}`)
             } else {
                 toast.error('Form submission failed!', {
                     description: result.message,
                 })
             }
         } catch (error) {
+            console.error('Error submitting form:', error)
             toast.error('Form submission failed!', {
-                description: error.message,
+                description: error.message, // Ensure to show the error message
             })
         } finally {
             setIsSubmitting(false)
         }
     }
-
-    // Handle form update (update mode)
     const handleUpdate = async (formData) => {
         try {
             setIsSubmitting(true)
+
             const nonce = window?.appLocalizer?.nonce || ''
             const isFormDataInstance = formData instanceof FormData
 
-            const response = await fetch(updateUrl, {
+            const url = `${updateUrl}`
+            const response = await fetch(url, {
                 method: 'POST', // Changed from 'PATCH' to 'POST'
                 headers: {
                     'X-WP-Nonce': nonce,
-                    ...(isFormDataInstance
-                        ? {}
-                        : { 'Content-Type': 'application/json' }),
+                    // Do not set 'Content-Type' header when sending FormData
                 },
-                body: isFormDataInstance ? formData : JSON.stringify(formData),
+                body: formData,
             })
 
             const result = await response.json()
+
             if (result.success) {
                 await toast.success('Form updated successfully!', {
                     description: result.message,
@@ -165,27 +173,24 @@ function CRUD_Material() {
                 })
             }
         } catch (error) {
-            toast.error('Form update failed!', {
+            console.error('Error submitting form:', error)
+            toast.error('Form submission failed!', {
                 description: error.message,
             })
         } finally {
             setIsSubmitting(false)
         }
     }
-
-    if (!formSections) {
-        return (
-            <div>
-                <h1>
-                    No Material Form Found! make new form with title Material
-                </h1>
-            </div>
-        )
+    const handleNavigation = () => {
+        window.location.href = `./admin.php?page=forms#/update/${formId}`
     }
 
     return (
         <div>
             <>
+                <Button onClick={() => handleNavigation()} className="mb-4">
+                    Customize Form
+                </Button>
                 <Toaster richColors />
                 <FormViewer
                     data={formSections} // Manager field is now included in both modes
@@ -201,4 +206,4 @@ function CRUD_Material() {
     )
 }
 
-export default CRUD_Material
+export default FormBuilderWidget

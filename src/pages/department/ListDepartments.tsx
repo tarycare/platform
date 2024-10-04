@@ -65,40 +65,40 @@ import {
 import { useEffect, useState } from 'react'
 
 export const description =
-    'An Material dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of Material in a table with actions.'
+    'An Department dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of Department in a table with actions.'
 
 export default function Dashboard() {
     const isDev = process.env.NODE_ENV === 'development'
 
     const WP_API_URL = isDev
-        ? `http://mytest.local/wp-json/material/v1/all`
-        : `/wp-json/material/v1/all`
+        ? `http://mytest.local/wp-json/department/v1/all`
+        : `/wp-json/department/v1/all`
     const DELETE_API_URL = isDev
-        ? `http://mytest.local/wp-json/material/v1/delete`
-        : `/wp-json/material/v1/delete`
+        ? `http://mytest.local/wp-json/department/v1/delete`
+        : `/wp-json/department/v1/delete`
 
-    const [materials, setMaterials] = useState([])
+    const [departments, setDepartments] = useState([])
     const [refresh, setRefresh] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
-        const fetchMaterials = async () => {
+        const fetchDepartments = async () => {
             try {
                 const response = await fetch(WP_API_URL)
                 if (!response.ok) {
                     throw new Error('Error fetching users')
                 }
                 const data = await response.json()
-                setMaterials(data)
+                setDepartments(data)
             } catch (error: any) {
                 setError(error)
             } finally {
                 setLoading(false)
             }
         }
-        fetchMaterials()
+        fetchDepartments()
     }, [refresh])
 
     return (
@@ -147,7 +147,7 @@ export default function Dashboard() {
                                         className="flex items-center gap-4 px-2.5 text-foreground"
                                     >
                                         <Package className="h-5 w-5" />
-                                        Material
+                                        Department
                                     </Link>
                                     <Link
                                         to="#"
@@ -227,7 +227,7 @@ export default function Dashboard() {
                                         <Button size="sm" className="h-7 gap-1">
                                             <PlusCircle className="h-3.5 w-3.5" />
                                             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                                Add Material
+                                                Add Department
                                             </span>
                                         </Button>
                                     </Link>
@@ -236,10 +236,10 @@ export default function Dashboard() {
                             <TabsContent value="all">
                                 <Card x-chunk="dashboard-06-chunk-0">
                                     <CardHeader>
-                                        <CardTitle>All Material</CardTitle>
+                                        <CardTitle>All Department</CardTitle>
                                         <CardDescription>
-                                            Manage your Material by adding,
-                                            editing, and deleting Material
+                                            Manage your Department by adding,
+                                            editing, and deleting Department
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
@@ -261,17 +261,23 @@ export default function Dashboard() {
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {materials.map(
-                                                    (material: any, i) => (
+                                                {departments.map(
+                                                    (department: any, i) => (
                                                         <TableRow key={i}>
                                                             <TableCell>
-                                                                {material.title}
+                                                                <Link
+                                                                    to={`/view/${department.id}`}
+                                                                >
+                                                                    {
+                                                                        department.title
+                                                                    }
+                                                                </Link>
                                                             </TableCell>
 
                                                             <TableCell>
                                                                 <Badge variant="outline">
                                                                     {
-                                                                        material.content
+                                                                        department.content
                                                                     }
                                                                 </Badge>
                                                             </TableCell>
@@ -297,7 +303,7 @@ export default function Dashboard() {
                                                                             className="cursor-pointer"
                                                                             onClick={() => {
                                                                                 navigate(
-                                                                                    `/update/${material.id}`
+                                                                                    `/update/${department.id}`
                                                                                 )
                                                                             }}
                                                                         >
@@ -309,7 +315,7 @@ export default function Dashboard() {
                                                                             onClick={() => {
                                                                                 if (
                                                                                     !window.confirm(
-                                                                                        'Are you sure you want to delete this Material?'
+                                                                                        'Are you sure you want to delete this Department?'
                                                                                     )
                                                                                 ) {
                                                                                     return
@@ -322,7 +328,7 @@ export default function Dashboard() {
                                                                                     ''
 
                                                                                 fetch(
-                                                                                    `${DELETE_API_URL}/${material.id}`,
+                                                                                    `${DELETE_API_URL}/${department.id}`,
                                                                                     {
                                                                                         method: 'DELETE',
                                                                                         headers:
@@ -334,7 +340,7 @@ export default function Dashboard() {
                                                                                             },
                                                                                         body: JSON.stringify(
                                                                                             {
-                                                                                                id: material.id,
+                                                                                                id: department.id,
                                                                                             }
                                                                                         ),
                                                                                     }
@@ -381,10 +387,14 @@ export default function Dashboard() {
                                     <CardFooter>
                                         <div className="text-xs text-muted-foreground">
                                             Showing{' '}
-                                            <strong>{materials.length}</strong>{' '}
+                                            <strong>
+                                                {departments.length}
+                                            </strong>{' '}
                                             of{' '}
-                                            <strong>{materials.length}</strong>{' '}
-                                            Material
+                                            <strong>
+                                                {departments.length}
+                                            </strong>{' '}
+                                            Department
                                         </div>
                                     </CardFooter>
                                 </Card>

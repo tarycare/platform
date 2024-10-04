@@ -9,7 +9,7 @@ import { toast, Toaster } from 'sonner'
 import FormViewer from '@/components/FormViewer'
 import { useNavigate, useParams } from 'react-router-dom'
 
-function CRUD_Material() {
+function CRUD_Department() {
     const navigate = useNavigate() // Initialize useNavigate
 
     const [formSections, setFormSections] = useState([])
@@ -24,16 +24,16 @@ function CRUD_Material() {
 
     const { id } = useParams() // Get user ID from the URL params
 
-    const fetchUrl = '/wp-json/form/v1/get?title=Material + &id=' + id
+    const fetchUrl = '/wp-json/form/v1/get?title=Department + &id=' + id
 
-    const submitUrl = '/wp-json/material/v1/add'
+    const submitUrl = '/wp-json/department/v1/add'
 
-    const updateUrl = `/wp-json/material/v1/update/${id}`
+    const updateUrl = `/wp-json/department/v1/update/${id}`
 
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
 
-    // useEffect to to fetch material/v1/site
+    // useEffect to to fetch department/v1/site
     useEffect(() => {
         async function getSiteId() {
             const response = await fetch('/wp-json/staff/v1/site')
@@ -70,10 +70,10 @@ function CRUD_Material() {
         console.log(isUpdating ? 'Updating dep' : 'Creating new dep')
         if (isUpdating) {
             // Fetch the user data to prefill the form
-            const fetchMaterialData = async () => {
+            const fetchDepartmentData = async () => {
                 try {
                     const response = await fetch(
-                        `${baseUrl}/wp-json/material/v1/get/${id}`
+                        `${baseUrl}/wp-json/department/v1/get/${id}`
                     )
                     if (!response.ok) {
                         throw new Error('Failed to fetch user data')
@@ -86,7 +86,7 @@ function CRUD_Material() {
                 }
             }
 
-            fetchMaterialData()
+            fetchDepartmentData()
         }
     }, [isUpdating, id])
 
@@ -173,16 +173,6 @@ function CRUD_Material() {
         }
     }
 
-    if (!formSections) {
-        return (
-            <div>
-                <h1>
-                    No Material Form Found! make new form with title Material
-                </h1>
-            </div>
-        )
-    }
-
     return (
         <div>
             <>
@@ -201,4 +191,4 @@ function CRUD_Material() {
     )
 }
 
-export default CRUD_Material
+export default CRUD_Department

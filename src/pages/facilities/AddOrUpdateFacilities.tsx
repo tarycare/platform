@@ -9,7 +9,7 @@ import { toast, Toaster } from 'sonner'
 import FormViewer from '@/components/FormViewer'
 import { useNavigate, useParams } from 'react-router-dom'
 
-function CRUD_Material() {
+function CRUD_Facility() {
     const navigate = useNavigate() // Initialize useNavigate
 
     const [formSections, setFormSections] = useState([])
@@ -17,6 +17,7 @@ function CRUD_Material() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [siteId, setSiteId] = useState(0)
+    const [users, setUsers] = useState([])
 
     const isDev = process.env.NODE_ENV === 'development'
     const baseUrl = isDev ? 'http://mytest.local' : ''
@@ -24,16 +25,15 @@ function CRUD_Material() {
 
     const { id } = useParams() // Get user ID from the URL params
 
-    const fetchUrl = '/wp-json/form/v1/get?title=Material + &id=' + id
+    const fetchUrl = '/wp-json/form/v1/get?title=facility + &id=' + id
+    const submitUrl = '/wp-json/facility/v1/add'
 
-    const submitUrl = '/wp-json/material/v1/add'
-
-    const updateUrl = `/wp-json/material/v1/update/${id}`
+    const updateUrl = `/wp-json/facility/v1/update/${id}`
 
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
 
-    // useEffect to to fetch material/v1/site
+    // useEffect to to fetch facility/v1/site
     useEffect(() => {
         async function getSiteId() {
             const response = await fetch('/wp-json/staff/v1/site')
@@ -45,7 +45,7 @@ function CRUD_Material() {
     }, [])
 
     useEffect(() => {
-        async function fetchForm() {
+        async function fetchData() {
             setIsLoading(true)
             setIsSubmitting(true)
             try {
@@ -63,17 +63,19 @@ function CRUD_Material() {
             }
         }
 
-        fetchForm()
+        // Fetch data for both add and update modes
+        if (fetchUrl) {
+            fetchData()
+        }
     }, [])
 
     useEffect(() => {
-        console.log(isUpdating ? 'Updating dep' : 'Creating new dep')
         if (isUpdating) {
             // Fetch the user data to prefill the form
-            const fetchMaterialData = async () => {
+            const fetchUserData = async () => {
                 try {
                     const response = await fetch(
-                        `${baseUrl}/wp-json/material/v1/get/${id}`
+                        `${baseUrl}/wp-json/facility/v1/get/${id}`
                     )
                     if (!response.ok) {
                         throw new Error('Failed to fetch user data')
@@ -86,7 +88,7 @@ function CRUD_Material() {
                 }
             }
 
-            fetchMaterialData()
+            fetchUserData()
         }
     }, [isUpdating, id])
 
@@ -173,16 +175,6 @@ function CRUD_Material() {
         }
     }
 
-    if (!formSections) {
-        return (
-            <div>
-                <h1>
-                    No Material Form Found! make new form with title Material
-                </h1>
-            </div>
-        )
-    }
-
     return (
         <div>
             <>
@@ -201,4 +193,4 @@ function CRUD_Material() {
     )
 }
 
-export default CRUD_Material
+export default CRUD_Facility
