@@ -25,8 +25,7 @@ function CRUD_Facility() {
 
     const { id } = useParams() // Get user ID from the URL params
 
-    const fetchUrl =
-        '/wp-json/form/v1/get?title=facility&site_id=' + siteId + '&id=' + id
+    const fetchUrl = '/wp-json/form/v1/get?title=facility + &id=' + id
     const submitUrl = '/wp-json/facility/v1/add'
 
     const updateUrl = `/wp-json/facility/v1/update/${id}`

@@ -27,8 +27,7 @@ function FormBuilderWidget() {
 
     const { id } = useParams() // Get user ID from the URL params
 
-    const fetchUrl =
-        '/wp-json/form/v1/get?title=Staff&site_id=' + siteId + '&id=' + id
+    const fetchUrl = '/wp-json/form/v1/get?title=Staff + &id=' + id
     const submitUrl = '/wp-json/staff/v1/add'
 
     const updateUrl = `/wp-json/staff/v1/update/${id}`

@@ -24,8 +24,7 @@ function CRUD_Equipment() {
 
     const { id } = useParams() // Get user ID from the URL params
 
-    const fetchUrl =
-        '/wp-json/form/v1/get?title=Equipment&site_id=' + siteId + '&id=' + id
+    const fetchUrl = '/wp-json/form/v1/get?title=Equipment + &id=' + id
 
     const submitUrl = '/wp-json/equipment/v1/add'
 

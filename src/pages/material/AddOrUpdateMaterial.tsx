@@ -24,8 +24,7 @@ function CRUD_Material() {
 
     const { id } = useParams() // Get user ID from the URL params
 
-    const fetchUrl =
-        '/wp-json/form/v1/get?title=Material&site_id=' + siteId + '&id=' + id
+    const fetchUrl = '/wp-json/form/v1/get?title=Material + &id=' + id
 
     const submitUrl = '/wp-json/material/v1/add'
 

@@ -265,9 +265,13 @@ export default function Dashboard() {
                                                     (department: any, i) => (
                                                         <TableRow key={i}>
                                                             <TableCell>
-                                                                {
-                                                                    department.title
-                                                                }
+                                                                <Link
+                                                                    to={`/view/${department.id}`}
+                                                                >
+                                                                    {
+                                                                        department.title
+                                                                    }
+                                                                </Link>
                                                             </TableCell>
 
                                                             <TableCell>

@@ -24,8 +24,7 @@ function CRUD_Department() {
 
     const { id } = useParams() // Get user ID from the URL params
 
-    const fetchUrl =
-        '/wp-json/form/v1/get?title=Department&site_id=' + siteId + '&id=' + id
+    const fetchUrl = '/wp-json/form/v1/get?title=Department + &id=' + id
 
     const submitUrl = '/wp-json/department/v1/add'
 

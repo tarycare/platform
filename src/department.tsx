@@ -12,6 +12,7 @@ import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import List from './pages/department/ListDepartments'
 import CRUD_Department from './pages/department/AddOrUpdateDepartment'
+import View from './pages/department/View'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -41,7 +42,7 @@ const routes: RouteObject[] = [
     },
     {
         path: '/view/:id', // For viewing staff details
-        element: <StaffDetails />,
+        element: <View />,
     },
     {
         path: '*', // Catch-all route for undefined paths
