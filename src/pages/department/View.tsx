@@ -2,8 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Label } from '@/components/ui/label'
-import { MultiSelect } from '@/components/ui/multi-select'
-import { DateTimePickerV2 } from '@/components/date-time-picker-v2'
 import {
     Accordion,
     AccordionContent,
@@ -15,7 +13,12 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover'
-import { HelpCircleIcon } from 'lucide-react'
+import { HelpCircleIcon, CheckIcon, Dot } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import DocumnetManager from '../DocumnetManager'
+import DocumentList from '../DocumentList'
+import { IconUpload } from '@tabler/icons-react'
+import { Button } from '@/components/ui/button'
 
 function DataView() {
     const isDev = process.env.NODE_ENV === 'development'
@@ -26,6 +29,8 @@ function DataView() {
     const [submittedData, setSubmittedData] = useState({})
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
+    const [showUpload, setShowUpload] = useState(false)
+    const [refreshList, setRefreshList] = useState(false)
 
     const [htmlLang, setHtmlLang] = useState(
         window.document.documentElement.lang
@@ -117,7 +122,9 @@ function DataView() {
             </div>
         )
     }
-
+    const handleCloseUpload = () => {
+        setShowUpload(false)
+    }
     const renderField = (field) => {
         const value = submittedData[field.name]
         let displayValue = value
@@ -135,6 +142,43 @@ function DataView() {
                         : val
                 })
                 .join(', ')
+        }
+
+        if (
+            (field.type === 'checkbox' || field.type === 'radio') &&
+            field.items &&
+            field.items.length > 0
+        ) {
+            return (
+                <div key={field.id} style={{ marginBottom: '10px' }}>
+                    <strong>
+                        {htmlLang === 'ar' ? field.label_ar : field.label_en}:
+                    </strong>
+                    <ul>
+                        {field.items.map((item) => {
+                            const isSelected = Array.isArray(value)
+                                ? value.includes(item.id) ||
+                                  value.includes(item.value)
+                                : value === item.id || value === item.value
+                            return (
+                                <li
+                                    key={item.value}
+                                    className="flex items-center"
+                                >
+                                    {isSelected ? (
+                                        <CheckIcon className="mr-2 text-green-500" />
+                                    ) : (
+                                        <Dot className="mr-2 text-black" />
+                                    )}
+                                    {htmlLang === 'ar'
+                                        ? item.label_ar
+                                        : item.label_en}
+                                </li>
+                            )
+                        })}
+                    </ul>
+                </div>
+            )
         }
 
         return (
@@ -156,72 +200,120 @@ function DataView() {
     }
 
     return (
-        <Accordion type="multiple" className="mt-4 w-full">
-            {formSections.map((section, index) => (
-                <AccordionItem
-                    key={index}
-                    value={`item-${index}`}
-                    className="mb-3"
-                >
-                    <AccordionTrigger>
-                        <div className="flex flex-col gap-1">
-                            <div className="ms-[5px] flex items-center gap-x-2 px-3 py-[6px]">
-                                {section.section_icon && (
-                                    <div className="size-5">
-                                        {section.section_icon}
+        <div>
+            <Accordion
+                type="multiple"
+                className="mt-4 w-full"
+                defaultValue={[
+                    'item-0',
+                    'item-1',
+                    'item-2',
+                    'item-3',
+                    'item-4',
+                    'item-5',
+                ]}
+            >
+                {formSections.map((section, index) => (
+                    <AccordionItem
+                        key={index}
+                        value={`item-${index}`}
+                        className="mb-3"
+                    >
+                        <AccordionTrigger>
+                            <div className="flex flex-col gap-1">
+                                <div className="ms-[5px] flex items-center gap-x-2 px-3 py-[6px]">
+                                    {section.section_icon && (
+                                        <div className="size-5">
+                                            {section.section_icon}
+                                        </div>
+                                    )}
+                                    <div className="text-[16px] font-bold text-foreground">
+                                        {htmlLang === 'ar'
+                                            ? section.section_label_ar
+                                            : section.section_label_en}
+                                    </div>
+                                </div>
+                                {(section.section_description_ar ||
+                                    section.section_description_en) && (
+                                    <div className="mx-1 flex flex-col px-3 pt-[5px]">
+                                        <Label className="mb-2 mt-[-12px] text-start text-sm font-normal text-slate-500">
+                                            {htmlLang === 'ar'
+                                                ? section.section_description_ar
+                                                : section.section_description_en}
+                                        </Label>
                                     </div>
                                 )}
-                                <div className="text-[16px] font-bold text-foreground">
-                                    {htmlLang === 'ar'
-                                        ? section.section_label_ar
-                                        : section.section_label_en}
-                                </div>
                             </div>
-                            {(section.section_description_ar ||
-                                section.section_description_en) && (
-                                <div className="mx-1 flex flex-col px-3 pt-[5px]">
-                                    <Label className="mb-2 mt-[-12px] text-start text-sm font-normal text-slate-500">
-                                        {htmlLang === 'ar'
-                                            ? section.section_description_ar
-                                            : section.section_description_en}
-                                    </Label>
+                        </AccordionTrigger>
+                        <AccordionContent className="grid grid-cols-12">
+                            {section.Fields.map((field) => (
+                                <div
+                                    key={field.name}
+                                    className={`mx-1 mt-2 flex flex-col px-3 col-span-${
+                                        field.colSpan || 6
+                                    }`}
+                                >
+                                    <div className="mb-[9px] flex items-center justify-between">
+                                        {(field.help_en || field.help_ar) && (
+                                            <Popover>
+                                                <PopoverTrigger>
+                                                    <HelpCircleIcon className="me-1 size-[14px] cursor-pointer text-muted-foreground hover:opacity-90" />
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-fit">
+                                                    <div className="">
+                                                        <p className="text-xs font-normal">
+                                                            {htmlLang === 'ar'
+                                                                ? field.help_ar
+                                                                : field.help_en}
+                                                        </p>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
+                                        )}
+                                    </div>
+                                    {renderField(field)}
                                 </div>
-                            )}
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="grid grid-cols-12">
-                        {section.Fields.map((field) => (
-                            <div
-                                key={field.name}
-                                className={`mx-1 mt-2 flex flex-col px-3 col-span-${
-                                    field.colSpan || 6
-                                }`}
-                            >
-                                <div className="mb-[9px] flex items-center justify-between">
-                                    {(field.help_en || field.help_ar) && (
-                                        <Popover>
-                                            <PopoverTrigger>
-                                                <HelpCircleIcon className="me-1 size-[14px] cursor-pointer text-muted-foreground hover:opacity-90" />
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-fit">
-                                                <div className="">
-                                                    <p className="text-xs font-normal">
-                                                        {htmlLang === 'ar'
-                                                            ? field.help_ar
-                                                            : field.help_en}
-                                                    </p>
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-                                    )}
-                                </div>
-                                {renderField(field)}
-                            </div>
-                        ))}
-                    </AccordionContent>
-                </AccordionItem>
-            ))}
-        </Accordion>
+                            ))}
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+            </Accordion>
+            <Tabs defaultValue="doc" className="">
+                <TabsList>
+                    <TabsTrigger value="doc">Documents</TabsTrigger>
+                    <TabsTrigger value="staff">Staff</TabsTrigger>
+                </TabsList>
+                <TabsContent value="doc" className="w-full">
+                    <Button
+                        className="my-5 flex items-center gap-2"
+                        onClick={() => setShowUpload(!showUpload)}
+                    >
+                        <IconUpload /> Upload Document
+                    </Button>
+                    {showUpload && (
+                        <DocumnetManager
+                            appName="staff"
+                            itemId={id}
+                            setRefreshList={setRefreshList}
+                            refreshList={refreshList}
+                            onClose={handleCloseUpload} // Pass the close handler
+                        />
+                    )}
+                    <div className="mt-5">
+                        <DocumentList
+                            appName="staff"
+                            siteId={1} // Hardcoded site ID
+                            itemId={id} // Staff
+                            refreshList={refreshList}
+                        />
+                    </div>
+                </TabsContent>
+                <TabsContent value="staff">
+                    coming soon! , this section will display the staff members
+                    of this department
+                </TabsContent>
+            </Tabs>
+        </div>
     )
 }
 

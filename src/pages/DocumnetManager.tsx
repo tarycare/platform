@@ -219,7 +219,7 @@ const DocumentManager = ({
     }
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="">
             {/* Clickable Drag-and-Drop Area */}
             <div
                 className="mb-4 flex h-[200px] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-400 p-6 text-center"

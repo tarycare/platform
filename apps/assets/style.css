@@ -1798,6 +1798,10 @@ body{
 .text-background{
     color: hsl(var(--background));
 }
+.text-black{
+    --tw-text-opacity: 1;
+    color: rgb(0 0 0 / var(--tw-text-opacity));
+}
 .text-blue-500{
     --tw-text-opacity: 1;
     color: rgb(59 130 246 / var(--tw-text-opacity));
@@ -1831,6 +1835,10 @@ body{
 .text-gray-700{
     --tw-text-opacity: 1;
     color: rgb(55 65 81 / var(--tw-text-opacity));
+}
+.text-green-500{
+    --tw-text-opacity: 1;
+    color: rgb(34 197 94 / var(--tw-text-opacity));
 }
 .text-muted-foreground{
     color: hsl(var(--muted-foreground));

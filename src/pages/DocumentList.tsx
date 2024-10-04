@@ -198,7 +198,7 @@ const DocumentList = ({ appName, itemId, refreshList }) => {
     if (error) return <div>{error}</div>
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="">
             <h2 className="mb-4 text-xl font-bold">Uploaded Documents</h2>
             {documents.length > 0 ? (
                 <ul className="space-y-6">

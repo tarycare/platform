@@ -703,7 +703,14 @@ const FormViewer: FC<FormViewerProps> = ({
                 <Accordion
                     type="multiple"
                     className="w-full"
-                    defaultValue={['item-0', 'item-1', 'item-2', 'item-3']}
+                    defaultValue={[
+                        'item-0',
+                        'item-1',
+                        'item-2',
+                        'item-3',
+                        'item-4',
+                        'item-5',
+                    ]}
                 >
                     {data
                         ?.sort((a, b) => Number(a.order) - Number(b.order))
