@@ -19,6 +19,7 @@ import DocumnetManager from '../DocumnetManager'
 import DocumentList from '../DocumentList'
 import { IconUpload } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
+import DocAiGen from '@/components/DocAiGen'
 
 function DataView() {
     const isDev = process.env.NODE_ENV === 'development'
@@ -309,8 +310,7 @@ function DataView() {
                     </div>
                 </TabsContent>
                 <TabsContent value="staff">
-                    coming soon! , this section will display the staff members
-                    of this department
+                    <DocAiGen />
                 </TabsContent>
             </Tabs>
         </div>
