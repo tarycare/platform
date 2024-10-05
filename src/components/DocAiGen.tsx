@@ -1,28 +1,23 @@
 // @ts-nocheck
 import React, { useState } from 'react'
 import axios from 'axios'
-import { marked } from 'marked'
 import { Button } from './ui/button'
 import { Loader2 } from 'lucide-react'
-// import '@mdxeditor/editor/style.css'
-import {
-    MDXEditor,
-    UndoRedo,
-    BoldItalicUnderlineToggles,
-    toolbarPlugin,
-} from '@mdxeditor/editor'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
+import { marked } from 'marked'
 
 const ChatApp = () => {
     const [message, setMessage] =
         useState(`Write cleaning and maintenance department purpose only in details
-Focus on the purpose and mention staff while writing for officers and workers
-add points and title and group it together
-no introduction no Policy Header no Signature Sections please just the response`)
+   Focus on the purpose and mention staff while writing for officers and workers
+   add points and title and group it together
+   no introduction no Policy Header no Signature Sections please just the response`)
     const [temperature, setTemperature] = useState(0.1)
     const [response, setResponse] = useState('')
     const [loading, setLoading] = useState(false)
 
-    const [markdown, setMarkdown] = useState('')
+    const [content, setContent] = useState('')
 
     const API_URL = 'https://pa002.abacus.ai/api/v0/getChatResponse'
     const TOKEN = '50f6326590094b07a6b3dc9cf04430c7'
@@ -39,8 +34,6 @@ no introduction no Policy Header no Signature Sections please just the response`
             return
         }
 
-        // setResponse('Loading...')
-
         try {
             setLoading(true)
             const response = await axios.post(API_URL, {
@@ -52,11 +45,9 @@ no introduction no Policy Header no Signature Sections please just the response`
 
             console.log('Full API Response:', response)
             const chatResponse = response.data.result.messages[1].text
-            setMarkdown(chatResponse)
-            // Convert Markdown to HTML
-
-            const htmlResponse = marked(chatResponse)
-            setResponse(htmlResponse)
+            const htmlContent = marked(chatResponse) // Convert Markdown to HTML
+            setContent(htmlContent)
+            setResponse(chatResponse)
         } catch (error) {
             console.error('Error details:', error)
             setResponse(`An error occurred: ${error.message}`)
@@ -93,15 +84,23 @@ no introduction no Policy Header no Signature Sections please just the response`
             <br />
             <Button
                 onClick={sendMessage}
-                className="bg-black hover:bg-black/70"
+                className="my-5 bg-black hover:bg-black/70"
             >
                 {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin text-white" />
                 ) : (
-                    <div>Genarate Document ✨</div>
+                    <div>Generate Document ✨</div>
                 )}
             </Button>
-            <div id="response" dangerouslySetInnerHTML={{ __html: response }} />
+
+            {content && (
+                <ReactQuill
+                    theme="snow"
+                    value={content}
+                    onChange={setContent}
+                    style={{ height: '300px', marginBottom: '50px' }}
+                />
+            )}
 
             {response && (
                 <Button

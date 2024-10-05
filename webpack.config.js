@@ -9,7 +9,6 @@ const mode = process.env.NODE_ENV || 'production'
 const envFile = `.env.${mode}`
 dotenv.config({ path: envFile })
 
-// Define your multiple configurations with shared devServer settings
 const combinedConfig = {
     entry: {
         staff: './src/staff.tsx',
@@ -64,10 +63,9 @@ const combinedConfig = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: 'assets/style.css', // Single CSS file output in the assets directory
+            filename: '[name]/assets/[name].css', // Use [name] to differentiate between chunks
         }),
         new DefinePlugin({
-            // Only set custom environment variables, not NODE_ENV
             'process.env.API_URL': JSON.stringify(process.env.API_URL),
         }),
         new CopyWebpackPlugin({
@@ -87,13 +85,11 @@ const combinedConfig = {
                     to: 'facilities/',
                     noErrorOnMissing: true,
                 },
-                // equipment
                 {
                     from: 'dev-apps/equipment',
                     to: 'equipment/',
                     noErrorOnMissing: true,
                 },
-                // matierial
                 {
                     from: 'dev-apps/material',
                     to: 'material/',
@@ -114,18 +110,14 @@ const combinedConfig = {
                     to: 'submissions/',
                     noErrorOnMissing: true,
                 },
-                {
-                    from: 'dev-apps/lib',
-                    to: 'lib/',
-                    noErrorOnMissing: true,
-                },
+                { from: 'dev-apps/lib', to: 'lib/', noErrorOnMissing: true },
             ],
         }),
     ],
     cache: {
-        type: 'filesystem', // Enable filesystem caching
+        type: 'filesystem',
         buildDependencies: {
-            config: [__filename], // Cache is invalidated when the config file changes
+            config: [__filename],
         },
     },
     devServer: {
