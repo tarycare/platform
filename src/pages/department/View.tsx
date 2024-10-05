@@ -303,7 +303,6 @@ function DataView() {
                     <div className="mt-5">
                         <DocumentList
                             appName="staff"
-                            siteId={1} // Hardcoded site ID
                             itemId={id} // Staff
                             refreshList={refreshList}
                         />
