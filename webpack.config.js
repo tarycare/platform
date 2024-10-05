@@ -63,7 +63,7 @@ const combinedConfig = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '[name]/assets/[name].css', // Use [name] to differentiate between chunks
+            filename: '[name]/assets/style.css', // Use [name] to differentiate between chunks
         }),
         new DefinePlugin({
             'process.env.API_URL': JSON.stringify(process.env.API_URL),
