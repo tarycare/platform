@@ -199,3 +199,95 @@ textarea {
         @apply bg-background text-foreground;
     }
 }
+
+.ql-hidden {
+    display: none !important;
+}
+
+ol {
+    list-style-type: decimal;
+}
+
+.ql-snow .ql-editor h1 {
+    font-size: 2em;
+}
+
+.ql-snow .ql-editor h2 {
+    font-size: 1.5em;
+}
+
+.ql-snow .ql-editor h3 {
+    font-size: 1.17em;
+}
+
+.ql-snow .ql-editor p {
+    font-size: 1em;
+}
+
+.content-ai h1 {
+    font-size: 2em;
+}
+
+.content-ai h2 {
+    font-size: 1.5em;
+}
+
+.content-ai h3 {
+    font-size: 1.17em;
+}
+
+.content-ai p {
+    font-size: 1em;
+}
+
+.content-ai a {
+    color: #007bff;
+}
+
+.content-ai a:hover {
+    color: #0056b3;
+}
+
+/* ul  */
+/* Style for the ordered list */
+.content-ai ol {
+    list-style-type: none; /* Remove default list styling */
+    margin: 0;
+    padding: 0;
+    counter-reset: list-counter; /* Reset counter for custom numbering */
+}
+
+.content-ai ol > li[data-list='ordered'] {
+    margin: 0 0 10px 20px;
+    padding: 5px;
+    counter-increment: list-counter; /* Increment counter for each ordered list item */
+}
+
+.content-ai ol > li[data-list='ordered']::before {
+    content: counter(list-counter) '. '; /* Custom numbering */
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* Style for the unordered list */
+.content-ai ol > li[data-list='bullet'] {
+    list-style-type: none; /* Remove default list styling */
+    margin: 0 0 10px 40px;
+    padding: 5px;
+}
+
+/* Style for nested list items with class ql-indent-1 */
+.content-ai ol > li.ql-indent-1 {
+    margin-left: 40px; /* Indent nested list items */
+}
+
+/* Additional styling for the span elements if needed */
+.content-ai li[data-list='bullet'] span.ql-ui {
+    display: inline-block;
+    width: 9px;
+    height: 2px;
+    background-color: #706767;
+    margin-right: 5px;
+
+    margin-bottom: 2px;
+}

@@ -13,13 +13,14 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover'
-import { HelpCircleIcon, CheckIcon, Dot } from 'lucide-react'
+import { HelpCircleIcon, CheckIcon, Dot, Loader2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import DocumnetManager from '../DocumnetManager'
 import DocumentList from '../DocumentList'
 import { IconUpload } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import DocAiGen from '@/components/DocAiGen'
+import TextOpenAi from '@/components/textOpenai'
 
 function DataView() {
     const isDev = process.env.NODE_ENV === 'development'
@@ -28,10 +29,11 @@ function DataView() {
 
     const [formSections, setFormSections] = useState([])
     const [submittedData, setSubmittedData] = useState({})
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
     const [showUpload, setShowUpload] = useState(false)
     const [refreshList, setRefreshList] = useState(false)
+    const [postData, setPostData] = useState(null)
 
     const [htmlLang, setHtmlLang] = useState(
         window.document.documentElement.lang
@@ -99,6 +101,8 @@ function DataView() {
                     throw new Error('Error fetching department data')
                 }
                 const data = await response.json()
+                setPostData(data)
+                console.log('postData:', data)
                 setSubmittedData(data)
             } catch (error) {
                 console.error('Error fetching department data:', error)
@@ -193,7 +197,11 @@ function DataView() {
     }
 
     if (isLoading) {
-        return <div>Loading...</div>
+        return (
+            <div>
+                <Loader2 className="h-5 w-5 animate-spin text-black" />
+            </div>
+        )
     }
 
     if (error) {
@@ -309,7 +317,8 @@ function DataView() {
                     </div>
                 </TabsContent>
                 <TabsContent value="staff">
-                    <DocAiGen />
+                    {/* <DocAiGen postData={postData} /> */}
+                    <TextOpenAi postData={postData} />
                 </TabsContent>
             </Tabs>
         </div>
