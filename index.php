@@ -278,7 +278,7 @@ function hide_admin_bar_css()
         html { margin-top: 0 !important; }
     </style>';
 }
-add_action('admin_head', 'hide_admin_bar_css');
+// add_action('admin_head', 'hide_admin_bar_css');
 
 // Add a logout link in the sidebar
 function add_logout_link_to_sidebar()
