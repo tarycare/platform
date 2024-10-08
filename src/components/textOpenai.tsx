@@ -99,7 +99,7 @@ function TextOpenAi({ postData }: { postData: any }) {
         setIsGenerating(true)
         // set your openai api key
         const client = new OpenAI({
-            apiKey: '', // Replace with your actual API key
+            apiKey: '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', // Replace with your actual API key
             dangerouslyAllowBrowser: true,
         })
 
