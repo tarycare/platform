@@ -317,8 +317,7 @@ function DataView() {
                     </div>
                 </TabsContent>
                 <TabsContent value="staff">
-                    {/* <DocAiGen postData={postData} /> */}
-                    <TextOpenAi postData={postData} />
+                    <DocAiGen postData={postData} />
                 </TabsContent>
             </Tabs>
         </div>

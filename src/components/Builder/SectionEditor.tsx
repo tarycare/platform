@@ -15,11 +15,13 @@ import { ArrowDownCircleIcon, ArrowUpCircleIcon, Trash2 } from 'lucide-react'
 import { IconPlus } from '@tabler/icons-react'
 
 import { v4 as uuid } from 'uuid'
+import { GrClone } from 'react-icons/gr'
 interface SectionEditorProps {
     section: Section
     updateSection: (section: Section) => void
     removeSection: (sectionId: string) => void
     moveSection: (direction: 'up' | 'down', sectionId: string) => void
+    duplicateSection: (section: Section) => void
     isFirst: boolean
     isLast: boolean
 }
@@ -29,6 +31,7 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
     updateSection,
     removeSection,
     moveSection,
+    duplicateSection,
     isFirst,
     isLast,
 }) => {
@@ -111,6 +114,19 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
 
         updateSection({ ...section, Fields: updatedFields })
     }
+
+    const duplicateField = (field: Field) => {
+        const newField = { ...field, id: uuid() }
+        // field.name new uuid
+        newField.name = `field-name-${uuid().slice(0, 8)}`
+
+        const updatedFields = [...section.Fields, newField].map((f, index) => ({
+            ...f,
+            order: index,
+        }))
+        updateSection({ ...section, Fields: updatedFields })
+    }
+
     const [lang, setLang] = useState(document.documentElement.lang)
     useEffect(() => {
         setLang(document.documentElement.lang)
@@ -148,6 +164,12 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
                                     className="p-1"
                                 >
                                     <ArrowDownCircleIcon className="size-5" />
+                                </Button>
+                                <Button
+                                    className="p-1"
+                                    onClick={() => duplicateSection(section)}
+                                >
+                                    <GrClone className="size-4" />
                                 </Button>
                                 <Button
                                     variant={'destructive'}
@@ -226,6 +248,7 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
                                             updateField={updateField}
                                             removeField={removeField}
                                             moveField={moveField}
+                                            duplicateField={duplicateField}
                                             isFirst={index === 0}
                                             isLast={
                                                 index ===

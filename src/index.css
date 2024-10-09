@@ -291,3 +291,18 @@ ol {
 
     margin-bottom: 2px;
 }
+
+.content-ai ul > li {
+    list-style: disc;
+    margin-inline-start: 2.5em;
+}
+
+.content-ai p {
+    margin-bottom: 1.5em;
+}
+
+.content-ai hr {
+    border: 0;
+    border-top: 1px solid #8c8f94;
+    margin: 1em 0;
+}

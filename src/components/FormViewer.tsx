@@ -181,11 +181,14 @@ const FormViewer: FC<FormViewerProps> = ({
                             // Update the optionsState with the new API data and apply the mapping if available
                             setOptionsState((prevState) => ({
                                 ...prevState,
-                                [field.name]: items.map((item) => ({
-                                    value: item[valueKey], // Map 'value' to the correct key
-                                    label_en: item[labelEnKey], // Map 'label_en' to the correct key
-                                    label_ar: item[labelArKey], // Map 'label_ar' to the correct key
-                                })),
+                                [field.name]:
+                                    items && items.length > 0
+                                        ? items.map((item) => ({
+                                              value: item[valueKey], // Map 'value' to the correct key
+                                              label_en: item[labelEnKey], // Map 'label_en' to the correct key
+                                              label_ar: item[labelArKey], // Map 'label_ar' to the correct key
+                                          }))
+                                        : [],
                             }))
                         } catch (error) {
                             console.error(

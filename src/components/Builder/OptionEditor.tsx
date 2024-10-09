@@ -116,6 +116,14 @@ const OptionEditor: React.FC<OptionEditorProps> = ({
                         </Button>
                     </>
                 )}
+                {/* clear options */}
+                <Button
+                    onClick={() => updateField({ ...field, items: [] })}
+                    className="mb-4 flex items-center gap-2"
+                    variant={'destructive'}
+                >
+                    Clear Options <Trash2 className="size-4" />
+                </Button>
             </div>
             {(field.type === 'select' || field.type === 'multiselect') && (
                 <>

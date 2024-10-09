@@ -144,6 +144,25 @@ const FormBuilder: React.FC = () => {
         })
     }
 
+    const duplicateSection = (sectionId: string) => {
+        const section = formConfig.sections.find(
+            (section) => section.id === sectionId
+        )
+
+        if (!section) return
+
+        const newSection = {
+            ...section,
+            id: uuidv4(), // Generate a new unique ID for the duplicated section
+            order: formConfig.sections.length, // Set the order to the end of the list
+        }
+
+        setFormConfig((prev) => ({
+            ...prev,
+            sections: [...prev.sections, newSection],
+        }))
+    }
+
     const handleSubmit = async () => {
         setIsSubmitting(true)
         try {
@@ -278,6 +297,9 @@ const FormBuilder: React.FC = () => {
                             updateSection={updateSection}
                             removeSection={removeSection}
                             moveSection={moveSection}
+                            duplicateSection={() =>
+                                duplicateSection(section.id)
+                            } // Pass the function correctly
                             isFirst={index === 0}
                             isLast={index === formConfig.sections.length - 1}
                         />

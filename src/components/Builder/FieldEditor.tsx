@@ -27,12 +27,14 @@ import {
     TypeIcon,
 } from 'lucide-react'
 import { IconTypography } from '@tabler/icons-react'
+import { GrClone } from 'react-icons/gr'
 
 interface FieldEditorProps {
     field: Field
     updateField: (field: Field) => void
     removeField: (fieldId: string) => void
     moveField: (direction: 'up' | 'down', fieldId: string) => void
+    duplicateField: (field: Field) => void
     isFirst: boolean
     isLast: boolean
 }
@@ -42,9 +44,12 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
     updateField,
     removeField,
     moveField,
+    duplicateField,
     isFirst,
     isLast,
 }) => {
+    const [showMoveDropdown, setShowMoveDropdown] = useState(false)
+
     const handleFieldChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
@@ -105,7 +110,6 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                 return <CalendarClockIcon size={16} />
             case 'upload_image':
                 return <Image size={16} />
-
             case 'file':
                 return <FileDigit size={16} />
             default:
@@ -136,6 +140,14 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
                             >
                                 <ArrowDownCircle className="size-4" />
                             </Button>
+
+                            <Button
+                                className="p-1"
+                                onClick={() => duplicateField(field)}
+                            >
+                                <GrClone className="size-4" />
+                            </Button>
+
                             <Button
                                 variant={'destructive'}
                                 className="p-1"

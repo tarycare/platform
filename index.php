@@ -404,11 +404,11 @@ add_filter('update_footer', 'remove_admin_footer_version', 999);
 
 
 // open ai api
-
 add_action('rest_api_init', function () {
     register_rest_route('openai/v1', '/fetch', array(
-        'methods' => 'GET',
+        'methods' => 'POST', // Change to POST
         'callback' => 'fetch_openai_data',
+        'permission_callback' => '__return_true', // Allow all users to access this endpoint
     ));
 });
 
@@ -417,17 +417,20 @@ function fetch_openai_data(WP_REST_Request $request)
     $url = 'https://api.openai.com/v1/chat/completions';
     $OPENAI_API_KEY = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : '';
 
+    // Extract parameters from the request
+    $model = $request->get_param('model');
+    $messages = $request->get_param('messages');
+    $temperature = $request->get_param('temperature');
+
     $args = array(
         'headers' => array(
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . $OPENAI_API_KEY,
         ),
         'body' => json_encode(array(
-            'model' => 'gpt-4o-mini',
-            'messages' => array(
-                array('role' => 'user', 'content' => 'Write cleaning and maintenance department be as details as you can do not hold back:1.⁠Purpose and goals. 2.⁠ ⁠Definitions 3.⁠ ⁠applicable Scope. 4.⁠ ⁠Policy standard. 5.⁠ ⁠Procedures details. 6.⁠ ⁠Responsibility and staff roles. 7.⁠ ⁠References.  add points and title and group it together in headers and descriptions. at least 2000 words')
-            ),
-            'temperature' => 0.2,
+            'model' => $model,
+            'messages' => $messages,
+            'temperature' => $temperature,
         )),
         'timeout' => 60,
     );
