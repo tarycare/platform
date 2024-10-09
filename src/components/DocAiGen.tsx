@@ -99,7 +99,24 @@ function TextOpenAi({ postData }: { postData: any }) {
         setIsGenerating(true)
 
         try {
-            const response = await fetch('/wp-json/openai/v1/fetch')
+            const response = await fetch('/wp-json/openai/v1/fetch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    messages: [
+                        {
+                            role: 'user',
+                            content:
+                                'Write cleaning and maintenance department be as details as you can do not hold back:1.⁠Purpose and goals. 2.⁠ ⁠Definitions 3.⁠ ⁠applicable Scope. 4.⁠ ⁠Policy standard. 5.⁠ ⁠Procedures details. 6.⁠ ⁠Responsibility and staff roles. 7.⁠ ⁠References.  add points and title and group it together in headers and descriptions. at least 2000 words',
+                        },
+                    ],
+                    temperature: 0.2,
+                }),
+            })
+
             const data = await response.json() // Parse the JSON response
 
             // Log the entire response to understand its structure
