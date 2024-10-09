@@ -67,6 +67,9 @@ const combinedConfig = {
         }),
         new DefinePlugin({
             'process.env.API_URL': JSON.stringify(process.env.API_URL),
+            'process.env.OPENAI_API_KEY': JSON.stringify(
+                process.env.OPENAI_API_KEY
+            ),
         }),
         new CopyWebpackPlugin({
             patterns: [

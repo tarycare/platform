@@ -400,3 +400,58 @@ function remove_admin_footer_version()
     return '';
 }
 add_filter('update_footer', 'remove_admin_footer_version', 999);
+
+
+
+// open ai api
+
+add_action('rest_api_init', function () {
+    register_rest_route('openai/v1', '/fetch', array(
+        'methods' => 'GET',
+        'callback' => 'fetch_openai_data',
+    ));
+});
+
+function fetch_openai_data(WP_REST_Request $request)
+{
+    $url = 'https://api.openai.com/v1/chat/completions';
+    $OPENAI_API_KEY = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : '';
+
+    $args = array(
+        'headers' => array(
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $OPENAI_API_KEY,
+        ),
+        'body' => json_encode(array(
+            'model' => 'gpt-4o-mini',
+            'messages' => array(
+                array('role' => 'user', 'content' => 'Write cleaning and maintenance department be as details as you can do not hold back:1.⁠Purpose and goals. 2.⁠ ⁠Definitions 3.⁠ ⁠applicable Scope. 4.⁠ ⁠Policy standard. 5.⁠ ⁠Procedures details. 6.⁠ ⁠Responsibility and staff roles. 7.⁠ ⁠References.  add points and title and group it together in headers and descriptions. at least 2000 words')
+            ),
+            'temperature' => 0.2,
+        )),
+        'timeout' => 60,
+    );
+
+    $response = wp_remote_post($url, $args);
+
+    if (is_wp_error($response)) {
+        error_log('OpenAI API request failed: ' . $response->get_error_message());
+        return new WP_Error('openai_error', 'Failed to fetch data from OpenAI', array('status' => 500));
+    }
+
+    $status_code = wp_remote_retrieve_response_code($response);
+    if ($status_code !== 200) {
+        error_log('OpenAI API returned status code: ' . $status_code);
+        return new WP_Error('openai_error', 'OpenAI API returned an error', array('status' => $status_code));
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log('JSON decode error: ' . json_last_error_msg());
+        return new WP_Error('json_error', 'Failed to parse JSON response', array('status' => 500));
+    }
+
+    return rest_ensure_response($data);
+}

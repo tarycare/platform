@@ -52,7 +52,7 @@ function TextOpenAi({ postData }: { postData: any }) {
                         saving: false,
                         finalizing: false,
                     })
-                }, 5000)
+                }, 100)
             )
 
             timeouts.push(
@@ -63,7 +63,7 @@ function TextOpenAi({ postData }: { postData: any }) {
                         saving: false,
                         finalizing: false,
                     })
-                }, 10000)
+                }, 5000)
             )
 
             timeouts.push(
@@ -74,7 +74,7 @@ function TextOpenAi({ postData }: { postData: any }) {
                         saving: true,
                         finalizing: false,
                     })
-                }, 15000)
+                }, 10000)
             )
 
             timeouts.push(
@@ -85,7 +85,7 @@ function TextOpenAi({ postData }: { postData: any }) {
                         saving: false,
                         finalizing: true,
                     })
-                }, 20000)
+                }, 150000)
             )
         }
 
@@ -97,63 +97,50 @@ function TextOpenAi({ postData }: { postData: any }) {
     const generateDocument = async () => {
         setLoading(true)
         setIsGenerating(true)
-        // set your openai api key
-        const client = new OpenAI({
-            apiKey: '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', // Replace with your actual API key
-            dangerouslyAllowBrowser: true,
-        })
-
-        const response = await client.chat.completions.create({
-            messages: [
-                {
-                    role: 'user',
-                    content: `Write cleaning and maintenance department be as details as you can do not hold back:
-1.⁠ ⁠Purpose and goals.
-2.⁠ ⁠Definitions
-3.⁠ ⁠applicable Scope.
-4.⁠ ⁠Policy standard.
-5.⁠ ⁠Procedures details.
-6.⁠ ⁠Responsibility and staff roles.
-7.⁠ ⁠References. 
-add points and title and group it together in headers and descriptions.
-at least 2000 words`,
-                    assistant_id: 'asst_ocNVk2FQVnDz5jTRYzFD0J6H',
-                },
-            ],
-            model: 'gpt-4o-mini',
-        })
-        console.log(response.choices[0].message.content)
-        const chatResponse = response.choices[0].message.content
-        const htmlContent = marked(chatResponse)
 
         try {
-            const updateUrl = `/wp-json/department/v1/update/${id}`
-            const nonce = window?.appLocalizer?.nonce || ''
+            const response = await fetch('/wp-json/openai/v1/fetch')
+            const data = await response.json() // Parse the JSON response
 
-            const response = await axios.post(
-                updateUrl,
-                {
-                    id: postData.id,
-                    content: htmlContent,
-                },
-                {
-                    headers: {
-                        'X-WP-Nonce': nonce,
+            // Log the entire response to understand its structure
+            console.log('API Response:', data)
+
+            // Check if the response contains the expected structure
+            if (data.choices && data.choices[0] && data.choices[0].message) {
+                const chatResponse = data.choices[0].message.content
+                const htmlContent = marked(chatResponse)
+
+                const updateUrl = `/wp-json/department/v1/update/${id}`
+                const nonce = window?.appLocalizer?.nonce || ''
+
+                const updateResponse = await axios.post(
+                    updateUrl,
+                    {
+                        id: postData.id,
+                        content: htmlContent,
                     },
-                }
-            )
-            console.log(response)
-            await toast.success('Document generated successfully!')
-            setIsEditing(false)
+                    {
+                        headers: {
+                            'X-WP-Nonce': nonce,
+                        },
+                    }
+                )
+
+                console.log(updateResponse)
+                await toast.success('Document generated successfully!')
+                setIsEditing(false)
+                setCurrentContent(htmlContent)
+            } else {
+                console.error('Unexpected response structure:', data)
+                await toast.error('Unexpected response structure from API')
+            }
         } catch (error) {
-            console.error('Error saving document:', error)
-            await toast.error('An error occurred while saving the document')
+            console.error('Error generating document:', error)
+            await toast.error('An error occurred while generating the document')
         } finally {
             setLoading(false)
             setIsGenerating(false)
         }
-
-        setCurrentContent(htmlContent)
     }
 
     const saveDocument = async () => {
