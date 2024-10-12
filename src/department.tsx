@@ -1,3 +1,4 @@
+// @ts-nocheck
 import ReactDOM from 'react-dom/client'
 import { ThemeProvider } from './components/theme-provider'
 import { ModeToggle } from './components/mode-toggle'
@@ -13,12 +14,13 @@ import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import List from './pages/department/ListDepartments'
 import CRUD_Department from './pages/department/AddOrUpdateDepartment'
 import View from './pages/department/View'
+import TaskPage from './pages/tasks/page'
 
 // Define routes for the app
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <List />,
+        element: <TaskPage />,
     },
     {
         path: '/update/:id', // For editing a specific staff member

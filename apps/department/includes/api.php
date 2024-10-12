@@ -161,7 +161,6 @@ class WP_React_Department_Rest_Route
             'data'    => $parameters
         ]);
     }
-
     // Function to get all departments
     public function get_all_departments()
     {
@@ -175,11 +174,28 @@ class WP_React_Department_Rest_Route
         $data = [];
 
         foreach ($departments as $department) {
-            $data[] = [
-                'id'      => $department->ID,
-                'title'   => $department->post_title,
-                'content' => $department->post_content,
-            ];
+            // Get post meta data
+            $meta_data = get_post_meta($department->ID);
+            $flattened_meta = [];
+
+            if (!empty($meta_data) && is_array($meta_data)) {
+                foreach ($meta_data as $key => $value) {
+                    $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+                    // Unserialize if the value is serialized
+                    $flattened_meta[$key] = maybe_unserialize($flattened_meta[$key]);
+                }
+            }
+
+            // Merge the flattened meta data with the main data array
+            $data[] = array_merge(
+                [
+                    // convert id to number
+                    'id'      => (string) $department->ID,
+                    'title'   => $department->post_title,
+                    'content' => $department->post_content,
+                ],
+                $flattened_meta
+            );
         }
 
         return rest_ensure_response($data);
