@@ -14,7 +14,7 @@ import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import List from './pages/department/ListDepartments'
 import CRUD_Department from './pages/department/AddOrUpdateDepartment'
 import View from './pages/department/View'
-import TaskPage from './pages/tasks/page'
+import TaskPage from './pages/showList/page'
 
 // Define routes for the app
 const routes: RouteObject[] = [

@@ -290,7 +290,7 @@ function DataView() {
             <Tabs defaultValue="doc" className="">
                 <TabsList>
                     <TabsTrigger value="doc">Documents</TabsTrigger>
-                    <TabsTrigger value="staff">Staff</TabsTrigger>
+                    <TabsTrigger value="policy">Policy</TabsTrigger>
                 </TabsList>
                 <TabsContent value="doc" className="w-full">
                     <Button
@@ -301,7 +301,7 @@ function DataView() {
                     </Button>
                     {showUpload && (
                         <DocumnetManager
-                            appName="staff"
+                            appName="policy"
                             itemId={id}
                             setRefreshList={setRefreshList}
                             refreshList={refreshList}

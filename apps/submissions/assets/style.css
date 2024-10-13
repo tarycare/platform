@@ -1059,6 +1059,9 @@ body{
 .w-9{
     width: 2.25rem;
 }
+.w-96{
+    width: 24rem;
+}
 .w-\[1\.2rem\]{
     width: 1.2rem;
 }
@@ -1797,9 +1800,6 @@ body{
 .text-\[16px\]{
     font-size: 16px;
 }
-.text-\[18px\]{
-    font-size: 18px;
-}
 .text-base{
     font-size: 1rem;
     line-height: 1.5rem;
@@ -1890,10 +1890,6 @@ body{
 .text-gray-500{
     --tw-text-opacity: 1;
     color: rgb(107 114 128 / var(--tw-text-opacity));
-}
-.text-gray-600{
-    --tw-text-opacity: 1;
-    color: rgb(75 85 99 / var(--tw-text-opacity));
 }
 .text-gray-700{
     --tw-text-opacity: 1;

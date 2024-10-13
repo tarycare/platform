@@ -6,6 +6,7 @@ import axios from 'axios'
 import { Button } from './ui/button'
 import { Loader2 } from 'lucide-react'
 import { toast, Toaster } from 'sonner'
+import { Textarea } from './ui/textarea'
 
 function TextOpenAi({ postData }: { postData: any }) {
     const id = postData.id
@@ -19,6 +20,17 @@ function TextOpenAi({ postData }: { postData: any }) {
         saving: false,
         finalizing: false,
     })
+    const [content, setContent] =
+        useState(`Write cleaning and maintenance department be as details as you can do not hold back:
+1.⁠Purpose and goals.
+2.⁠ ⁠Definitions
+3.⁠ ⁠applicable Scope.
+4.⁠ ⁠Policy standard.
+5.⁠ ⁠Procedures details.
+6.⁠ ⁠Responsibility and staff roles.
+7.⁠ ⁠References.
+add points and title and group it together in headers and descriptions. at least 2000 words
+    `)
 
     const editorRef = useRef<HTMLDivElement | null>(null)
 
@@ -109,8 +121,7 @@ function TextOpenAi({ postData }: { postData: any }) {
                     messages: [
                         {
                             role: 'user',
-                            content:
-                                'Write cleaning and maintenance department be as details as you can do not hold back:1.⁠Purpose and goals. 2.⁠ ⁠Definitions 3.⁠ ⁠applicable Scope. 4.⁠ ⁠Policy standard. 5.⁠ ⁠Procedures details. 6.⁠ ⁠Responsibility and staff roles. 7.⁠ ⁠References.  add points and title and group it together in headers and descriptions. at least 2000 words',
+                            content: content,
                         },
                     ],
                     temperature: 0.2,
@@ -190,51 +201,63 @@ function TextOpenAi({ postData }: { postData: any }) {
         <div>
             <Toaster richColors />
 
-            {!currentContent ? (
+            <div>
                 <div className="flex items-center gap-3">
-                    <Button
-                        onClick={generateDocument}
-                        className="my-5 bg-black hover:bg-black/70"
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <Loader2 className="h-5 w-5 animate-spin text-white" />
-                        ) : (
-                            <div>Generate Document ✨</div>
-                        )}
-                    </Button>
-
                     <div>
-                        {/* set emojes for each state */}
-                        {generatedState.starting && (
-                            <div className="animate-pulse text-[18px] text-gray-600">
-                                Starting 🚀 ...
-                            </div>
-                        )}
-                        {generatedState.generating && (
-                            <div className="animate-pulse text-[18px] text-gray-600">
-                                Generating 🧠 ...
-                            </div>
-                        )}
-                        {generatedState.saving && (
-                            <div className="animate-pulse text-[18px] text-gray-600">
-                                Saving 💾 ...
-                            </div>
-                        )}
-                        {generatedState.finalizing && (
-                            <div className="animate-pulse text-[18px] text-gray-600">
-                                Finalizing 🎉 ...
-                            </div>
-                        )}
+                        <Textarea
+                            placeholder="Add a role"
+                            className="w-96"
+                            rows={8}
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            disabled={loading}
+                        />
+                        <Button
+                            onClick={generateDocument}
+                            className="my-5 bg-black hover:bg-black/70"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <Loader2 className="h-5 w-5 animate-spin text-white" />
+                            ) : (
+                                <div>Generate Document ✨</div>
+                            )}
+                        </Button>
+                        <hr />
                     </div>
+                    {loading && (
+                        <div>
+                            {/* set emojes for each state */}
+                            {generatedState.starting && (
+                                <div className="animate-pulse text-[16px] text-gray-500">
+                                    Starting 🚀 ...
+                                </div>
+                            )}
+                            {generatedState.generating && (
+                                <div className="animate-pulse text-[16px] text-gray-500">
+                                    Generating 🧠 ...
+                                </div>
+                            )}
+                            {generatedState.saving && (
+                                <div className="animate-pulse text-[16px] text-gray-500">
+                                    Saving 💾 ...
+                                </div>
+                            )}
+                            {generatedState.finalizing && (
+                                <div className="animate-pulse text-[16px] text-gray-500">
+                                    Finalizing 🎉 ...
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
-            ) : (
                 <div className="flex items-center gap-2">
                     {isEditing ? (
                         <Button
                             variant={'destructive'}
                             onClick={() => setIsEditing(false)}
                             className="my-5"
+                            disabled={loading}
                         >
                             Cancel Editing
                         </Button>
@@ -242,11 +265,11 @@ function TextOpenAi({ postData }: { postData: any }) {
                         <Button
                             onClick={() => setIsEditing(true)}
                             className="my-5 bg-black hover:bg-black/70"
+                            disabled={loading}
                         >
                             Edit Document
                         </Button>
                     )}
-
                     {/* Save Document */}
                     {isEditing && (
                         <Button
@@ -257,7 +280,8 @@ function TextOpenAi({ postData }: { postData: any }) {
                         </Button>
                     )}
                 </div>
-            )}
+            </div>
+
             {isEditing && (
                 <div>
                     <link
