@@ -310,13 +310,13 @@ function DataView() {
                     )}
                     <div className="mt-5">
                         <DocumentList
-                            appName="staff"
+                            appName="policy"
                             itemId={id} // Staff
                             refreshList={refreshList}
                         />
                     </div>
                 </TabsContent>
-                <TabsContent value="staff">
+                <TabsContent value="policy">
                     <DocAiGen postData={postData} />
                 </TabsContent>
             </Tabs>
