@@ -37,8 +37,7 @@ export function DataTableFacetedFilter<TData, TValue>({
     options,
 }: DataTableFacetedFilterProps<TData, TValue>) {
     const facets = column?.getFacetedUniqueValues()
-    console.log('facets', facets)
-    const selectedValues = new Set(column?.getFilterValue() as string[])
+    const selectedValues = new Set((column?.getFilterValue() as string[]) ?? [])
 
     return (
         <Popover>
@@ -50,7 +49,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 >
                     <PlusCircledIcon className="mr-2 h-4 w-4" />
                     {title}
-                    {selectedValues?.size > 0 && (
+                    {selectedValues.size > 0 && (
                         <>
                             <Separator
                                 orientation="vertical"
@@ -78,7 +77,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                                         .map((option) => (
                                             <Badge
                                                 variant="secondary"
-                                                key={option.value}
+                                                key={`dd-${option.value}`}
                                                 className="rounded-sm px-1 font-normal"
                                             >
                                                 {option.label}
@@ -92,7 +91,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0" align="start">
                 <Command>
-                    <CommandInput placeholder={title} />
+                    <CommandInput placeholder={`Search ${title}`} />
                     <CommandList>
                         <CommandEmpty>No results found.</CommandEmpty>
                         <CommandGroup>
@@ -102,7 +101,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                                 )
                                 return (
                                     <CommandItem
-                                        key={option.value}
+                                        key={`www-${option.value}`}
                                         onSelect={() => {
                                             if (isSelected) {
                                                 selectedValues.delete(
@@ -113,6 +112,10 @@ export function DataTableFacetedFilter<TData, TValue>({
                                             }
                                             const filterValues =
                                                 Array.from(selectedValues)
+                                            console.log(
+                                                `Setting filter for ${title}:`,
+                                                filterValues
+                                            )
                                             column?.setFilterValue(
                                                 filterValues.length
                                                     ? filterValues

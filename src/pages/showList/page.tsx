@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from './components/data-table-column-header'
-import { IconPencil, IconTrash } from '@tabler/icons-react'
+import { IconEye, IconPencil, IconTrash } from '@tabler/icons-react'
 import { Badge } from '@/components/ui/badge'
 
 export default function TaskPage() {
@@ -191,6 +191,14 @@ export default function TaskPage() {
                     ),
                     cell: ({ row }: any) => (
                         <div className="flex space-x-2">
+                            {/* view button eye */}
+                            <button
+                                onClick={() =>
+                                    navigate(`/view/${row.original.id}`)
+                                }
+                            >
+                                <IconEye className="size-4" />
+                            </button>
                             <button
                                 onClick={() =>
                                     navigate(`/update/${row.original.id}`)

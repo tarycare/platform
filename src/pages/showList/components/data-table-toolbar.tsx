@@ -179,16 +179,6 @@ export function DataTableToolbar<TData>({
             (field: any) => field.type === 'select' || field.type === 'radio'
         )
     )
-    fieldWithItems.forEach((field: any) => {
-        // check if field has items with value undefined
-        if (!field.items.some((item: any) => item.value === undefined))
-            field.items.push({
-                value: undefined,
-                label_en: 'none',
-                label_ar: '',
-                order: 0,
-            })
-    })
 
     console.log('fieldWithItems', fieldWithItems)
     const isFiltered = table.getState().columnFilters.length > 0

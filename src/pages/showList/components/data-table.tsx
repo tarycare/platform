@@ -1,4 +1,4 @@
-'use client'
+// @ts-nocheck
 
 import * as React from 'react'
 import {
@@ -66,6 +66,15 @@ export function DataTable<TData, TValue>({
         getSortedRowModel: getSortedRowModel(),
         getFacetedRowModel: getFacetedRowModel(),
         getFacetedUniqueValues: getFacetedUniqueValues(),
+        filterFns: {
+            multiSelect: (row, columnId, filterValue) => {
+                const cellValue = row.getValue(columnId)
+                if (Array.isArray(filterValue)) {
+                    return filterValue.some((val) => cellValue.includes(val))
+                }
+                return cellValue.includes(filterValue)
+            },
+        },
     })
 
     return (
@@ -75,11 +84,11 @@ export function DataTable<TData, TValue>({
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
+                            <TableRow key={`dad-${headerGroup.id}`}>
                                 {headerGroup.headers.map((header) => {
                                     return (
                                         <TableHead
-                                            key={header.id}
+                                            key={`dd-${header.id}`}
                                             colSpan={header.colSpan}
                                         >
                                             {header.isPlaceholder
@@ -99,13 +108,13 @@ export function DataTable<TData, TValue>({
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
-                                    key={row.id}
+                                    key={`ddddd-${row.id}`}
                                     data-state={
                                         row.getIsSelected() && 'selected'
                                     }
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
+                                        <TableCell key={`dqqd-${cell.id}`}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()
