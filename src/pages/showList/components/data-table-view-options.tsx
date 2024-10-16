@@ -12,7 +12,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { PlusCircle } from 'lucide-react'
 
 interface DataTableViewOptionsProps<TData> {
@@ -22,6 +22,7 @@ interface DataTableViewOptionsProps<TData> {
 export function DataTableViewOptions<TData>({
     table,
 }: DataTableViewOptionsProps<TData>) {
+    const { id } = useParams()
     return (
         <div className="flex items-center gap-2">
             <DropdownMenu>
@@ -62,8 +63,13 @@ export function DataTableViewOptions<TData>({
                 </DropdownMenuContent>
             </DropdownMenu>
             {/* Add new */}
-            <Link to="/add">
-                {' '}
+
+            <Link
+                to={
+                    // chaek if the path is slug
+                    id ? `/${id}/add` : `/add`
+                }
+            >
                 <Button variant={'outline'}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     <span className="sm:whitespace-nowrap">Add New</span>

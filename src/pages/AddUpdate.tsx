@@ -8,11 +8,13 @@ import { useToast } from './components/ui/use-toast'
 import { toast, Toaster } from 'sonner'
 import FormViewer from '@/components/FormViewer'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 
-function CRUD_Department({ type }: { type: string }) {
+function AddUpdate({ type }: { type: string }) {
     const navigate = useNavigate() // Initialize useNavigate
 
     const [formSections, setFormSections] = useState([])
+    const [formIdU, setFormIdU] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -20,18 +22,20 @@ function CRUD_Department({ type }: { type: string }) {
 
     const [postId, setPostId] = useState(0)
 
-    const { id } = useParams() // Get user ID from the URL params
+    const { id, formId } = useParams() // Get user ID from the URL params
 
-    const fetchUrl = '/wp-json/form/v1/get?title=Department + &id=' + id
+    const fetchUrl =
+        type === 'submission'
+            ? `/wp-json/form/v1/get/${formId}`
+            : `/wp-json/form/v1/get?title=${type}`
 
-    const submitUrl = '/wp-json/department/v1/add'
+    const submitUrl = `/wp-json/${type}/v1/add`
 
-    const updateUrl = `/wp-json/department/v1/update/${id}`
+    const updateUrl = `/wp-json/${type}/v1/update/${id}`
 
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
 
-    // useEffect to to fetch department/v1/site
     useEffect(() => {
         async function getSiteId() {
             const response = await fetch('/wp-json/staff/v1/site')
@@ -51,7 +55,7 @@ function CRUD_Department({ type }: { type: string }) {
                     method: 'GET',
                 })
                 const data = await response.json()
-
+                setFormIdU(data.id)
                 setFormSections(data.sections)
             } catch (error) {
                 console.error('Error fetching form data:', error)
@@ -68,10 +72,10 @@ function CRUD_Department({ type }: { type: string }) {
         console.log(isUpdating ? 'Updating dep' : 'Creating new dep')
         if (isUpdating) {
             // Fetch the user data to prefill the form
-            const fetchDepartmentData = async () => {
+            const fetchData = async () => {
                 try {
                     const response = await fetch(
-                        `/wp-json/department/v1/get/${id}`
+                        `/wp-json/${type}/v1/get/${id}`
                     )
                     if (!response.ok) {
                         throw new Error('Failed to fetch user data')
@@ -84,7 +88,7 @@ function CRUD_Department({ type }: { type: string }) {
                 }
             }
 
-            fetchDepartmentData()
+            fetchData()
         }
     }, [isUpdating, id])
 
@@ -170,11 +174,17 @@ function CRUD_Department({ type }: { type: string }) {
             setIsSubmitting(false)
         }
     }
+    const handleNavigation = () => {
+        window.location.href = `./admin.php?page=forms#/update/${formId}`
+    }
 
     return (
         <div>
             <>
                 <Toaster richColors />
+                <Button onClick={() => handleNavigation()} className="mb-4">
+                    Customize Form
+                </Button>
                 <FormViewer
                     data={formSections} // Manager field is now included in both modes
                     handleSubmission={handleSubmission}
@@ -189,4 +199,4 @@ function CRUD_Department({ type }: { type: string }) {
     )
 }
 
-export default CRUD_Department
+export default AddUpdate

@@ -8,12 +8,10 @@ import AddOrUpdateStaff from './pages/staff/AddOrUpdateStaff'
 import StaffDetails from './pages/staff/StaffDetails'
 import NotFound from './components/NotFound'
 import './index.css'
-import CreateForm from './components/CreateForm'
-import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import CRUD_Equipment from './pages/equipment/AddOrUpdateEquipment'
 
 import List from './pages/showList/page'
 import View from './pages/View'
+import AddUpdate from './pages/AddUpdate'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -30,7 +28,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CRUD_Equipment />
+                    <AddUpdate type="equipment" />
                 </div>
             </div>
         ),
@@ -40,22 +38,15 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CRUD_Equipment />
+                    <AddUpdate type="equipment" />
                 </div>
             </div>
         ),
     },
-    {
-        path: '/view/:id', // For viewing staff details
-        element: <StaffDetails />,
-    },
+
     {
         path: '*', // Catch-all route for undefined paths
         element: <NotFound />,
-    },
-    {
-        path: '/create', // Catch-all route for undefined paths
-        element: <CreateForm />,
     },
 ]
 

@@ -122,12 +122,17 @@ export default function List({ type }: { type: string }) {
                                             alt={field.label_en}
                                         />
                                         <AvatarFallback>
-                                            {row.original.first_name
-                                                ?.charAt(0)
-                                                .toUpperCase() +
-                                                row.original.last_name
-                                                    ?.charAt(0)
-                                                    .toUpperCase()}
+                                            {type === 'staff'
+                                                ? row.original.first_name
+                                                      ?.charAt(0)
+                                                      .toUpperCase() +
+                                                  ' ' +
+                                                  row.original.last_name
+                                                      ?.charAt(0)
+                                                      .toUpperCase()
+                                                : row.original.title
+                                                      ?.charAt(0)
+                                                      .toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                 )
@@ -231,9 +236,7 @@ export default function List({ type }: { type: string }) {
                             <button
                                 onClick={() => {
                                     if (type === 'form') {
-                                        navigate(
-                                            `/form-submissions/${row.original.id}`
-                                        )
+                                        navigate(`/update/${row.original.id}`)
                                     } else if (type === 'submission') {
                                         navigate(
                                             `/${id}/update/${row.original.id}`
@@ -329,6 +332,7 @@ export default function List({ type }: { type: string }) {
                     columns={columns}
                     formSections={formSections}
                     loading={loading}
+                    type={type}
                 />
             </div>
         </>

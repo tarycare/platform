@@ -13,6 +13,7 @@ import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import FormBuilder from './components/Builder/Formbuilder'
 import List from './pages/showList/page'
 import View from './pages/View'
+import AddUpdate from './pages/AddUpdate'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -30,7 +31,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <AddOrUpdateStaff />
+                    <AddUpdate type="staff" />
                 </div>
             </div>
         ),
@@ -41,7 +42,7 @@ const routes: RouteObject[] = [
             <div>
                 <div className="w-full lg:w-[800px]">
                     {/* <CreateAndUpdateFormPage /> */}
-                    <AddOrUpdateStaff />
+                    <AddUpdate type="staff" />
                 </div>
             </div>
         ),

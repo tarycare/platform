@@ -16,6 +16,7 @@ import CRUD_Submission from './pages/form/AddOrUpdateSubmission'
 
 import List from './pages/showList/page'
 import View from './pages/View'
+import AddUpdate from './pages/AddUpdate'
 
 // Define routes for the app
 const routes: RouteObject[] = [
@@ -56,13 +57,13 @@ const routes: RouteObject[] = [
         element: <View type="submission" />,
     },
     {
-        path: ':formid/add',
-        element: <CRUD_Submission />,
+        path: ':formId/add',
+        element: <AddUpdate type="submission" />,
     },
 
     {
         path: ':formId/update/:id',
-        element: <CRUD_Submission />,
+        element: <AddUpdate type="submission" />,
     },
 ]
 

@@ -114,6 +114,11 @@ const combinedConfig = {
                     noErrorOnMissing: true,
                 },
                 { from: 'dev-apps/lib', to: 'lib/', noErrorOnMissing: true },
+                {
+                    from: 'tarylogo.svg',
+                    to: 'assets/',
+                    noErrorOnMissing: true,
+                },
             ],
         }),
     ],
