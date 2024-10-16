@@ -147,7 +147,12 @@ class WP_React_Settings_Rest_Route
                             // Store the image URL under the same key as the field name
                             $flattened_meta[$key] = $image_url;
                         } else {
-                            $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+                            // unserializing the value if it's serialized
+                            $meta_value = $value[0];
+                            while (is_serialized($meta_value)) {
+                                $meta_value = maybe_unserialize($meta_value);
+                            }
+                            $flattened_meta[$key] = $meta_value;
                         }
                     }
                 }
