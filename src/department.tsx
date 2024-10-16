@@ -1,16 +1,12 @@
-// @ts-nocheck
+import './index.css'
+
 import ReactDOM from 'react-dom/client'
 import { ThemeProvider } from './components/theme-provider'
 import { ModeToggle } from './components/mode-toggle'
 import { Toaster } from '@/components/ui/toaster'
 import { createHashRouter, RouterProvider, RouteObject } from 'react-router-dom'
 
-import AddOrUpdateStaff from './pages/staff/AddOrUpdateStaff'
-import StaffDetails from './pages/staff/StaffDetails'
 import NotFound from './components/NotFound'
-import './index.css'
-import CreateForm from './components/CreateForm'
-import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import AddUpdate from './pages/AddUpdate'
 import View from './pages/View'
 import List from './pages/List/page'
@@ -58,10 +54,6 @@ const routes: RouteObject[] = [
     {
         path: '*', // Catch-all route for undefined paths
         element: <NotFound />,
-    },
-    {
-        path: '/create', // Catch-all route for undefined paths
-        element: <CreateForm />,
     },
 ]
 
