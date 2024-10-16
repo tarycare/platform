@@ -9,7 +9,7 @@ import StaffDetails from './pages/staff/StaffDetails'
 import NotFound from './components/NotFound'
 import './index.css'
 
-import List from './pages/showList/page'
+import List from './pages/List/page'
 import View from './pages/View'
 import AddUpdate from './pages/AddUpdate'
 
@@ -17,7 +17,16 @@ import AddUpdate from './pages/AddUpdate'
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <List type="equipment" />,
+        element: (
+            <List
+                type="equipment"
+                title={{ title_en: 'Equipment', title_ar: 'المعدات' }}
+                description={{
+                    description_en: 'List of all equipment',
+                    description_ar: 'قائمة بجميع المعدات',
+                }}
+            />
+        ),
     },
     {
         path: '/view/:id', // For viewing staff details

@@ -264,24 +264,6 @@ function DataView({ type }: { type: string }) {
                                         field.colSpan || 6
                                     }`}
                                 >
-                                    <div className="mb-[9px] flex items-center justify-between">
-                                        {(field.help_en || field.help_ar) && (
-                                            <Popover>
-                                                <PopoverTrigger>
-                                                    <HelpCircleIcon className="me-1 size-[14px] cursor-pointer text-muted-foreground hover:opacity-90" />
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-fit">
-                                                    <div className="">
-                                                        <p className="text-xs font-normal">
-                                                            {htmlLang === 'ar'
-                                                                ? field.help_ar
-                                                                : field.help_en}
-                                                        </p>
-                                                    </div>
-                                                </PopoverContent>
-                                            </Popover>
-                                        )}
-                                    </div>
                                     {renderField(field)}
                                 </div>
                             ))}
