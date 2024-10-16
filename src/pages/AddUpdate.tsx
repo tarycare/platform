@@ -8,33 +8,34 @@ import { useToast } from './components/ui/use-toast'
 import { toast, Toaster } from 'sonner'
 import FormViewer from '@/components/FormViewer'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 
-function CRUD_Submission() {
+function AddUpdate({ type }: { type: string }) {
     const navigate = useNavigate() // Initialize useNavigate
 
     const [formSections, setFormSections] = useState([])
+    const [formIdU, setFormIdU] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [siteId, setSiteId] = useState(0)
 
-    const isDev = process.env.NODE_ENV === 'development'
-    const baseUrl = isDev ? 'http://mytest.local' : ''
     const [postId, setPostId] = useState(0)
 
-    const { formId, id } = useParams() // Get user ID from the URL params
-    console.log(useParams(), 'useParams()')
-    const fetchUrl = '/wp-json/form/v1/get/' + formId
+    const { id, formId } = useParams() // Get user ID from the URL params
 
-    const submitUrl = '/wp-json/submission/v1/add'
+    const fetchUrl =
+        type === 'submission'
+            ? `/wp-json/form/v1/get/${formId}`
+            : `/wp-json/form/v1/get?title=${type}`
 
-    const updateUrl = `/wp-json/submission/v1/update/${id}`
+    const submitUrl = `/wp-json/${type}/v1/add`
+
+    const updateUrl = `/wp-json/${type}/v1/update/${id}`
 
     const [formData, setFormData] = useState({})
     const isUpdating = Boolean(id) // Check if this is an update operation
-    console.log(isUpdating, 'isUpdating')
 
-    // useEffect to to fetch submission/v1/site
     useEffect(() => {
         async function getSiteId() {
             const response = await fetch('/wp-json/staff/v1/site')
@@ -54,10 +55,10 @@ function CRUD_Submission() {
                     method: 'GET',
                 })
                 const data = await response.json()
-
+                setFormIdU(data.id)
                 setFormSections(data.sections)
             } catch (error) {
-                console.error('Error fetching submission data:', error)
+                console.error('Error fetching form data:', error)
             } finally {
                 setIsLoading(false)
                 setIsSubmitting(false)
@@ -70,11 +71,11 @@ function CRUD_Submission() {
     useEffect(() => {
         console.log(isUpdating ? 'Updating dep' : 'Creating new dep')
         if (isUpdating) {
-            // Fetch the user data to prefill the submission
-            const fetchSubmissionData = async () => {
+            // Fetch the user data to prefill the form
+            const fetchData = async () => {
                 try {
                     const response = await fetch(
-                        `${baseUrl}/wp-json/submission/v1/get/${id}`
+                        `/wp-json/${type}/v1/get/${id}`
                     )
                     if (!response.ok) {
                         throw new Error('Failed to fetch user data')
@@ -87,7 +88,7 @@ function CRUD_Submission() {
                 }
             }
 
-            fetchSubmissionData()
+            fetchData()
         }
     }, [isUpdating, id])
 
@@ -99,14 +100,12 @@ function CRUD_Submission() {
         )
     }
 
-    // Handle submission submission (add mode)
+    // Handle form submission (add mode)
     const handleSubmission = async (formData) => {
         try {
             setIsSubmitting(true)
             const nonce = window?.appLocalizer?.nonce || ''
             const isFormDataInstance = formData instanceof FormData
-            // append formId to formData
-            formData.append('form_id', formId)
 
             const response = await fetch(submitUrl, {
                 method: 'POST',
@@ -124,7 +123,7 @@ function CRUD_Submission() {
                 await toast.success('Form submitted successfully!', {
                     description: result.message,
                 })
-                navigate(`/${formId}/update/${result.post_id}`)
+                navigate(`/update/${result.post_id}`)
             } else {
                 toast.error('Form submission failed!', {
                     description: result.message,
@@ -139,7 +138,7 @@ function CRUD_Submission() {
         }
     }
 
-    // Handle submission update (update mode)
+    // Handle form update (update mode)
     const handleUpdate = async (formData) => {
         try {
             setIsSubmitting(true)
@@ -175,17 +174,23 @@ function CRUD_Submission() {
             setIsSubmitting(false)
         }
     }
+    const handleNavigation = () => {
+        window.location.href = `./admin.php?page=forms#/update/${formId}`
+    }
 
     return (
         <div>
             <>
                 <Toaster richColors />
+                <Button onClick={() => handleNavigation()} className="mb-4">
+                    Customize Form
+                </Button>
                 <FormViewer
                     data={formSections} // Manager field is now included in both modes
                     handleSubmission={handleSubmission}
                     handleUpdate={handleUpdate}
                     isSubmitting={isSubmitting}
-                    updateData={JSON.stringify(formData) || {}} // Prefill submission with manager data during update
+                    updateData={JSON.stringify(formData) || {}} // Prefill form with manager data during update
                     updateUrl={updateUrl}
                     isUpdating={isUpdating}
                 />
@@ -194,4 +199,4 @@ function CRUD_Submission() {
     )
 }
 
-export default CRUD_Submission
+export default AddUpdate

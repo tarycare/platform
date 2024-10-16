@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
     data: TData[]
     formSections: any
     loading: boolean
+    type: string
 }
 
 export function DataTable<TData, TValue>({

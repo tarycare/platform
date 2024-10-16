@@ -11,7 +11,7 @@ import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import CRUD_Department from './pages/department/AddOrUpdateDepartment'
+import AddUpdate from './pages/AddUpdate'
 import View from './pages/View'
 import List from './pages/showList/page'
 
@@ -30,7 +30,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CRUD_Department type="department" />
+                    <AddUpdate type="department" />
                 </div>
             </div>
         ),
@@ -40,7 +40,7 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CRUD_Department type="department" />
+                    <AddUpdate type="department" />
                 </div>
             </div>
         ),

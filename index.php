@@ -307,7 +307,7 @@ function add_logo_to_admin_sidebar()
 
             height: 40px; /* Adjust based on logo size */
             width: 60%;
-            background: url("' . plugins_url('tarylogo.svg', __FILE__) . '") no-repeat center;
+            background: url("' . plugins_url('/apps/assets/tarylogo.svg', __FILE__) . '") no-repeat center;
             background-size: contain;
             margin-bottom: 20px;
                margin:10px
