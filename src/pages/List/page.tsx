@@ -13,7 +13,15 @@ import { IconEye, IconPencil, IconTrash } from '@tabler/icons-react'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-export default function List({ type }: { type: string }) {
+export default function List({
+    type,
+    title,
+    description,
+}: {
+    type: string
+    title?: { title_en: string; title_ar: string }
+    description?: { description_en: string; description_ar: string }
+}) {
     console.log('Singular form of page:', type)
     const { id } = useParams()
 
@@ -25,6 +33,7 @@ export default function List({ type }: { type: string }) {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const navigate = useNavigate()
+    const [lang, setLang] = useState(document.documentElement.lang)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -316,11 +325,13 @@ export default function List({ type }: { type: string }) {
             <div className="h-full flex-1 flex-col space-y-8 p-8 md:flex">
                 <div className="flex items-center justify-between space-y-2">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight">
-                            Welcome back!
-                        </h2>
+                        <div className="text-2xl font-bold tracking-tight">
+                            {lang === 'ar' ? title?.title_ar : title?.title_en}
+                        </div>
                         <p className="text-muted-foreground">
-                            Here&apos;s a list of your tasks for this month!
+                            {lang === 'ar'
+                                ? description?.description_ar
+                                : description?.description_en}
                         </p>
                     </div>
                     <div className="flex items-center space-x-2">

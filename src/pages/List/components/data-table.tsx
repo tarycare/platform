@@ -42,6 +42,7 @@ export function DataTable<TData, TValue>({
     data,
     formSections,
     loading,
+    type,
 }: DataTableProps<TData, TValue>) {
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] =
@@ -74,7 +75,11 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="space-y-4">
-            <DataTableToolbar table={table} formSections={formSections} />
+            <DataTableToolbar
+                table={table}
+                formSections={formSections}
+                type={type}
+            />
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>

@@ -13,13 +13,22 @@ import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import AddUpdate from './pages/AddUpdate'
 import View from './pages/View'
-import List from './pages/showList/page'
+import List from './pages/List/page'
 
 // Define routes for the app
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <List type="department" />,
+        element: (
+            <List
+                type="department"
+                title={{ title_en: 'Departments', title_ar: 'الأقسام' }}
+                description={{
+                    description_en: 'List of all departments',
+                    description_ar: 'قائمة بجميع الأقسام',
+                }}
+            />
+        ),
     },
     {
         path: '/view/:id', // For viewing staff details

@@ -14,7 +14,7 @@ import FormBuilder from './components/Builder/Formbuilder'
 import SubmmisionsList from './pages/form/SubmmisionsList'
 import CRUD_Submission from './pages/form/AddOrUpdateSubmission'
 
-import List from './pages/showList/page'
+import List from './pages/List/page'
 import View from './pages/View'
 import AddUpdate from './pages/AddUpdate'
 
@@ -22,7 +22,16 @@ import AddUpdate from './pages/AddUpdate'
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <List type="form" />,
+        element: (
+            <List
+                type="form"
+                title={{ title_en: 'Forms', title_ar: 'النماذج' }}
+                description={{
+                    description_en: 'List of all forms',
+                    description_ar: 'قائمة بجميع النماذج',
+                }}
+            />
+        ),
     },
     {
         path: '/view/:id', // For viewing staff details
@@ -50,7 +59,16 @@ const routes: RouteObject[] = [
     },
     {
         path: '/form-submissions/:id', // For viewing form submissions
-        element: <List type="submission" />,
+        element: (
+            <List
+                type="submission"
+                title={{ title_en: 'Submissions', title_ar: 'الإجابات' }}
+                description={{
+                    description_en: 'List of all submissions',
+                    description_ar: 'قائمة بجميع الإجابات',
+                }}
+            />
+        ),
     },
     {
         path: ':formId/view-submission/:id', // For viewing form submissions

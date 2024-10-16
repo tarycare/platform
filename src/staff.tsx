@@ -11,7 +11,7 @@ import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import FormBuilder from './components/Builder/Formbuilder'
-import List from './pages/showList/page'
+import List from './pages/List/page'
 import View from './pages/View'
 import AddUpdate from './pages/AddUpdate'
 
@@ -19,7 +19,16 @@ import AddUpdate from './pages/AddUpdate'
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <List type="staff" />,
+        element: (
+            <List
+                type="staff"
+                title={{ title_en: 'Staff', title_ar: 'الموظفين' }}
+                description={{
+                    description_en: 'List of all staff members',
+                    description_ar: 'قائمة بجميع الموظفين',
+                }}
+            />
+        ),
     },
     {
         path: '/view/:id', // For viewing staff details

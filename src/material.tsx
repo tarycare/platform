@@ -11,7 +11,7 @@ import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import CRUD_Material from './pages/material/AddOrUpdateMaterial'
-import List from './pages/showList/page'
+import List from './pages/List/page'
 import View from './pages/View'
 import AddUpdate from './pages/AddUpdate'
 
@@ -19,7 +19,16 @@ import AddUpdate from './pages/AddUpdate'
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <List type="material" />,
+        element: (
+            <List
+                type="material"
+                title={{ title_en: 'Materials', title_ar: 'المواد' }}
+                description={{
+                    description_en: 'List of all materials',
+                    description_ar: 'قائمة بجميع المواد',
+                }}
+            />
+        ),
     },
     {
         path: '/view/:id', // For viewing staff details

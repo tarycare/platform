@@ -12,11 +12,13 @@ import { DataTableFacetedFilter } from './data-table-faceted-filter'
 interface DataTableToolbarProps<TData> {
     table: Table<TData>
     formSections: any
+    type: string
 }
 
 export function DataTableToolbar<TData>({
     table,
     formSections,
+    type,
 }: DataTableToolbarProps<TData>) {
     console.log('formSections', formSections)
 
@@ -33,16 +35,14 @@ export function DataTableToolbar<TData>({
         <div className="flex items-center justify-between">
             <div className="flex flex-1 items-center space-x-2">
                 <Input
-                    placeholder="Filter tasks..."
-                    value={
-                        (table
-                            .getColumn('title')
-                            ?.getFilterValue() as string) ?? ''
-                    }
-                    onChange={(event) =>
-                        table
-                            .getColumn('title')
-                            ?.setFilterValue(event.target.value)
+                    placeholder="search ..."
+                    // value={
+                    //     (table
+                    //         .getColumn(type === 'staff' ? 'email' : 'title')
+                    //         ?.getFilterValue() as string) ?? ''
+                    // }
+                    onChange={(e) =>
+                        table.setGlobalFilter(String(e.target.value))
                     }
                     className="h-8 w-[150px] lg:w-[250px]"
                 />
@@ -59,7 +59,6 @@ export function DataTableToolbar<TData>({
                         />
                     )
                 })}
-
                 {isFiltered && (
                     <Button
                         variant="ghost"

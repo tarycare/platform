@@ -11,7 +11,7 @@ import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
 import CRUD_Facility from './pages/facilities/AddOrUpdateFacilities'
-import List from './pages/showList/page'
+import List from './pages/List/page'
 import View from './pages/View'
 import AddUpdate from './pages/AddUpdate'
 
@@ -19,7 +19,16 @@ import AddUpdate from './pages/AddUpdate'
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <List type="facility" />,
+        element: (
+            <List
+                type="facility"
+                title={{ title_en: 'Facilities', title_ar: 'المرافق' }}
+                description={{
+                    description_en: 'List of all facilities',
+                    description_ar: 'قائمة بجميع المرافق الخاصة بالمبنى',
+                }}
+            />
+        ),
     },
     {
         path: '/view/:id', // For viewing staff details
