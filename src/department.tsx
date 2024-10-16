@@ -11,23 +11,26 @@ import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import List from './pages/department/ListDepartments'
 import CRUD_Department from './pages/department/AddOrUpdateDepartment'
-import View from './pages/department/View'
-import TaskPage from './pages/showList/page'
+import View from './pages/View'
+import List from './pages/showList/page'
 
 // Define routes for the app
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <TaskPage />,
+        element: <List type="department" />,
+    },
+    {
+        path: '/view/:id', // For viewing staff details
+        element: <View type="department" />,
     },
     {
         path: '/update/:id', // For editing a specific staff member
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CRUD_Department />
+                    <CRUD_Department type="department" />
                 </div>
             </div>
         ),
@@ -37,15 +40,12 @@ const routes: RouteObject[] = [
         element: (
             <div>
                 <div className="w-full lg:w-[800px]">
-                    <CRUD_Department />
+                    <CRUD_Department type="department" />
                 </div>
             </div>
         ),
     },
-    {
-        path: '/view/:id', // For viewing staff details
-        element: <View />,
-    },
+
     {
         path: '*', // Catch-all route for undefined paths
         element: <NotFound />,

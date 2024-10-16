@@ -10,14 +10,20 @@ import NotFound from './components/NotFound'
 import './index.css'
 import CreateForm from './components/CreateForm'
 import CreateAndUpdateFormPage from './pages/CreateAndUpdateFormPage'
-import List from './pages/equipment/ListEquipments'
 import CRUD_Equipment from './pages/equipment/AddOrUpdateEquipment'
+
+import List from './pages/showList/page'
+import View from './pages/View'
 
 // Define routes for the app
 const routes: RouteObject[] = [
     {
         path: '/',
-        element: <List />,
+        element: <List type="equipment" />,
+    },
+    {
+        path: '/view/:id', // For viewing staff details
+        element: <View type="equipment" />,
     },
     {
         path: '/update/:id', // For editing a specific staff member

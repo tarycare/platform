@@ -175,11 +175,27 @@ class WP_React_equipment_Rest_Route
         $data = [];
 
         foreach ($equipments as $equipment) {
-            $data[] = [
-                'id'      => $equipment->ID,
-                'title'   => $equipment->post_title,
-                'content' => $equipment->post_content,
-            ];
+            // Get post meta data
+            $meta_data = get_post_meta($equipment->ID);
+            $flattened_meta = [];
+
+            if (!empty($meta_data) && is_array($meta_data)) {
+                foreach ($meta_data as $key => $value) {
+                    $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+                    // Unserialize if the value is serialized
+                    $flattened_meta[$key] = maybe_unserialize($flattened_meta[$key]);
+                }
+            }
+
+            // Merge the flattened meta data with the main data array
+            $data[] = array_merge(
+                [
+                    'id'      => $equipment->ID,
+                    'title'   => $equipment->post_title,
+                    'content' => $equipment->post_content,
+                ],
+                $flattened_meta
+            );
         }
 
         return rest_ensure_response($data);

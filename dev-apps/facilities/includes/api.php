@@ -175,12 +175,30 @@ class WP_React_Facility_Rest_Route
         $data = [];
 
         foreach ($facilities as $facility) {
-            $data[] = [
-                'id'      => $facility->ID,
-                'title'   => $facility->post_title,
-                'content' => $facility->post_content,
-            ];
+            // Get post meta data
+            $meta_data = get_post_meta($facility->ID);
+            $flattened_meta = [];
+
+            if (!empty($meta_data) && is_array($meta_data)) {
+                foreach ($meta_data as $key => $value) {
+                    $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+                    // Unserialize if the value is serialized
+                    $flattened_meta[$key] = maybe_unserialize($flattened_meta[$key]);
+                }
+            }
+
+            // Merge the flattened meta data with the main data array
+            $data[] = array_merge(
+                [
+                    // convert id to number
+                    'id'      => (string) $facility->ID,
+                    'title'   => $facility->post_title,
+                    'content' => $facility->post_content,
+                ],
+                $flattened_meta
+            );
         }
+
 
         return rest_ensure_response($data);
     }

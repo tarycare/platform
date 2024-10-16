@@ -22,9 +22,9 @@ function CRUD_Submission() {
     const baseUrl = isDev ? 'http://mytest.local' : ''
     const [postId, setPostId] = useState(0)
 
-    const { formid, id } = useParams() // Get user ID from the URL params
+    const { formId, id } = useParams() // Get user ID from the URL params
     console.log(useParams(), 'useParams()')
-    const fetchUrl = '/wp-json/form/v1/get/' + formid
+    const fetchUrl = '/wp-json/form/v1/get/' + formId
 
     const submitUrl = '/wp-json/submission/v1/add'
 
@@ -106,7 +106,7 @@ function CRUD_Submission() {
             const nonce = window?.appLocalizer?.nonce || ''
             const isFormDataInstance = formData instanceof FormData
             // append formId to formData
-            formData.append('form_id', formid)
+            formData.append('form_id', formId)
 
             const response = await fetch(submitUrl, {
                 method: 'POST',
@@ -124,7 +124,7 @@ function CRUD_Submission() {
                 await toast.success('Form submitted successfully!', {
                     description: result.message,
                 })
-                navigate(`/${formid}/update/${result.post_id}`)
+                navigate(`/${formId}/update/${result.post_id}`)
             } else {
                 toast.error('Form submission failed!', {
                     description: result.message,

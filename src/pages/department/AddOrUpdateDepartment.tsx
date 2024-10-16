@@ -9,7 +9,7 @@ import { toast, Toaster } from 'sonner'
 import FormViewer from '@/components/FormViewer'
 import { useNavigate, useParams } from 'react-router-dom'
 
-function CRUD_Department() {
+function CRUD_Department({ type }: { type: string }) {
     const navigate = useNavigate() // Initialize useNavigate
 
     const [formSections, setFormSections] = useState([])
@@ -18,8 +18,6 @@ function CRUD_Department() {
 
     const [siteId, setSiteId] = useState(0)
 
-    const isDev = process.env.NODE_ENV === 'development'
-    const baseUrl = isDev ? 'http://mytest.local' : ''
     const [postId, setPostId] = useState(0)
 
     const { id } = useParams() // Get user ID from the URL params
@@ -73,7 +71,7 @@ function CRUD_Department() {
             const fetchDepartmentData = async () => {
                 try {
                     const response = await fetch(
-                        `${baseUrl}/wp-json/department/v1/get/${id}`
+                        `/wp-json/department/v1/get/${id}`
                     )
                     if (!response.ok) {
                         throw new Error('Failed to fetch user data')

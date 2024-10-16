@@ -78,7 +78,7 @@ class WP_React_Settings_Rest_Route
         ]);
 
         // Route for fetching a specific user by ID
-        register_rest_route('staff/v1', '/users/(?P<id>\d+)', [
+        register_rest_route('staff/v1', '/get/(?P<id>\d+)', [
             'methods' => 'GET',
             'callback' => [$this, 'get_user_by_id'],
             'permission_callback' => '__return_true'
@@ -152,14 +152,14 @@ class WP_React_Settings_Rest_Route
                     }
                 }
 
-                $user_data[] = [
+
+                $user_data[] = array_merge([
                     'id' => $user->ID,
                     'username' => $user->user_login,
                     'email' => $user->user_email,
                     'role' => $user_roles,
                     'registered' => $user->user_registered,
-                    'meta' => $flattened_meta
-                ];
+                ], $flattened_meta);
             }
         } else {
             error_log('Users array is empty or not an array.');

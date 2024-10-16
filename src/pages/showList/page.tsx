@@ -6,50 +6,49 @@ import { DataTable } from './components/data-table'
 import { UserNav } from './components/user-nav'
 import { taskSchema } from './data/schema'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, usetypes } from 'react-router-dom'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from './components/data-table-column-header'
 import { IconEye, IconPencil, IconTrash } from '@tabler/icons-react'
 import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-export default function TaskPage() {
-    const isDev = process.env.NODE_ENV === 'development'
+export default function List({ type }: { type: string }) {
+    console.log('Singular form of page:', type)
+    const { id } = useParams()
 
-    const WP_API_URL = isDev
-        ? `http://mytest.local/wp-json/department/v1/all`
-        : `/wp-json/department/v1/all`
-    const DELETE_API_URL = isDev
-        ? `http://mytest.local/wp-json/department/v1/delete`
-        : `/wp-json/department/v1/delete`
+    const all_url = `/wp-json/${type}/v1/all/${type === 'submission' && id ? id : ''}`
+    const DELETE_API_URL = `/wp-json/${type}/v1/delete`
 
-    const baseUrl = isDev ? 'http://mytest.local' : ''
-
-    const [departments, setDepartments] = useState([])
+    const [dataRows, setDataRows] = useState([])
     const [refresh, setRefresh] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
-        const fetchDepartments = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(WP_API_URL)
+                const response = await fetch(all_url)
                 if (!response.ok) {
                     throw new Error('Error fetching users')
                 }
                 const data = await response.json()
 
-                setDepartments(data)
+                setDataRows(data)
             } catch (error: any) {
                 setError(error)
             } finally {
                 setLoading(false)
             }
         }
-        fetchDepartments()
-    }, [refresh])
+        fetchData()
+    }, [refresh, all_url])
 
-    const fetchUrl = `${baseUrl}/wp-json/form/v1/get?title=Department`
+    const fetchUrl =
+        type === 'submission'
+            ? `/wp-json/form/v1/get/${id}`
+            : `/wp-json/form/v1/get?title=${type}`
 
     const [formSections, setFormSections] = useState([])
     const [columns, setColumns] = useState([])
@@ -113,6 +112,26 @@ export default function TaskPage() {
                         ),
                         cell: ({ row }: any) => {
                             const value = row.original[field.name]
+
+                            // if the field contain image
+                            if (field.name.includes('image')) {
+                                return (
+                                    <Avatar>
+                                        <AvatarImage
+                                            src={value}
+                                            alt={field.label_en}
+                                        />
+                                        <AvatarFallback>
+                                            {row.original.first_name
+                                                ?.charAt(0)
+                                                .toUpperCase() +
+                                                row.original.last_name
+                                                    ?.charAt(0)
+                                                    .toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                )
+                            }
                             if (field.type === 'checkbox') {
                                 return <Checkbox checked={value} />
                             }
@@ -177,7 +196,6 @@ export default function TaskPage() {
 
                     enableHiding: false,
                 })
-
                 // append actions column with icons edit and delete
                 columns.push({
                     accessorKey: 'actions',
@@ -192,17 +210,38 @@ export default function TaskPage() {
                     cell: ({ row }: any) => (
                         <div className="flex space-x-2">
                             {/* view button eye */}
+
                             <button
-                                onClick={() =>
-                                    navigate(`/view/${row.original.id}`)
-                                }
+                                onClick={() => {
+                                    if (type === 'form') {
+                                        navigate(
+                                            `/form-submissions/${row.original.id}`
+                                        )
+                                    } else if (type === 'submission') {
+                                        navigate(
+                                            `/${id}/view-submission/${row.original.id}`
+                                        )
+                                    } else {
+                                        navigate(`/view/${row.original.id}`)
+                                    }
+                                }}
                             >
                                 <IconEye className="size-4" />
                             </button>
                             <button
-                                onClick={() =>
-                                    navigate(`/update/${row.original.id}`)
-                                }
+                                onClick={() => {
+                                    if (type === 'form') {
+                                        navigate(
+                                            `/form-submissions/${row.original.id}`
+                                        )
+                                    } else if (type === 'submission') {
+                                        navigate(
+                                            `/${id}/update/${row.original.id}`
+                                        )
+                                    } else {
+                                        navigate(`/update/${row.original.id}`)
+                                    }
+                                }}
                             >
                                 <IconPencil className="size-4" />
                             </button>
@@ -210,7 +249,7 @@ export default function TaskPage() {
                                 onClick={() => {
                                     if (
                                         !window.confirm(
-                                            'Are you sure you want to delete this Department?'
+                                            'Are you sure you want to delete this row?'
                                         )
                                     ) {
                                         return
@@ -267,7 +306,7 @@ export default function TaskPage() {
         }
 
         fetchForm()
-    }, [fetchUrl])
+    }, [fetchUrl, type, id, refresh])
 
     return (
         <>
@@ -286,9 +325,10 @@ export default function TaskPage() {
                     </div>
                 </div>
                 <DataTable
-                    data={departments}
+                    data={dataRows}
                     columns={columns}
                     formSections={formSections}
+                    loading={loading}
                 />
             </div>
         </>

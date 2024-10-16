@@ -201,6 +201,7 @@ export function DataTableToolbar<TData>({
                     className="h-8 w-[150px] lg:w-[250px]"
                 />
                 {fieldWithItems.map((field: any) => {
+                    console.log(field, 'table.getColumn(field.name)')
                     return (
                         <DataTableFacetedFilter
                             column={table.getColumn(field.name)}

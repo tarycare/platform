@@ -27,17 +27,20 @@ import {
 
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
+import { Loader2 } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     formSections: any
+    loading: boolean
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
     formSections,
+    loading,
 }: DataTableProps<TData, TValue>) {
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] =
@@ -66,15 +69,6 @@ export function DataTable<TData, TValue>({
         getSortedRowModel: getSortedRowModel(),
         getFacetedRowModel: getFacetedRowModel(),
         getFacetedUniqueValues: getFacetedUniqueValues(),
-        filterFns: {
-            multiSelect: (row, columnId, filterValue) => {
-                const cellValue = row.getValue(columnId)
-                if (Array.isArray(filterValue)) {
-                    return filterValue.some((val) => cellValue.includes(val))
-                }
-                return cellValue.includes(filterValue)
-            },
-        },
     })
 
     return (
@@ -129,7 +123,13 @@ export function DataTable<TData, TValue>({
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    {loading ? (
+                                        <div className="flex w-full items-center justify-center">
+                                            <Loader2 className="h-6 w-6 animate-spin" />
+                                        </div>
+                                    ) : (
+                                        'No results.'
+                                    )}
                                 </TableCell>
                             </TableRow>
                         )}
