@@ -15,17 +15,15 @@ import {
 } from '@/components/ui/popover'
 import { HelpCircleIcon, CheckIcon, Dot, Loader2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import DocumnetManager from '../DocumnetManager'
-import DocumentList from '../DocumentList'
+import DocumnetManager from './DocumnetManager'
+import DocumentList from './DocumentList'
 import { IconUpload } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import DocAiGen from '@/components/DocAiGen'
 import TextOpenAi from '@/components/textOpenai'
 
-function DataView() {
-    const isDev = process.env.NODE_ENV === 'development'
-    const baseUrl = isDev ? 'http://mytest.local' : ''
-    const { id } = useParams() // Get user ID from the URL params
+function DataView({ type }: { type: string }) {
+    const { id, formId } = useParams() // Get user ID from the URL params
 
     const [formSections, setFormSections] = useState([])
     const [submittedData, setSubmittedData] = useState({})
@@ -39,8 +37,12 @@ function DataView() {
         window.document.documentElement.lang
     )
 
-    const fetchUrl = `${baseUrl}/wp-json/form/v1/get?title=Department + &id=${id}`
-    const WP_API_URL = `${baseUrl}/wp-json/department/v1/get`
+    const fetchUrl =
+        type === 'submission'
+            ? `/wp-json/form/v1/get/${formId}`
+            : `/wp-json/form/v1/get?title=${type}`
+
+    const WP_API_URL = `/wp-json/${type}/v1/get`
 
     useEffect(() => {
         async function fetchForm() {
@@ -93,26 +95,26 @@ function DataView() {
     }, [fetchUrl])
 
     useEffect(() => {
-        async function fetchDepartmentData() {
+        async function fetchData() {
             setIsLoading(true)
             try {
                 const response = await fetch(`${WP_API_URL}/${id}`)
                 if (!response.ok) {
-                    throw new Error('Error fetching department data')
+                    throw new Error('Error fetchin  data')
                 }
                 const data = await response.json()
                 setPostData(data)
                 console.log('postData:', data)
                 setSubmittedData(data)
             } catch (error) {
-                console.error('Error fetching department data:', error)
+                console.error('Error fetching data:', error)
                 setError(error)
             } finally {
                 setIsLoading(false)
             }
         }
 
-        fetchDepartmentData()
+        fetchData()
     }, [WP_API_URL, id])
 
     const renderSection = (section) => {
