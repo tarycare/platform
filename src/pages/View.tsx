@@ -271,6 +271,7 @@ function DataView({ type }: { type: string }) {
                     </AccordionItem>
                 ))}
             </Accordion>
+
             <Tabs defaultValue="doc" className="">
                 <TabsList>
                     <TabsTrigger value="doc">Documents</TabsTrigger>
