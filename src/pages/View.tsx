@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Label } from '@/components/ui/label'
 import {
     Accordion,
@@ -21,9 +21,11 @@ import { IconUpload } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import DocAiGen from '@/components/DocAiGen'
 import TextOpenAi from '@/components/textOpenai'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 function DataView({ type }: { type: string }) {
     const { id, formId } = useParams() // Get user ID from the URL params
+    const navigate = useNavigate() // Initialize useNavigate
 
     const [formSections, setFormSections] = useState([])
     const [submittedData, setSubmittedData] = useState({})
@@ -148,7 +150,25 @@ function DataView({ type }: { type: string }) {
                             : item.label_en
                         : val
                 })
-                .join(', ')
+                .join(' - ')
+        }
+        // field.type === 'select'
+        if (field.type === 'select' && field.items && field.items.length > 0) {
+            const selectedItem = field.items.find(
+                (item) => item.id === value || item.value === value
+            )
+            return (
+                <div
+                    key={field.id}
+                    style={{ marginBottom: '10px' }}
+                    className="flex flex-col"
+                >
+                    <strong>
+                        {htmlLang === 'ar' ? field.label_ar : field.label_en}:
+                    </strong>
+                    <div>{selectedItem ? selectedItem.label_en : value}</div>
+                </div>
+            )
         }
 
         if (
@@ -157,7 +177,11 @@ function DataView({ type }: { type: string }) {
             field.items.length > 0
         ) {
             return (
-                <div key={field.id} style={{ marginBottom: '10px' }}>
+                <div
+                    key={field.id}
+                    style={{ marginBottom: '10px' }}
+                    className="flex flex-col gap-2"
+                >
                     <strong>
                         {htmlLang === 'ar' ? field.label_ar : field.label_en}:
                     </strong>
@@ -189,11 +213,26 @@ function DataView({ type }: { type: string }) {
         }
 
         return (
-            <div key={field.id} style={{ marginBottom: '10px' }}>
+            <div
+                key={field.id}
+                style={{ marginBottom: '10px' }}
+                className="flex flex-col gap-2"
+            >
                 <strong>
                     {htmlLang === 'ar' ? field.label_ar : field.label_en}:
-                </strong>{' '}
-                {displayValue || 'N/A'}
+                </strong>
+                {field.type.includes('image') ? (
+                    <Avatar>
+                        <AvatarImage src={value} alt={field.label_en} />
+                        <AvatarFallback>
+                            {field.label_en.slice(0, 2)}
+                        </AvatarFallback>
+                    </Avatar>
+                ) : (
+                    // if the field is a select field, display the label of the selected item
+
+                    displayValue || '-'
+                )}
             </div>
         )
     }
@@ -211,7 +250,18 @@ function DataView({ type }: { type: string }) {
     }
 
     return (
-        <div>
+        <div className="w-full xl:w-[750px]">
+            <div className="my-2 flex items-center gap-2">
+                <Button
+                    variant="outline"
+                    onClick={() => navigate(`/update/${id}`)}
+                >
+                    {htmlLang === 'ar' ? 'تعديل' : 'Edit'}
+                </Button>
+                <Button onClick={() => navigate('/')} variant="outline">
+                    {htmlLang !== 'ar' ? 'All' : 'الكل'}
+                </Button>
+            </div>
             <Accordion
                 type="multiple"
                 className="mt-4 w-full"

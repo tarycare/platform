@@ -335,7 +335,7 @@ export default function List({
                         </p>
                     </div>
                     <div className="flex items-center space-x-2">
-                        <UserNav />
+                        {/* <UserNav /> */}
                     </div>
                 </div>
                 <DataTable

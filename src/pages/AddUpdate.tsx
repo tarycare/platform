@@ -17,7 +17,9 @@ function AddUpdate({ type }: { type: string }) {
     const [formIdU, setFormIdU] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
-
+    const [htmlLang, setHtmlLang] = useState(
+        window.document.documentElement.lang
+    )
     const [siteId, setSiteId] = useState(0)
 
     const [postId, setPostId] = useState(0)
@@ -175,16 +177,45 @@ function AddUpdate({ type }: { type: string }) {
         }
     }
     const handleNavigation = () => {
-        window.location.href = `./admin.php?page=forms#/update/${formId}`
+        window.location.href = `./admin.php?page=forms#/update/${formIdU}`
+    }
+    if (isUpdating && !postId) {
+        return (
+            <div className="flex w-full items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+        )
     }
 
     return (
         <div>
             <>
                 <Toaster richColors />
-                <Button onClick={() => handleNavigation()} className="mb-4">
-                    Customize Form
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button
+                        onClick={() => handleNavigation()}
+                        className="mb-4"
+                        variant="outline"
+                    >
+                        {htmlLang !== 'ar' ? 'Customize Form' : 'تخصيص النموذج'}
+                    </Button>
+                    <Button
+                        onClick={() => navigate(`/view/${id}`)}
+                        className="mb-4"
+                        variant="outline"
+                    >
+                        {htmlLang !== 'ar' ? 'View' : 'عرض'}
+                    </Button>
+                    {/* All */}
+                    <Button
+                        onClick={() => navigate('/')}
+                        className="mb-4"
+                        variant="outline"
+                    >
+                        {htmlLang !== 'ar' ? 'All' : 'الكل'}
+                    </Button>
+                </div>
+
                 <FormViewer
                     data={formSections} // Manager field is now included in both modes
                     handleSubmission={handleSubmission}

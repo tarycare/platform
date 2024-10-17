@@ -66,7 +66,7 @@
 //         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
 //             <div className="flex w-full">
 //                 <div className="ms-auto">
-//                     <ModeToggle />
+//                     {/* <ModeToggle /> */}
 //                 </div>
 //             </div>
 //             <RouterProvider router={router} />
