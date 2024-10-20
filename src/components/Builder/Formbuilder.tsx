@@ -27,6 +27,7 @@ import {
     IconUpload,
 } from '@tabler/icons-react'
 import { Label } from '../ui/label'
+import { CopyIcon } from 'lucide-react'
 
 const FormBuilder: React.FC = () => {
     const navigate = useNavigate() // Initialize useNavigate
@@ -227,6 +228,28 @@ const FormBuilder: React.FC = () => {
 
     const htmlLang = document.documentElement.lang
 
+    const handleCopyJson = () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard
+                .writeText(JSON.stringify(formConfig, null, 2))
+                .then(() => toast.success('JSON copied to clipboard'))
+                .catch((err) => toast.error('Failed to copy JSON'))
+        } else {
+            // Fallback for unsupported browsers
+            const textArea = document.createElement('textarea')
+            textArea.value = JSON.stringify(formConfig, null, 2)
+            document.body.appendChild(textArea)
+            textArea.select()
+            try {
+                document.execCommand('copy')
+                toast.success('JSON copied to clipboard')
+            } catch (err) {
+                toast.error('Failed to copy JSON')
+            }
+            document.body.removeChild(textArea)
+        }
+    }
+
     return (
         <div className="form-builder p-4">
             <Toaster
@@ -387,8 +410,18 @@ const FormBuilder: React.FC = () => {
                         dir="ltr"
                     >
                         <div className="flex items-center gap-2 px-2 py-2 text-[16px] font-bold">
-                            <IconJson size={20} />
-                            Generated JSON
+                            <div className="flex items-center gap-2 px-2 py-2 text-[16px] font-bold">
+                                <IconJson size={20} />
+                                Generated JSON
+                            </div>
+                            <Button
+                                onClick={handleCopyJson}
+                                className="flex items-center gap-2"
+                                variant={'outline'}
+                                size={'sm'}
+                            >
+                                <CopyIcon size={14} />
+                            </Button>
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="pt-2" dir="ltr">

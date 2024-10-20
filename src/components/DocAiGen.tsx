@@ -8,9 +8,9 @@ import { Loader2 } from 'lucide-react'
 import { toast, Toaster } from 'sonner'
 import { Textarea } from './ui/textarea'
 
-function TextOpenAi({ postData }: { postData: any }) {
+function TextOpenAi({ postData, type }: { postData: any; type: string }) {
     const id = postData.id
-    const [currentContent, setCurrentContent] = useState(postData.content)
+    const [currentContent, setCurrentContent] = useState(postData.content_ai)
     const [loading, setLoading] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [isGenerating, setIsGenerating] = useState(false)
@@ -138,14 +138,14 @@ add points and title and group it together in headers and descriptions. at least
                 const chatResponse = data.choices[0].message.content
                 const htmlContent = marked(chatResponse)
 
-                const updateUrl = `/wp-json/department/v1/update/${id}`
+                const updateUrl = `/wp-json/${type}/v1/update/${id}`
                 const nonce = window?.appLocalizer?.nonce || ''
 
                 const updateResponse = await axios.post(
                     updateUrl,
                     {
                         id: postData.id,
-                        content: htmlContent,
+                        content_ai: htmlContent,
                     },
                     {
                         headers: {
@@ -223,7 +223,7 @@ add points and title and group it together in headers and descriptions. at least
                                 <div>Generate Document ✨</div>
                             )}
                         </Button>
-                        <hr />
+                        {currentContent && <hr />}
                     </div>
                     {loading && (
                         <div>
@@ -251,35 +251,38 @@ add points and title and group it together in headers and descriptions. at least
                         </div>
                     )}
                 </div>
-                <div className="flex items-center gap-2">
-                    {isEditing ? (
-                        <Button
-                            variant={'destructive'}
-                            onClick={() => setIsEditing(false)}
-                            className="my-5"
-                            disabled={loading}
-                        >
-                            Cancel Editing
-                        </Button>
-                    ) : (
-                        <Button
-                            onClick={() => setIsEditing(true)}
-                            className="my-5 bg-black hover:bg-black/70"
-                            disabled={loading}
-                        >
-                            Edit Document
-                        </Button>
-                    )}
-                    {/* Save Document */}
-                    {isEditing && (
-                        <Button
-                            onClick={saveDocument}
-                            className="my-5 bg-black hover:bg-black/70"
-                        >
-                            Save Document
-                        </Button>
-                    )}
-                </div>
+
+                {currentContent && (
+                    <div className="flex items-center gap-2">
+                        {isEditing ? (
+                            <Button
+                                variant={'destructive'}
+                                onClick={() => setIsEditing(false)}
+                                className="my-5"
+                                disabled={loading}
+                            >
+                                Cancel Editing
+                            </Button>
+                        ) : (
+                            <Button
+                                onClick={() => setIsEditing(true)}
+                                className="my-5 bg-black hover:bg-black/70"
+                                disabled={loading}
+                            >
+                                Edit Document
+                            </Button>
+                        )}
+                        {/* Save Document */}
+                        {isEditing && (
+                            <Button
+                                onClick={saveDocument}
+                                className="my-5 bg-black hover:bg-black/70"
+                            >
+                                Save Document
+                            </Button>
+                        )}
+                    </div>
+                )}
             </div>
 
             {isEditing && (

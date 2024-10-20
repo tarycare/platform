@@ -224,6 +224,18 @@ ol {
     font-size: 1em;
 }
 
+.content-ai h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+span,
+div {
+    font-family: 'Roboto', 'HelveticaNeueLT Arabic 55 Roman', sans-serif !important;
+}
 .content-ai h1 {
     font-size: 2em;
 }

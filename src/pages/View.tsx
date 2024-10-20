@@ -163,7 +163,7 @@ function DataView({ type }: { type: string }) {
                     style={{ marginBottom: '10px' }}
                     className="flex flex-col"
                 >
-                    <strong>
+                    <strong className="font-bold">
                         {htmlLang === 'ar' ? field.label_ar : field.label_en}:
                     </strong>
                     <div>{selectedItem ? selectedItem.label_en : value}</div>
@@ -182,7 +182,7 @@ function DataView({ type }: { type: string }) {
                     style={{ marginBottom: '10px' }}
                     className="flex flex-col gap-2"
                 >
-                    <strong>
+                    <strong className="font-bold">
                         {htmlLang === 'ar' ? field.label_ar : field.label_en}:
                     </strong>
                     <ul>
@@ -322,7 +322,11 @@ function DataView({ type }: { type: string }) {
                 ))}
             </Accordion>
 
-            <Tabs defaultValue="doc" className="">
+            <Tabs
+                defaultValue="doc"
+                className=""
+                dir={htmlLang ? htmlLang : 'en'}
+            >
                 <TabsList>
                     <TabsTrigger value="doc">Documents</TabsTrigger>
                     <TabsTrigger value="policy">Policy</TabsTrigger>
@@ -352,7 +356,7 @@ function DataView({ type }: { type: string }) {
                     </div>
                 </TabsContent>
                 <TabsContent value="policy">
-                    <DocAiGen postData={postData} />
+                    <DocAiGen postData={postData} type={type} />
                 </TabsContent>
             </Tabs>
         </div>
