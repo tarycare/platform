@@ -8,9 +8,22 @@ import { Loader2 } from 'lucide-react'
 import { toast, Toaster } from 'sonner'
 import { Textarea } from './ui/textarea'
 
-function TextOpenAi({ postData, type }: { postData: any; type: string }) {
+function TextOpenAi({
+    postData,
+    selectedDocAi,
+    type,
+}: {
+    postData: any
+    selectedDocAi: any
+    type: string
+}) {
     const id = postData.id
-    const [currentContent, setCurrentContent] = useState(postData.content_ai)
+    const [htmlLang, setHtmlLang] = useState(
+        window.document.documentElement.lang
+    )
+
+    const [showPrompt, setShowPrompt] = useState(false)
+    const [currentContent, setCurrentContent] = useState('')
     const [loading, setLoading] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [isGenerating, setIsGenerating] = useState(false)
@@ -20,17 +33,23 @@ function TextOpenAi({ postData, type }: { postData: any; type: string }) {
         saving: false,
         finalizing: false,
     })
-    const [content, setContent] =
-        useState(`Write cleaning and maintenance department be as details as you can do not hold back:
-1.⁠Purpose and goals.
-2.⁠ ⁠Definitions
-3.⁠ ⁠applicable Scope.
-4.⁠ ⁠Policy standard.
-5.⁠ ⁠Procedures details.
-6.⁠ ⁠Responsibility and staff roles.
-7.⁠ ⁠References.
-add points and title and group it together in headers and descriptions. at least 2000 words
-    `)
+    const [content, setContent] = useState('')
+
+    useEffect(() => {
+        console.log(selectedDocAi, 'selectedDocAi')
+        if (selectedDocAi?.prompt) {
+            console.log(selectedDocAi.prompt, 'selectedDocAi.prompt')
+            setContent(selectedDocAi.prompt)
+        } else {
+            setContent('')
+        }
+
+        if (postData[selectedDocAi?.name]) {
+            setCurrentContent(postData[selectedDocAi?.name])
+        } else {
+            setCurrentContent('')
+        }
+    }, [selectedDocAi, postData])
 
     const editorRef = useRef<HTMLDivElement | null>(null)
 
@@ -109,6 +128,7 @@ add points and title and group it together in headers and descriptions. at least
     const generateDocument = async () => {
         setLoading(true)
         setIsGenerating(true)
+        setShowPrompt(false)
 
         try {
             const response = await fetch('/wp-json/openai/v1/fetch', {
@@ -141,11 +161,13 @@ add points and title and group it together in headers and descriptions. at least
                 const updateUrl = `/wp-json/${type}/v1/update/${id}`
                 const nonce = window?.appLocalizer?.nonce || ''
 
+                const selectedName = selectedDocAi['name']
+
                 const updateResponse = await axios.post(
                     updateUrl,
                     {
                         id: postData.id,
-                        content_ai: htmlContent,
+                        [selectedName]: htmlContent,
                     },
                     {
                         headers: {
@@ -172,9 +194,11 @@ add points and title and group it together in headers and descriptions. at least
     }
 
     const saveDocument = async () => {
+        const selectedName = selectedDocAi['name']
         const data = {
             id: postData.id,
-            content: editorRef.current!.querySelector('.ql-editor')!.innerHTML,
+            [selectedName]:
+                editorRef.current!.querySelector('.ql-editor')!.innerHTML,
         }
 
         try {
@@ -190,7 +214,7 @@ add points and title and group it together in headers and descriptions. at least
             await toast.success('Document saved successfully')
 
             setIsEditing(false)
-            setCurrentContent(data.content)
+            setCurrentContent(data[selectedName])
         } catch (error) {
             console.error('Error saving document:', error)
             await toast.error('An error occurred while saving the document')
@@ -201,11 +225,94 @@ add points and title and group it together in headers and descriptions. at least
         <div>
             <Toaster richColors />
 
-            <div>
-                <div className="flex items-center gap-3">
-                    <div>
+            <>
+                <div className="mb-2 flex h-[40px] items-center gap-2">
+                    <h2 className="text-lg font-bold text-primary">
+                        {htmlLang === 'ar'
+                            ? selectedDocAi.label_ar
+                            : selectedDocAi.label_en}
+                    </h2>
+
+                    {currentContent && (
+                        <div className="flex items-center gap-2">
+                            {isEditing ? (
+                                <Button
+                                    variant={'destructive'}
+                                    onClick={() => setIsEditing(false)}
+                                    className="my-5"
+                                    disabled={loading}
+                                    size="sm"
+                                >
+                                    Cancel
+                                </Button>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        onClick={() => setIsEditing(true)}
+                                        className="my-5 bg-black hover:bg-black/70"
+                                        disabled={loading}
+                                        size="sm"
+                                    >
+                                        Edit
+                                    </Button>
+                                    {loading && (
+                                        <div>
+                                            {/* set emojes for each state */}
+                                            {generatedState.starting && (
+                                                <div className="animate-pulse text-[16px] text-gray-500">
+                                                    Starting 🚀 ...
+                                                </div>
+                                            )}
+                                            {generatedState.generating && (
+                                                <div className="animate-pulse text-[16px] text-gray-500">
+                                                    Generating 🧠 ...
+                                                </div>
+                                            )}
+                                            {generatedState.saving && (
+                                                <div className="animate-pulse text-[16px] text-gray-500">
+                                                    Saving 💾 ...
+                                                </div>
+                                            )}
+                                            {generatedState.finalizing && (
+                                                <div className="animate-pulse text-[16px] text-gray-500">
+                                                    Finalizing 🎉 ...
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {/* Save Document */}
+                            {isEditing && (
+                                <Button
+                                    onClick={saveDocument}
+                                    className="my-5 bg-black hover:bg-black/70"
+                                    size="sm"
+                                >
+                                    Save
+                                </Button>
+                            )}
+                        </div>
+                    )}
+                    <Button
+                        onClick={() => setShowPrompt(!showPrompt)}
+                        disabled={loading}
+                        size="sm"
+                        variant={'outline'}
+                    >
+                        {htmlLang === 'ar'
+                            ? showPrompt
+                                ? 'إخفاء البرومبت'
+                                : 'إظهار البرومبت'
+                            : showPrompt
+                              ? 'Hide Prompt'
+                              : 'Show Prompt'}
+                    </Button>
+                </div>
+                {showPrompt && (
+                    <>
                         <Textarea
-                            placeholder="Add a role"
+                            placeholder="Add your prompt here ..."
                             className="w-96"
                             rows={8}
                             value={content}
@@ -214,8 +321,9 @@ add points and title and group it together in headers and descriptions. at least
                         />
                         <Button
                             onClick={generateDocument}
-                            className="my-5 bg-black hover:bg-black/70"
+                            className="my-3 mb-5 w-fit bg-black hover:bg-black/70"
                             disabled={loading}
+                            size="sm"
                         >
                             {loading ? (
                                 <Loader2 className="h-5 w-5 animate-spin text-white" />
@@ -223,67 +331,9 @@ add points and title and group it together in headers and descriptions. at least
                                 <div>Generate Document ✨</div>
                             )}
                         </Button>
-                        {currentContent && <hr />}
-                    </div>
-                    {loading && (
-                        <div>
-                            {/* set emojes for each state */}
-                            {generatedState.starting && (
-                                <div className="animate-pulse text-[16px] text-gray-500">
-                                    Starting 🚀 ...
-                                </div>
-                            )}
-                            {generatedState.generating && (
-                                <div className="animate-pulse text-[16px] text-gray-500">
-                                    Generating 🧠 ...
-                                </div>
-                            )}
-                            {generatedState.saving && (
-                                <div className="animate-pulse text-[16px] text-gray-500">
-                                    Saving 💾 ...
-                                </div>
-                            )}
-                            {generatedState.finalizing && (
-                                <div className="animate-pulse text-[16px] text-gray-500">
-                                    Finalizing 🎉 ...
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {currentContent && (
-                    <div className="flex items-center gap-2">
-                        {isEditing ? (
-                            <Button
-                                variant={'destructive'}
-                                onClick={() => setIsEditing(false)}
-                                className="my-5"
-                                disabled={loading}
-                            >
-                                Cancel Editing
-                            </Button>
-                        ) : (
-                            <Button
-                                onClick={() => setIsEditing(true)}
-                                className="my-5 bg-black hover:bg-black/70"
-                                disabled={loading}
-                            >
-                                Edit Document
-                            </Button>
-                        )}
-                        {/* Save Document */}
-                        {isEditing && (
-                            <Button
-                                onClick={saveDocument}
-                                className="my-5 bg-black hover:bg-black/70"
-                            >
-                                Save Document
-                            </Button>
-                        )}
-                    </div>
+                    </>
                 )}
-            </div>
+            </>
 
             {isEditing && (
                 <div>
@@ -302,7 +352,7 @@ add points and title and group it together in headers and descriptions. at least
             )}
             {!isEditing && currentContent && (
                 <div
-                    className="content-ai rounded-md bg-[#f1f1f1] px-10 py-5"
+                    className={`content-ai rounded-md bg-[#f1f1f1] px-10 py-5 ${loading && 'animate-pulse'}`}
                     dangerouslySetInnerHTML={{
                         __html: currentContent,
                     }}

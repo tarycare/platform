@@ -207,7 +207,6 @@ class WP_React_Settings_Rest_Route
     }
 
     // Function to get a user by ID
-    // Function to get a user by ID
     public function get_user_by_id($request)
     {
         $user_id = (int) $request->get_param('id');
