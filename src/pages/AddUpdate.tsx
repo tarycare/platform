@@ -125,7 +125,11 @@ function AddUpdate({ type }: { type: string }) {
                 await toast.success('Form submitted successfully!', {
                     description: result.message,
                 })
-                navigate(`/update/${result.post_id}`)
+                if (type === 'staff') {
+                    navigate(`/update/${result.user_id}`)
+                } else {
+                    navigate(`/view/${result.post_id}`)
+                }
             } else {
                 toast.error('Form submission failed!', {
                     description: result.message,
