@@ -19,6 +19,7 @@ const PreviewForm: React.FC<PreviewFormProps> = ({ data }) => {
             data={data}
             languge={document.documentElement.lang}
             handleSubmission={console.log('Form submitted:', data)}
+            readOnly={true}
         />
     )
 }

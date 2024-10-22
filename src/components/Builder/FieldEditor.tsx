@@ -29,7 +29,7 @@ import {
 import { IconTypography } from '@tabler/icons-react'
 import { GrClone } from 'react-icons/gr'
 
-interface FieldEditorProps {
+interface ItemEditorProps {
     field: Field
     updateField: (field: Field) => void
     removeField: (fieldId: string) => void
@@ -39,7 +39,7 @@ interface FieldEditorProps {
     isLast: boolean
 }
 
-const FieldEditor: React.FC<FieldEditorProps> = ({
+const ItemEditor: React.FC<ItemEditorProps> = ({
     field,
     updateField,
     removeField,
@@ -337,4 +337,4 @@ const FieldEditor: React.FC<FieldEditorProps> = ({
     )
 }
 
-export default FieldEditor
+export default ItemEditor

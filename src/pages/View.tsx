@@ -20,20 +20,29 @@ import DocumentList from './DocumentList'
 import { IconUpload } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import DocAiGen from '@/components/DocAiGen'
-import TextOpenAi from '@/components/textOpenai'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-function DataView({ type }: { type: string }) {
+function View({ type }: { type: string }) {
     const { id, formId } = useParams() // Get user ID from the URL params
     const navigate = useNavigate() // Initialize useNavigate
 
     const [formSections, setFormSections] = useState([])
+    const [policiesTab, setPoliciesTab] = useState({
+        published: false,
+        items: [],
+    })
+    const [documentsTab, setDocumentsTab] = useState({ published: false })
+
     const [submittedData, setSubmittedData] = useState({})
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
     const [showUpload, setShowUpload] = useState(false)
     const [refreshList, setRefreshList] = useState(false)
     const [postData, setPostData] = useState(null)
+
+    const [selectedPolicyItems, setSelectedPolicyItems] = useState(null)
+
+    const [selectedPolicyIndex, setSelectedPolicyIndex] = useState(0)
 
     const [htmlLang, setHtmlLang] = useState(
         window.document.documentElement.lang
@@ -85,6 +94,49 @@ function DataView({ type }: { type: string }) {
                 )
 
                 setFormSections(sectionsWithItems)
+                // setPoliciesTab(data.policies) object not array
+                // {
+                //     "id": "757c59e8-95bf-4533-9ee1-4cea9bd1188a",
+                //     "label_ar": "السياسات",
+                //     "label_en": "Policies 1",
+                //     "descriptionـar": "السياسات الخاصة بالموظفين",
+                //     "description_en": "Policies related to staff",
+                //     "name": "policies",
+                //     "published": true,
+                //     "items": [
+                //         {
+                //             "id": "7438bc8b-d6af-4868-8639-52dfa61ba1bc",
+                //             "label_ar": "المسؤولية",
+                //             "label_en": "Responsibility 1",
+                //             "icon": [],
+                //             "name": "doc-ai-policies-responsibility",
+                //             "prompt": "Responsibility of the policy",
+                //             "order": 0
+                //         },
+                //         {
+                //             "id": "03559038-0a6e-4cce-8429-84a2a969aff0",
+                //             "label_ar": "الخصوصية",
+                //             "label_en": "Purpose 2",
+                //             "icon": [],
+                //             "name": "doc-ai-policies-purpose",
+                //             "prompt": "Write cleaning and maintenance department be as details as you can do not hold back:\n        1.⁠Purpose and goals.\n        2.⁠ ⁠Definitions\n        3.⁠ ⁠applicable Scope.\n        4.⁠ ⁠Policy standard.\n        5.⁠ ⁠Procedures details.\n        6.⁠ ⁠Responsibility and staff roles.\n        7.⁠ ⁠References.\n        add points and title and group it together in headers and descriptions. at least 2000 words\n            ",
+                //             "order": 1
+                //         },
+                //         {
+                //             "id": "a799885b-acc7-4a37-8d43-eb4e69079ced",
+                //             "label_ar": "النطاق",
+                //             "label_en": "Scope 4",
+                //             "icon": [],
+                //             "name": "doc-ai-policies-scope",
+                //             "prompt": "Scope of the policy",
+                //             "order": 2
+                //         }
+                //     ]
+                // }
+                console.log('data:', data.policies)
+                setPoliciesTab(data.policies)
+
+                setDocumentsTab(data.documents)
             } catch (error) {
                 console.error('Error fetching form data:', error)
                 setError(error)
@@ -121,7 +173,7 @@ function DataView({ type }: { type: string }) {
 
     const renderSection = (section) => {
         return (
-            <div key={section.id}>
+            <div key={section?.id}>
                 <h2>
                     {htmlLang === 'ar'
                         ? section.section_label_ar
@@ -239,82 +291,9 @@ function DataView({ type }: { type: string }) {
 
     // Menu items
 
-    const [policies, setPolicies] = useState({
-        label_ar: 'السياسات',
-        label_en: 'Policies',
-        descriptionـar: 'السياسات الخاصة بالموظفين',
-        description_en: 'Policies related to staff',
-        name: 'policies',
-        published: true,
-        items: [
-            {
-                label_ar: 'الخصوصية',
-                label_en: 'Purpose',
-                icon: BookOpen,
-                name: 'doc-ai-policies-purpose',
-                prompt: `Write cleaning and maintenance department be as details as you can do not hold back:
-1.⁠Purpose and goals.
-2.⁠ ⁠Definitions
-3.⁠ ⁠applicable Scope.
-4.⁠ ⁠Policy standard.
-5.⁠ ⁠Procedures details.
-6.⁠ ⁠Responsibility and staff roles.
-7.⁠ ⁠References.
-add points and title and group it together in headers and descriptions. at least 2000 words
-    `,
-            },
-            {
-                label_ar: 'المسؤولية',
-                label_en: 'Responsibility',
-                icon: BookOpen,
-                name: 'doc-ai-policies-responsibility',
-                prompt: 'Responsibility of the policy',
-            },
-            {
-                label_ar: 'النطاق',
-                label_en: 'Scope',
-                icon: BookOpen,
-                name: 'doc-ai-policies-scope',
-                prompt: 'Scope of the policy',
-            },
-        ],
-    })
-    const [selectedPolicyItems, setSelectedPolicyItems] = useState(null)
-
-    const [selectedPolicyIndex, setSelectedPolicyIndex] = useState(0)
-
-    const documents = {
-        label_ar: 'المستندات',
-        label_en: 'Documents',
-        name: 'documents',
-        published: true,
-        items: [
-            {
-                label_ar: 'المستند 1',
-                label_en: 'Document 1',
-                icon: BookOpen,
-                document: {
-                    name: 'doc-ai-documents-1',
-                    description: 'Description of the document',
-                },
-            },
-            {
-                label_ar: 'المستند 2',
-                label_en: 'Document 2',
-                icon: BookOpen,
-                document: {
-                    name: 'doc-ai-documents-2',
-                    description: 'Description of the document',
-                },
-            },
-        ],
-    }
-
     useEffect(() => {
-        setSelectedPolicyItems(policies.items[selectedPolicyIndex])
-    }, [policies, selectedPolicyIndex])
-
-    console.log('selectedPolicyItems:', selectedPolicyItems)
+        setSelectedPolicyItems(policiesTab?.items?.[selectedPolicyIndex])
+    }, [policiesTab, selectedPolicyIndex])
 
     if (isLoading) {
         return (
@@ -401,80 +380,90 @@ add points and title and group it together in headers and descriptions. at least
                 ))}
             </Accordion>
 
-            <Tabs
-                defaultValue="doc"
-                className=""
-                dir={htmlLang === 'ar' ? 'rtl' : 'ltr'}
-            >
-                <TabsList>
-                    <TabsTrigger value="doc">Documents</TabsTrigger>
-                    <TabsTrigger value={policies.name}>
-                        {htmlLang === 'ar'
-                            ? policies.label_ar
-                            : policies.label_en}
-                    </TabsTrigger>
-                </TabsList>
-                <TabsContent value="doc" className="w-full">
-                    <Button
-                        className="my-5 flex items-center gap-2"
-                        onClick={() => setShowUpload(!showUpload)}
-                    >
-                        <IconUpload /> Upload Document
-                    </Button>
-                    {showUpload && (
-                        <DocumnetManager
-                            appName="document"
-                            itemId={id}
-                            setRefreshList={setRefreshList}
-                            refreshList={refreshList}
-                            onClose={handleCloseUpload} // Pass the close handler
-                        />
+            {(policiesTab.published || documentsTab.published) && (
+                <Tabs
+                    defaultValue={documentsTab?.published ? 'doc' : 'policies'}
+                    className=""
+                    dir={htmlLang === 'ar' ? 'rtl' : 'ltr'}
+                >
+                    <TabsList>
+                        {documentsTab && documentsTab?.published && (
+                            <TabsTrigger value="doc">Documents</TabsTrigger>
+                        )}
+                        {policiesTab && policiesTab?.published && (
+                            <TabsTrigger value="policies">
+                                {htmlLang === 'ar'
+                                    ? policiesTab?.label_ar
+                                    : policiesTab?.label_en}
+                            </TabsTrigger>
+                        )}
+                    </TabsList>
+                    {documentsTab?.published && (
+                        <TabsContent value="doc" className="w-full">
+                            <Button
+                                className="my-5 flex items-center gap-2"
+                                onClick={() => setShowUpload(!showUpload)}
+                            >
+                                <IconUpload /> Upload Document
+                            </Button>
+                            {showUpload && (
+                                <DocumnetManager
+                                    appName="document"
+                                    itemId={id}
+                                    setRefreshList={setRefreshList}
+                                    refreshList={refreshList}
+                                    onClose={handleCloseUpload} // Pass the close handler
+                                />
+                            )}
+                            <div className="mt-5">
+                                <DocumentList
+                                    appName="document"
+                                    itemId={id} // Staff
+                                    refreshList={refreshList}
+                                />
+                            </div>
+                        </TabsContent>
                     )}
-                    <div className="mt-5">
-                        <DocumentList
-                            appName="document"
-                            itemId={id} // Staff
-                            refreshList={refreshList}
-                        />
-                    </div>
-                </TabsContent>
-                <TabsContent value={policies.name}>
-                    <div className="relative mt-5 flex gap-5">
-                        {/* sidebar */}
-                        <div className="sticky start-0 top-[50px] flex h-fit w-[170px] flex-col gap-2 rounded-md bg-[#f1f1f1] px-3 py-2">
-                            {policies.items.map((item, index) => (
-                                <div
-                                    onClick={() =>
-                                        setSelectedPolicyIndex(index)
-                                    }
-                                    key={index}
-                                    className={`flex w-full items-center gap-2 rounded-md px-2 py-2 hover:cursor-pointer ${
-                                        selectedPolicyIndex === index
-                                            ? 'bg-primary font-bold text-white hover:bg-primary hover:text-white'
-                                            : 'text-black hover:bg-primary/10 hover:text-primary'
-                                    }`}
-                                >
-                                    <item.icon size={14} />
-                                    <span>
-                                        {htmlLang === 'ar'
-                                            ? item.label_ar
-                                            : item.label_en}
-                                    </span>
+                    {policiesTab?.published && (
+                        <TabsContent value="policies">
+                            <div className="relative mt-5 flex gap-5">
+                                {/* sidebar */}
+                                <div className="sticky start-0 top-[50px] flex h-fit w-[170px] flex-col gap-2 rounded-md bg-[#f1f1f1] px-3 py-2">
+                                    {policiesTab?.items.map((item, index) => (
+                                        <div
+                                            onClick={() =>
+                                                setSelectedPolicyIndex(index)
+                                            }
+                                            key={index}
+                                            className={`flex w-full items-center gap-2 rounded-md px-2 py-2 hover:cursor-pointer ${
+                                                selectedPolicyIndex === index
+                                                    ? 'bg-primary font-bold text-white hover:bg-primary hover:text-white'
+                                                    : 'text-black hover:bg-primary/10 hover:text-primary'
+                                            }`}
+                                        >
+                                            <BookOpen size={14} />
+                                            <span>
+                                                {htmlLang === 'ar'
+                                                    ? item.label_ar
+                                                    : item.label_en}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                        <div className="flex-1">
-                            <DocAiGen
-                                postData={postData}
-                                type={type}
-                                selectedDocAi={selectedPolicyItems}
-                            />
-                        </div>
-                    </div>
-                </TabsContent>
-            </Tabs>
+                                <div className="flex-1">
+                                    <DocAiGen
+                                        postData={postData}
+                                        type={type}
+                                        selectedDocAi={selectedPolicyItems}
+                                    />
+                                </div>
+                            </div>
+                        </TabsContent>
+                    )}
+                </Tabs>
+            )}
         </div>
     )
 }
 
-export default DataView
+export default View

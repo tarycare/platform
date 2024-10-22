@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react'
 import { toast, Toaster } from 'sonner'
 import { Textarea } from './ui/textarea'
 
-function TextOpenAi({
+function DocAiGen({
     postData,
     selectedDocAi,
     type,
@@ -163,18 +163,33 @@ function TextOpenAi({
 
                 const selectedName = selectedDocAi['name']
 
-                const updateResponse = await axios.post(
-                    updateUrl,
-                    {
-                        id: postData.id,
-                        [selectedName]: htmlContent,
-                    },
-                    {
-                        headers: {
-                            'X-WP-Nonce': nonce,
-                        },
-                    }
-                )
+                const updateResponse =
+                    type === 'staff'
+                        ? await axios.post(
+                              updateUrl,
+                              {
+                                  id: postData.id,
+                                  [selectedName]: htmlContent,
+                                  email: postData.email,
+                              },
+                              {
+                                  headers: {
+                                      'X-WP-Nonce': nonce,
+                                  },
+                              }
+                          )
+                        : await axios.post(
+                              updateUrl,
+                              {
+                                  id: postData.id,
+                                  [selectedName]: htmlContent,
+                              },
+                              {
+                                  headers: {
+                                      'X-WP-Nonce': nonce,
+                                  },
+                              }
+                          )
 
                 console.log(updateResponse)
                 await toast.success('Document generated successfully!')
@@ -194,15 +209,21 @@ function TextOpenAi({
     }
 
     const saveDocument = async () => {
+        console.log('Saving document', postData)
         const selectedName = selectedDocAi['name']
         const data = {
             id: postData.id,
             [selectedName]:
                 editorRef.current!.querySelector('.ql-editor')!.innerHTML,
         }
+        if (type === 'staff') {
+            console.log(postData, 'postData after save')
+            // push postData.email as email
+            data['email'] = postData.email
+        }
 
         try {
-            const updateUrl = `/wp-json/department/v1/update/${id}`
+            const updateUrl = `/wp-json/${type}/v1/update/${id}`
             const nonce = window?.appLocalizer?.nonce || ''
 
             const response = await axios.post(updateUrl, data, {
@@ -222,18 +243,20 @@ function TextOpenAi({
     }
 
     return (
-        <div>
+        <div className="min-h-[200px] rounded-md bg-[#f1f1f1] p-3">
             <Toaster richColors />
 
             <>
-                <div className="mb-2 flex h-[40px] items-center gap-2">
-                    <h2 className="text-lg font-bold text-primary">
+                <div className="mb-2 flex flex-col gap-1">
+                    <h2 className="text-[16px] font-bold">
                         {htmlLang === 'ar'
-                            ? selectedDocAi.label_ar
-                            : selectedDocAi.label_en}
+                            ? selectedDocAi?.label_ar
+                            : selectedDocAi?.label_en}
                     </h2>
 
-                    {currentContent && (
+                    <hr className="mb-1" />
+
+                    <div className="mb-2 flex h-[40px] items-center gap-2">
                         <div className="flex items-center gap-2">
                             {isEditing ? (
                                 <Button
@@ -253,33 +276,9 @@ function TextOpenAi({
                                         disabled={loading}
                                         size="sm"
                                     >
-                                        Edit
+                                        {' '}
+                                        Edit ✏️
                                     </Button>
-                                    {loading && (
-                                        <div>
-                                            {/* set emojes for each state */}
-                                            {generatedState.starting && (
-                                                <div className="animate-pulse text-[16px] text-gray-500">
-                                                    Starting 🚀 ...
-                                                </div>
-                                            )}
-                                            {generatedState.generating && (
-                                                <div className="animate-pulse text-[16px] text-gray-500">
-                                                    Generating 🧠 ...
-                                                </div>
-                                            )}
-                                            {generatedState.saving && (
-                                                <div className="animate-pulse text-[16px] text-gray-500">
-                                                    Saving 💾 ...
-                                                </div>
-                                            )}
-                                            {generatedState.finalizing && (
-                                                <div className="animate-pulse text-[16px] text-gray-500">
-                                                    Finalizing 🎉 ...
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
                             )}
                             {/* Save Document */}
@@ -289,48 +288,82 @@ function TextOpenAi({
                                     className="my-5 bg-black hover:bg-black/70"
                                     size="sm"
                                 >
-                                    Save
+                                    Save 💾
                                 </Button>
                             )}
                         </div>
-                    )}
-                    <Button
-                        onClick={() => setShowPrompt(!showPrompt)}
-                        disabled={loading}
-                        size="sm"
-                        variant={'outline'}
-                    >
-                        {htmlLang === 'ar'
-                            ? showPrompt
-                                ? 'إخفاء البرومبت'
-                                : 'إظهار البرومبت'
-                            : showPrompt
-                              ? 'Hide Prompt'
-                              : 'Show Prompt'}
-                    </Button>
+                        {!isEditing && (
+                            <>
+                                <Button
+                                    onClick={generateDocument}
+                                    className="w-fit bg-black hover:bg-black/70"
+                                    disabled={loading}
+                                    size="sm"
+                                >
+                                    {loading ? (
+                                        <Loader2 className="h-4 w-4 animate-spin text-white" />
+                                    ) : (
+                                        <div>
+                                            {htmlLang === 'ar'
+                                                ? 'توليد بالذكاء الإصطناعي ✨'
+                                                : 'AI Generate ✨'}
+                                        </div>
+                                    )}
+                                </Button>
+                                <Button
+                                    onClick={() => setShowPrompt(!showPrompt)}
+                                    disabled={loading}
+                                    size="sm"
+                                    variant={'outline'}
+                                >
+                                    {htmlLang === 'ar'
+                                        ? showPrompt
+                                            ? 'إخفاء البرومبت'
+                                            : 'إظهار البرومبت'
+                                        : showPrompt
+                                          ? 'Hide Prompt'
+                                          : 'Show Prompt'}
+                                </Button>
+
+                                {loading && (
+                                    <div>
+                                        {/* set emojes for each state */}
+                                        {generatedState.starting && (
+                                            <div className="animate-pulse text-[14px] text-gray-500">
+                                                Starting 🚀 ...
+                                            </div>
+                                        )}
+                                        {generatedState.generating && (
+                                            <div className="animate-pulse text-[14px] text-gray-500">
+                                                Generating 🧠 ...
+                                            </div>
+                                        )}
+                                        {generatedState.saving && (
+                                            <div className="animate-pulse text-[14px] text-gray-500">
+                                                Saving 💾 ...
+                                            </div>
+                                        )}
+                                        {generatedState.finalizing && (
+                                            <div className="animate-pulse text-[14px] text-gray-500">
+                                                Finalizing 🎉 ...
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
-                {showPrompt && (
+                {showPrompt && !isEditing && (
                     <>
                         <Textarea
                             placeholder="Add your prompt here ..."
-                            className="w-96"
+                            className="mb-5 w-96"
                             rows={8}
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             disabled={loading}
                         />
-                        <Button
-                            onClick={generateDocument}
-                            className="my-3 mb-5 w-fit bg-black hover:bg-black/70"
-                            disabled={loading}
-                            size="sm"
-                        >
-                            {loading ? (
-                                <Loader2 className="h-5 w-5 animate-spin text-white" />
-                            ) : (
-                                <div>Generate Document ✨</div>
-                            )}
-                        </Button>
                     </>
                 )}
             </>
@@ -362,4 +395,4 @@ function TextOpenAi({
     )
 }
 
-export default TextOpenAi
+export default DocAiGen

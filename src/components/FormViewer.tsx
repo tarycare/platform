@@ -107,6 +107,7 @@ const FormViewer: FC<FormViewerProps> = ({
     updateData,
     updateUrl,
     isUpdating,
+    readOnly,
 }) => {
     const [formState, setFormState] = useState<{ [key: string]: any }>({})
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
@@ -808,7 +809,7 @@ const FormViewer: FC<FormViewerProps> = ({
                             </AccordionItem>
                         ))}
                 </Accordion>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting || readOnly}>
                     {isSubmitting ? (
                         <Loader2 className="h-5 w-5 animate-spin text-background" />
                     ) : language === 'ar' ? (
