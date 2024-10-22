@@ -187,7 +187,7 @@ function remove_custom_post_type_menus()
     // Default post types
     remove_menu_page('edit.php'); // Removes "Posts"
     remove_menu_page('edit.php?post_type=page'); // Removes "Pages"
-    remove_menu_page('edit.php?post_type=document'); // Removes "Documents"
+    // remove_menu_page('edit.php?post_type=document'); // Removes "Documents"
     remove_menu_page('upload.php'); // Removes "Media"
     remove_menu_page('edit-comments.php'); // Removes "Comments"
     remove_menu_page('themes.php'); // Removes "Appearance"
@@ -201,7 +201,7 @@ function remove_custom_post_type_menus()
     remove_menu_page('edit.php?post_type=submission');       // Removes "Forms"
     remove_menu_page('edit.php?post_type=equipment');       // Removes "Forms"
     remove_menu_page('edit.php?post_type=material');       // Removes "Forms"
-    remove_menu_page('edit.php?post_type=document');       // Removes "Documents"
+    // remove_menu_page('edit.php?post_type=document');       // Removes "Documents"
     remove_menu_page('edit.php?post_type=comment');       // Removes "Comments"
 
 }
@@ -221,7 +221,7 @@ function remove_custom_meta_boxes()
     remove_meta_box('departmentdiv', 'department', 'side'); // Remove "Departments" meta boxes
     remove_meta_box('facilitydiv', 'facility', 'side');     // Remove "Facilities" meta boxes
     remove_meta_box('formdiv', 'form', 'side');             // Remove "Forms" meta boxes
-    remove_meta_box('documentdiv', 'document', 'side');     // Remove "Documents" meta boxes
+    // remove_meta_box('documentdiv', 'document', 'side');     // Remove "Documents" meta boxes
     remove_meta_box('submissiondiv', 'submission', 'side');     // Remove "Documents" meta boxes
     remove_meta_box('equipmentdiv', 'equipment', 'side');     // Remove "Documents" meta boxes
     remove_meta_box('materialdiv', 'material', 'side');     // Remove "Documents" meta boxes
@@ -234,7 +234,7 @@ function remove_custom_post_type_admin_bar_links($wp_admin_bar)
     // Default post types
     $wp_admin_bar->remove_node('new-post');     // Removes "New Post"
     $wp_admin_bar->remove_node('new-page');     // Removes "New Page"
-    $wp_admin_bar->remove_node('new-document'); // Removes "New Document"
+    // $wp_admin_bar->remove_node('new-document'); // Removes "New Document"
     $wp_admin_bar->remove_node('new-media');    // Removes "New Media"
 
     // Custom post types
@@ -258,7 +258,7 @@ function redirect_custom_post_type_pages()
         $post_type = $_GET['post_type'];
 
         // Redirect for default and custom post types
-        if (in_array($post_type, ['post', 'page', 'document', 'department', 'facility', 'form', 'media', 'comment', 'appearance', 'submission', 'equipment', 'material'])) {
+        if (in_array($post_type, ['post', 'page', 'department', 'facility', 'form', 'media', 'comment', 'appearance', 'submission', 'equipment', 'material'])) {
             wp_redirect(admin_url());
             exit;
         }
