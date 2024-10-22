@@ -53,7 +53,7 @@ const routes: RouteObject[] = [
         ),
     },
     {
-        path: '/form-submissions/:id', // For viewing form submissions
+        path: '/list-submissions/:id', // For viewing form submissions
         element: (
             <List
                 type="submission"

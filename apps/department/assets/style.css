@@ -1825,6 +1825,9 @@ body{
     font-size: 1.5rem;
     line-height: 2rem;
 }
+.text-\[0\.75rem\]{
+    font-size: 0.75rem;
+}
 .text-\[0\.8rem\]{
     font-size: 0.8rem;
 }
@@ -1853,6 +1856,9 @@ body{
 .text-xs{
     font-size: 0.75rem;
     line-height: 1rem;
+}
+.font-\[500\]{
+    font-weight: 500;
 }
 .font-bold{
     font-weight: 700;

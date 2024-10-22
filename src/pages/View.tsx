@@ -25,7 +25,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 function View({ type }: { type: string }) {
     const { id, formId } = useParams() // Get user ID from the URL params
     const navigate = useNavigate() // Initialize useNavigate
-
     const [formSections, setFormSections] = useState([])
     const [policiesTab, setPoliciesTab] = useState({
         published: false,
@@ -48,12 +47,16 @@ function View({ type }: { type: string }) {
         window.document.documentElement.lang
     )
 
+    console.log(type, 'type')
     const fetchUrl =
         type === 'submission'
             ? `/wp-json/form/v1/get/${formId}`
             : `/wp-json/form/v1/get?title=${type}`
 
-    const WP_API_URL = `/wp-json/${type}/v1/get`
+    const WP_API_URL =
+        type === 'form'
+            ? `/wp-json/submission/v1/get`
+            : `/wp-json/${type}/v1/get`
 
     useEffect(() => {
         async function fetchForm() {
@@ -312,11 +315,26 @@ function View({ type }: { type: string }) {
             <div className="my-2 flex items-center gap-2">
                 <Button
                     variant="outline"
-                    onClick={() => navigate(`/update/${id}`)}
+                    onClick={() =>
+                        navigate(
+                            type === 'submission' || type === 'form'
+                                ? `/${formId}/update/${id}`
+                                : `/update/${id}`
+                        )
+                    }
                 >
                     {htmlLang === 'ar' ? 'تعديل' : 'Edit'}
                 </Button>
-                <Button onClick={() => navigate('/')} variant="outline">
+                <Button
+                    onClick={() =>
+                        navigate(
+                            type === 'submission' || type === 'form'
+                                ? `/list-submissions/${formId}`
+                                : '/'
+                        )
+                    }
+                    variant="outline"
+                >
                     {htmlLang !== 'ar' ? 'All' : 'الكل'}
                 </Button>
             </div>
@@ -380,7 +398,7 @@ function View({ type }: { type: string }) {
                 ))}
             </Accordion>
 
-            {(policiesTab.published || documentsTab.published) && (
+            {(policiesTab?.published || documentsTab?.published) && (
                 <Tabs
                     defaultValue={documentsTab?.published ? 'doc' : 'policies'}
                     className=""

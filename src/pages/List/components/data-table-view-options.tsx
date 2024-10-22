@@ -72,7 +72,9 @@ export function DataTableViewOptions<TData>({
             >
                 <Button variant={'outline'}>
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    <span className="sm:whitespace-nowrap">Add New</span>
+                    <span className="text-[0.75rem] font-[500] sm:whitespace-nowrap">
+                        Add New
+                    </span>
                 </Button>
             </Link>
         </div>

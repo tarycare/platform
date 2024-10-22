@@ -216,10 +216,8 @@ class WP_React_Submissions_Rest_Route
     // Function to get all submissions
     public function get_all_submissions_by_id($request)
     {
-        // Get the ID from the request
-        $id = (int) $request['id'];
+        $id = (string) $request['id'];
 
-        // Set up the query arguments to filter by the specific form_id
         $args = [
             'post_type'   => 'submission',
             'post_status' => 'publish',
@@ -230,18 +228,19 @@ class WP_React_Submissions_Rest_Route
                     'compare' => '='
                 ]
             ],
-            'numberposts' => -1 // Ensure all matching posts are retrieved
+            'numberposts' => -1
         ];
 
-        // Fetch the posts
         $submissions = get_posts($args);
 
-        // Check if any submissions exist
+        // Debugging: Log the query and results
+        error_log('Query Args: ' . print_r($args, true));
+        error_log('Number of Submissions Found: ' . count($submissions));
+
         if (empty($submissions)) {
-            return new WP_Error('submission_not_found', 'No submissions found for the given form ID', ['status' => 404]);
+            return rest_ensure_response([], 200);
         }
 
-        // Prepare the response data
         $data = [];
         foreach ($submissions as $submission) {
             $data[] = [

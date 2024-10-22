@@ -25,7 +25,11 @@ export default function List({
     console.log('Singular form of page:', type)
     const { id } = useParams()
 
-    const all_url = `/wp-json/${type}/v1/all/${type === 'submission' && id ? id : ''}`
+    // const all_url = `/wp-json/${type}/v1/all/${type === 'submission' && id ? id : ''}`
+    const all_url =
+        type === 'submission'
+            ? `/wp-json/${type}/v1/all/${id}`
+            : `/wp-json/${type}/v1/all`
     const DELETE_API_URL = `/wp-json/${type}/v1/delete`
 
     const [dataRows, setDataRows] = useState([])
@@ -54,6 +58,7 @@ export default function List({
         fetchData()
     }, [refresh, all_url])
 
+    console.log(type, 'type')
     const fetchUrl =
         type === 'submission'
             ? `/wp-json/form/v1/get/${id}`
@@ -229,7 +234,7 @@ export default function List({
                                 onClick={() => {
                                     if (type === 'form') {
                                         navigate(
-                                            `/form-submissions/${row.original.id}`
+                                            `/list-submissions/${row.original.id}`
                                         )
                                     } else if (type === 'submission') {
                                         navigate(

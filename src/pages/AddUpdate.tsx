@@ -108,6 +108,8 @@ function AddUpdate({ type }: { type: string }) {
             setIsSubmitting(true)
             const nonce = window?.appLocalizer?.nonce || ''
             const isFormDataInstance = formData instanceof FormData
+            // push formId as form_id to FormData
+            formData.append('form_id', formId)
 
             const response = await fetch(submitUrl, {
                 method: 'POST',
@@ -125,8 +127,11 @@ function AddUpdate({ type }: { type: string }) {
                 await toast.success('Form submitted successfully!', {
                     description: result.message,
                 })
+                console.log(result, 'result')
                 if (type === 'staff') {
                     navigate(`/update/${result.user_id}`)
+                } else if (type === 'submission') {
+                    navigate(`/${formId}/view-submission/${result.post_id}`)
                 } else {
                     navigate(`/view/${result.post_id}`)
                 }
@@ -203,16 +208,25 @@ function AddUpdate({ type }: { type: string }) {
                     >
                         {htmlLang !== 'ar' ? 'Customize Form' : 'تخصيص النموذج'}
                     </Button>
-                    <Button
-                        onClick={() => navigate(`/view/${id}`)}
-                        className="mb-4"
-                        variant="outline"
-                    >
-                        {htmlLang !== 'ar' ? 'View' : 'عرض'}
-                    </Button>
+
+                    {isUpdating && (
+                        <Button
+                            onClick={() => navigate(`/view/${id}`)}
+                            className="mb-4"
+                            variant="outline"
+                        >
+                            {htmlLang !== 'ar' ? 'View' : 'عرض'}
+                        </Button>
+                    )}
                     {/* All */}
                     <Button
-                        onClick={() => navigate('/')}
+                        onClick={() =>
+                            navigate(
+                                type === 'submission'
+                                    ? `/list-submissions/${formId}`
+                                    : '/'
+                            )
+                        }
                         className="mb-4"
                         variant="outline"
                     >
