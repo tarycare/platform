@@ -130,7 +130,7 @@ function AddUpdate({ type }: { type: string }) {
                 console.log(result, 'result')
                 if (type === 'staff') {
                     navigate(`/update/${result.user_id}`)
-                } else if (type === 'submission') {
+                } else if (type === 'submission' || type === 'form') {
                     navigate(`/${formId}/view-submission/${result.post_id}`)
                 } else {
                     navigate(`/view/${result.post_id}`)
@@ -211,7 +211,13 @@ function AddUpdate({ type }: { type: string }) {
 
                     {isUpdating && (
                         <Button
-                            onClick={() => navigate(`/view/${id}`)}
+                            onClick={() =>
+                                navigate(
+                                    type === 'submission' || type === 'form'
+                                        ? `/${formId}/view-submission/${id}`
+                                        : `/view/${id}`
+                                )
+                            }
                             className="mb-4"
                             variant="outline"
                         >
@@ -222,7 +228,7 @@ function AddUpdate({ type }: { type: string }) {
                     <Button
                         onClick={() =>
                             navigate(
-                                type === 'submission'
+                                type === 'submission' || type === 'form'
                                     ? `/list-submissions/${formId}`
                                     : '/'
                             )

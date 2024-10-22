@@ -47,7 +47,11 @@ function View({ type }: { type: string }) {
         window.document.documentElement.lang
     )
 
-    console.log(type, 'type')
+    console.log({
+        type: type,
+        id: id,
+        formId: formId,
+    })
     const fetchUrl =
         type === 'submission'
             ? `/wp-json/form/v1/get/${formId}`
