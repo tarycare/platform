@@ -232,23 +232,59 @@ class WP_React_Submissions_Rest_Route
         ];
 
         $submissions = get_posts($args);
+        $data = [];
+        // foreach ($departments as $department) {
+        //     // Get post meta data
+        //     $meta_data = get_post_meta($department->ID);
+        //     $flattened_meta = [];
 
-        // Debugging: Log the query and results
-        error_log('Query Args: ' . print_r($args, true));
-        error_log('Number of Submissions Found: ' . count($submissions));
+        //     if (!empty($meta_data) && is_array($meta_data)) {
+        //         foreach ($meta_data as $key => $value) {
+        //             $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+        //             // Unserialize if the value is serialized
+        //             $flattened_meta[$key] = maybe_unserialize($flattened_meta[$key]);
+        //         }
+        //     }
+
+        //     // Merge the flattened meta data with the main data array
+        //     $data[] = array_merge(
+        //         [
+        //             // convert id to number
+        //             'id'      => (string) $department->ID,
+        //             'title'   => $department->post_title,
+        //             'content' => $department->post_content,
+        //         ],
+        //         $flattened_meta
+        //     );
+        // }
+        foreach ($submissions as $submission) {
+            $meta_data = get_post_meta($submission->ID);
+            $flattened_meta = [];
+
+            if (!empty($meta_data) && is_array($meta_data)) {
+                foreach ($meta_data as $key => $value) {
+                    $flattened_meta[$key] = is_array($value) && isset($value[0]) ? $value[0] : $value;
+                    // Unserialize if the value is serialized
+                    $flattened_meta[$key] = maybe_unserialize($flattened_meta[$key]);
+                }
+            }
+
+            // Merge the flattened meta data with the main data array
+            $data[] = array_merge(
+                [
+                    // convert id to number
+                    'id'      => (string) $submission->ID,
+                    'title'   => $submission->post_title,
+                    'content' => $submission->post_content,
+                ],
+                $flattened_meta
+            );
+        }
 
         if (empty($submissions)) {
             return rest_ensure_response([], 200);
         }
 
-        $data = [];
-        foreach ($submissions as $submission) {
-            $data[] = [
-                'id'      => $submission->ID,
-                'title'   => $submission->post_title,
-                'content' => $submission->post_content,
-            ];
-        }
 
         return rest_ensure_response($data);
     }
